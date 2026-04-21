@@ -7,4 +7,4 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "db"
-database_id = "YOUR_D1_DATABASE_ID"
+database_id = "f42fc208-855c-42c9-8528-0f29eea5c9a8"
