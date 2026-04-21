@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './styles.css';
 
 const NAV_ITEMS = [
@@ -130,6 +130,7 @@ function App() {
   const [todayLabel, setTodayLabel] = useState('Today');
   const [toast, setToast] = useState({ open: false, message: '' });
   const [menuOpen, setMenuOpen] = useState(false);
+  const toastTimeoutRef = useRef(null);
 
   useEffect(() => {
     const now = new Date();
@@ -139,6 +140,14 @@ function App() {
       day: 'numeric',
     });
     setTodayLabel(`Today · ${label}`);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        window.clearTimeout(toastTimeoutRef.current);
+      }
+    };
   }, []);
 
   const loadAppointments = async () => {
@@ -167,9 +176,12 @@ function App() {
 
   const showToast = (message) => {
     setToast({ open: true, message });
-    window.clearTimeout(showToast._timeout);
-    showToast._timeout = window.setTimeout(() => {
+    if (toastTimeoutRef.current) {
+      window.clearTimeout(toastTimeoutRef.current);
+    }
+    toastTimeoutRef.current = window.setTimeout(() => {
       setToast((prev) => ({ ...prev, open: false }));
+      toastTimeoutRef.current = null;
     }, 2800);
   };
 
@@ -177,6 +189,31 @@ function App() {
     setActiveView(view);
     setMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDeleteAppointment = async (id) => {
+    if (!id) return;
+
+    const confirmed = window.confirm('Cancel this appointment?');
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`/appointments?id=${id}`, {
+        method: 'DELETE',
+        headers: { Accept: 'application/json' },
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status} ${text}`);
+      }
+
+      await loadAppointments();
+      showToast('Appointment cancelled.');
+    } catch (error) {
+      console.error('Failed to delete appointment', error);
+      showToast('Could not cancel appointment.');
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -497,6 +534,15 @@ function App() {
                         <span>{appt.type || 'Consultation'}</span>
                         <span>{appt.phone || 'No phone'}</span>
                         <span>{appt.insurance || 'No insurance listed'}</span>
+                      </div>
+                      <div className="admin-actions">
+                        <button
+                          type="button"
+                          className="danger-btn"
+                          onClick={() => handleDeleteAppointment(appt.id)}
+                        >
+                          Cancel
+                        </button>
                       </div>
                     </article>
                   ))
