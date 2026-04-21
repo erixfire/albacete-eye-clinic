@@ -11,29 +11,86 @@ const NAV_ITEMS = [
 
 const SERVICE_ITEMS = [
   {
-    title: 'Comprehensive eye exams',
-    text: 'Routine vision checks, refraction, screening, and follow-up care in one calm workflow.',
+    title: 'Comprehensive eye consultations',
+    text: 'Routine eye examinations, refraction, visual screening, and primary ophthalmology consultations for adults and children.',
   },
   {
-    title: 'Glaucoma and retina screening',
-    text: 'Early detection support for pressure, retinal health, and diabetic eye monitoring.',
+    title: 'Glaucoma and retina evaluation',
+    text: 'Focused screening support for eye pressure, diabetic eye monitoring, retinal concerns, and early detection workflows.',
   },
   {
     title: 'Surgical care coordination',
-    text: 'Structured scheduling for consultations, procedure preparation, and post-operative review.',
+    text: 'Consultation booking, procedure preparation, and post-operative follow-up scheduling in one organized system.',
+  },
+  {
+    title: 'Follow-up and continuity care',
+    text: 'Easy revisit scheduling for ongoing treatment plans, medication review, and progress monitoring.',
+  },
+  {
+    title: 'Clinic scheduling assistance',
+    text: 'Patient appointment intake with structured doctor, date, time, concern, and insurance capture.',
+  },
+  {
+    title: 'Front desk appointment dashboard',
+    text: 'Staff can review the upcoming appointment list in a clean mobile-friendly admin panel backed by Cloudflare D1.',
   },
 ];
 
 const DOCTOR_OPTIONS = [
   'Dr. Thomas Louie F. Albacete – Ophthalmology & Surgery',
-  'Eye Center Team – comprehensive eye care',
+  'Next available eye clinic doctor',
 ];
 
 const APPOINTMENT_TYPES = [
-  'Initial eye consultation',
-  'Follow-up',
+  'Initial consultation',
+  'Comprehensive eye exam',
+  'Follow-up visit',
   'Post-operative check',
-  'Screening package',
+  'Glaucoma / retina screening',
+  'General eye concern',
+];
+
+const CLINIC_HIGHLIGHTS = [
+  {
+    title: 'Fast first step',
+    text: 'Patients immediately see where to book, reducing friction for mobile users who only need schedule essentials.',
+  },
+  {
+    title: 'Clinic essentials visible',
+    text: 'Location, phone, social page, appointment types, and doctor options are surfaced in concise sections.',
+  },
+  {
+    title: 'Built for Pages + D1',
+    text: 'The interface already posts to /appointments so the booking flow stays connected to your Cloudflare stack.',
+  },
+];
+
+const CONTACT_CARDS = [
+  {
+    title: 'Clinic name',
+    text: 'Albacete Eye Center & Medical Clinics',
+  },
+  {
+    title: 'Location',
+    text: 'JEA Building, E. Lopez Street, Jaro, Iloilo City, beside Jollibee.',
+  },
+  {
+    title: 'Phone',
+    text: '+63 963 862 9414',
+  },
+  {
+    title: 'Facebook',
+    text: '@AlbaceteEyeClinic',
+    href: 'https://www.facebook.com/AlbaceteEyeClinic/',
+  },
+  {
+    title: 'Branch note',
+    text: 'Patients should confirm updated schedules, announcements, and clinic advisories through the official Facebook page.',
+  },
+  {
+    title: 'Booking note',
+    text: 'The online form collects patient name, mobile, date, time, doctor, visit type, reason, and insurance details.',
+  },
 ];
 
 const GALLERY = [
@@ -60,7 +117,11 @@ const GALLERY = [
 const formatDateLabel = (dateStr) => {
   if (!dateStr) return '';
   const date = new Date(`${dateStr}T00:00:00`);
-  return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  return date.toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
 };
 
 function App() {
@@ -72,7 +133,12 @@ function App() {
 
   useEffect(() => {
     const now = new Date();
-    setTodayLabel(`Today · ${now.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}`);
+    const label = now.toLocaleDateString(undefined, {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+    });
+    setTodayLabel(`Today · ${label}`);
   }, []);
 
   const loadAppointments = async () => {
@@ -81,25 +147,30 @@ function App() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setAppointments(Array.isArray(data) ? data : []);
-    } catch (e) {
-      console.error('Failed to load appointments', e);
+    } catch (error) {
+      console.error('Failed to load appointments', error);
       setAppointments([]);
     }
   };
 
-  useEffect(() => { loadAppointments(); }, []);
+  useEffect(() => {
+    loadAppointments();
+  }, []);
 
-  const sortedAppointments = useMemo(() =>
-    [...appointments].sort((a, b) => {
+  const sortedAppointments = useMemo(() => {
+    return [...appointments].sort((a, b) => {
       const ad = `${a.date || ''}T${a.time || '00:00'}`;
       const bd = `${b.date || ''}T${b.time || '00:00'}`;
       return new Date(ad) - new Date(bd);
-    }), [appointments]);
+    });
+  }, [appointments]);
 
   const showToast = (message) => {
     setToast({ open: true, message });
-    window.clearTimeout(showToast._t);
-    showToast._t = window.setTimeout(() => setToast(p => ({ ...p, open: false })), 2800);
+    window.clearTimeout(showToast._timeout);
+    showToast._timeout = window.setTimeout(() => {
+      setToast((prev) => ({ ...prev, open: false }));
+    }, 2800);
   };
 
   const jumpTo = (view) => {
@@ -108,33 +179,42 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
     const payload = {
-      name: fd.get('name')?.toString().trim(),
-      phone: fd.get('phone')?.toString().trim(),
-      date: fd.get('date')?.toString(),
-      time: fd.get('time')?.toString(),
-      doctor: fd.get('doctor')?.toString(),
-      type: fd.get('type')?.toString(),
-      reason: fd.get('reason')?.toString(),
-      insurance: fd.get('insurance')?.toString(),
+      name: formData.get('name')?.toString().trim(),
+      phone: formData.get('phone')?.toString().trim(),
+      date: formData.get('date')?.toString(),
+      time: formData.get('time')?.toString(),
+      doctor: formData.get('doctor')?.toString(),
+      type: formData.get('type')?.toString(),
+      reason: formData.get('reason')?.toString(),
+      insurance: formData.get('insurance')?.toString(),
     };
+
     try {
       const res = await fetch('/appointments', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(`HTTP ${res.status} ${text}`);
+      }
+
       await loadAppointments();
-      e.currentTarget.reset();
+      event.currentTarget.reset();
       jumpTo('admin');
       showToast('Appointment saved to clinic schedule.');
-    } catch (err) {
-      console.error(err);
-      showToast('Could not save. Check Pages Functions and D1 binding.');
+    } catch (error) {
+      console.error('Failed to save appointment', error);
+      showToast('Could not save appointment. Check Pages Functions and D1 binding.');
     }
   };
 
@@ -145,7 +225,7 @@ function App() {
         <header className="topbar">
           <div className="brand-block">
             <div className="brand-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <svg viewBox="0 0 24 24">
                 <path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" />
                 <circle cx="12" cy="12" r="3.2" />
               </svg>
@@ -155,21 +235,25 @@ function App() {
               <h1 className="site-title">Clearer eye care, simpler appointments.</h1>
             </div>
           </div>
+
           <button
             className="menu-toggle"
             type="button"
-            onClick={() => setMenuOpen(p => !p)}
+            onClick={() => setMenuOpen((prev) => !prev)}
             aria-expanded={menuOpen}
             aria-label="Toggle navigation"
           >
-            <span /><span /><span />
+            <span />
+            <span />
+            <span />
           </button>
-          <nav className={`topnav${menuOpen ? ' open' : ''}`} aria-label="Primary navigation">
-            {NAV_ITEMS.map(item => (
+
+          <nav className={`topnav ${menuOpen ? 'open' : ''}`} aria-label="Primary navigation">
+            {NAV_ITEMS.map((item) => (
               <button
                 key={item.id}
                 type="button"
-                className={`nav-link${activeView === item.id ? ' active' : ''}`}
+                className={activeView === item.id ? 'nav-link active' : 'nav-link'}
                 onClick={() => jumpTo(item.id)}
               >
                 {item.label}
@@ -181,24 +265,38 @@ function App() {
         <main className="layout-grid">
           <section className="hero-panel card">
             <div className="hero-copy-block">
-              <span className="soft-badge">Iloilo City · Jaro branch</span>
-              <h2>Clearer eye care journeys, from consultation to follow-up.</h2>
-              <p>Book appointments quickly, present clinic essentials clearly, and keep your front desk schedule synced with Cloudflare Pages Functions and D1.</p>
+              <span className="soft-badge">Jaro, Iloilo City</span>
+              <h2>Appointments, clinic details, and patient intake in one streamlined eye care experience.</h2>
+              <p>
+                Albacete Eye Center &amp; Medical Clinics now combines a cleaner public-facing clinic page with a
+                working Cloudflare Pages + D1 appointment workflow for front desk scheduling.
+              </p>
               <div className="hero-actions">
-                <button type="button" className="primary-btn" onClick={() => jumpTo('book')}>Book appointment</button>
-                <button type="button" className="secondary-btn" onClick={() => jumpTo('contact')}>Clinic details</button>
+                <button type="button" className="primary-btn" onClick={() => jumpTo('book')}>
+                  Book appointment
+                </button>
+                <button type="button" className="secondary-btn" onClick={() => jumpTo('services')}>
+                  View services
+                </button>
               </div>
             </div>
+
             <div className="hero-image-stack">
               <article className="feature-image-card large">
                 <img src={GALLERY[0].src} alt={GALLERY[0].alt} loading="lazy" width="1500" height="1000" />
-                <div className="image-meta"><span>{GALLERY[0].eyebrow}</span><strong>{GALLERY[0].title}</strong></div>
+                <div className="image-meta">
+                  <span>{GALLERY[0].eyebrow}</span>
+                  <strong>{GALLERY[0].title}</strong>
+                </div>
               </article>
               <div className="mini-image-row">
-                {GALLERY.slice(1).map(item => (
+                {GALLERY.slice(1).map((item) => (
                   <article key={item.title} className="feature-image-card small">
                     <img src={item.src} alt={item.alt} loading="lazy" width="1024" height="768" />
-                    <div className="image-meta compact"><span>{item.eyebrow}</span><strong>{item.title}</strong></div>
+                    <div className="image-meta compact">
+                      <span>{item.eyebrow}</span>
+                      <strong>{item.title}</strong>
+                    </div>
                   </article>
                 ))}
               </div>
@@ -213,40 +311,74 @@ function App() {
               </div>
               <span className="live-pill">Booking live</span>
             </div>
+
             <div className="stat-list">
-              <div className="stat-item"><span>Upcoming</span><strong>{sortedAppointments.length} appointment{sortedAppointments.length !== 1 ? 's' : ''}</strong></div>
-              <div className="stat-item"><span>Services</span><strong>Eye exams · screening · follow-up</strong></div>
-              <div className="stat-item"><span>Contact</span><strong>+63 963 862 9414</strong></div>
+              <div className="stat-item">
+                <span>Upcoming appointments</span>
+                <strong>{sortedAppointments.length}</strong>
+              </div>
+              <div className="stat-item">
+                <span>Main doctor</span>
+                <strong>Dr. Thomas Louie F. Albacete</strong>
+              </div>
+              <div className="stat-item">
+                <span>Contact</span>
+                <strong>+63 963 862 9414</strong>
+              </div>
             </div>
+
             <div className="timeline-list">
-              {sortedAppointments.length === 0
-                ? <p className="empty-note">No appointments yet. New bookings appear here automatically.</p>
-                : sortedAppointments.slice(0, 5).map(appt => (
+              {sortedAppointments.length === 0 ? (
+                <p className="empty-note">No upcoming appointments yet. New bookings will appear here automatically.</p>
+              ) : (
+                sortedAppointments.slice(0, 5).map((appt) => (
                   <div className="timeline-item" key={appt.id ?? `${appt.name}-${appt.date}-${appt.time}`}>
-                    <div><strong>{appt.name || 'Unnamed patient'}</strong><p>{formatDateLabel(appt.date)} · {appt.time || 'TBA'}</p></div>
+                    <div>
+                      <strong>{appt.name || 'Unnamed patient'}</strong>
+                      <p>
+                        {formatDateLabel(appt.date)} · {appt.time || 'TBA'} · {appt.doctor || 'Any doctor'}
+                      </p>
+                    </div>
                     <span>{appt.type || 'Consultation'}</span>
                   </div>
-                ))}
+                ))
+              )}
             </div>
           </aside>
 
           {activeView === 'home' && (
             <section className="content-panel card span-2">
-              <div className="section-header"><div><p className="section-label">Clinic flow</p><h3>Designed to feel calm on mobile and desktop.</h3></div></div>
+              <div className="section-header">
+                <div>
+                  <p className="section-label">Clinic overview</p>
+                  <h3>Essential details from the old interface, now organized for patients and staff.</h3>
+                </div>
+              </div>
               <div className="feature-grid">
-                <article className="info-card"><h4>Fast first action</h4><p>Patients see one primary action first — book without navigating a complex layout.</p></article>
-                <article className="info-card"><h4>Readable service essentials</h4><p>Core eye clinic services grouped into short, scan-friendly cards with generous spacing.</p></article>
-                <article className="info-card"><h4>Mobile-first navigation</h4><p>A compact menu collapses for smaller screens so booking remains reachable with one thumb.</p></article>
+                {CLINIC_HIGHLIGHTS.map((item) => (
+                  <article className="info-card" key={item.title}>
+                    <h4>{item.title}</h4>
+                    <p>{item.text}</p>
+                  </article>
+                ))}
               </div>
             </section>
           )}
 
           {activeView === 'services' && (
             <section className="content-panel card span-2">
-              <div className="section-header"><div><p className="section-label">Services</p><h3>Essential eye clinic offerings.</h3></div></div>
+              <div className="section-header">
+                <div>
+                  <p className="section-label">Services</p>
+                  <h3>Eye clinic services and patient care workflow.</h3>
+                </div>
+              </div>
               <div className="feature-grid">
-                {SERVICE_ITEMS.map(item => (
-                  <article className="info-card" key={item.title}><h4>{item.title}</h4><p>{item.text}</p></article>
+                {SERVICE_ITEMS.map((item) => (
+                  <article className="info-card" key={item.title}>
+                    <h4>{item.title}</h4>
+                    <p>{item.text}</p>
+                  </article>
                 ))}
               </div>
             </section>
@@ -254,30 +386,61 @@ function App() {
 
           {activeView === 'book' && (
             <section className="content-panel card span-2">
-              <div className="section-header"><div><p className="section-label">Appointment form</p><h3>Simple booking flow with D1 persistence.</h3></div></div>
+              <div className="section-header">
+                <div>
+                  <p className="section-label">Appointment form</p>
+                  <h3>Complete patient intake for the cloud-backed appointment system.</h3>
+                </div>
+              </div>
               <form className="booking-form" onSubmit={handleSubmit} autoComplete="off">
                 <div className="input-grid">
-                  <label>Full name<input name="name" type="text" placeholder="Maria Santos" required /></label>
-                  <label>Mobile number<input name="phone" type="tel" placeholder="09xx xxx xxxx" required /></label>
-                  <label>Preferred date<input name="date" type="date" required /></label>
-                  <label>Preferred time<input name="time" type="time" required /></label>
-                  <label>Doctor
+                  <label>
+                    Full name
+                    <input name="name" type="text" placeholder="Maria Santos" required />
+                  </label>
+                  <label>
+                    Mobile number
+                    <input name="phone" type="tel" placeholder="09xx xxx xxxx" required />
+                  </label>
+                  <label>
+                    Preferred date
+                    <input name="date" type="date" required />
+                  </label>
+                  <label>
+                    Preferred time
+                    <input name="time" type="time" required />
+                  </label>
+                  <label>
+                    Doctor
                     <select name="doctor" required defaultValue="">
                       <option value="" disabled>Select doctor</option>
-                      {DOCTOR_OPTIONS.map(d => <option key={d}>{d}</option>)}
+                      {DOCTOR_OPTIONS.map((item) => <option key={item}>{item}</option>)}
                     </select>
                   </label>
-                  <label>Appointment type
+                  <label>
+                    Appointment type
                     <select name="type" required defaultValue="">
                       <option value="" disabled>Select type</option>
-                      {APPOINTMENT_TYPES.map(t => <option key={t}>{t}</option>)}
+                      {APPOINTMENT_TYPES.map((item) => <option key={item}>{item}</option>)}
                     </select>
                   </label>
                 </div>
-                <label>Main concern<textarea name="reason" placeholder="Blurry vision, follow-up review, diabetic eye screening" required /></label>
-                <label>Insurance / HMO<input name="insurance" type="text" placeholder="Optional" /></label>
+                <label>
+                  Main concern
+                  <textarea
+                    name="reason"
+                    placeholder="Blurry vision, follow-up review, eye irritation, diabetic eye screening, post-op concern"
+                    required
+                  />
+                </label>
+                <label>
+                  Insurance / HMO
+                  <input name="insurance" type="text" placeholder="Optional" />
+                </label>
                 <div className="form-actions">
-                  <p className="support-note">Submitted via Cloudflare Pages Functions and saved to D1.</p>
+                  <p className="support-note">
+                    This form submits to <code>/appointments</code> and saves to the D1 appointments table.
+                  </p>
                   <button type="submit" className="primary-btn">Save appointment</button>
                 </div>
               </form>
@@ -286,38 +449,67 @@ function App() {
 
           {activeView === 'contact' && (
             <section className="content-panel card span-2">
-              <div className="section-header"><div><p className="section-label">Contact</p><h3>Clinic essentials in one place.</h3></div></div>
+              <div className="section-header">
+                <div>
+                  <p className="section-label">Contact</p>
+                  <h3>Clinic details, location, and booking reference information.</h3>
+                </div>
+              </div>
               <div className="contact-grid">
-                <article className="info-card"><h4>Location</h4><p>JEA Bldg, E Lopez St, Jaro, Iloilo City, beside Jollibee.</p></article>
-                <article className="info-card"><h4>Phone</h4><p>+63 963 862 9414</p></article>
-                <article className="info-card"><h4>Facebook</h4><p><a href="https://www.facebook.com/AlbaceteEyeClinic/" target="_blank" rel="noopener noreferrer">@AlbaceteEyeClinic</a></p></article>
-                <article className="info-card"><h4>Schedule note</h4><p>Confirm latest branch schedules and announcements through the official Facebook page.</p></article>
+                {CONTACT_CARDS.map((item) => (
+                  <article className="info-card" key={item.title}>
+                    <h4>{item.title}</h4>
+                    <p>
+                      {item.href ? (
+                        <a href={item.href} target="_blank" rel="noopener noreferrer">{item.text}</a>
+                      ) : (
+                        item.text
+                      )}
+                    </p>
+                  </article>
+                ))}
               </div>
             </section>
           )}
 
           {activeView === 'admin' && (
             <section className="content-panel card span-2">
-              <div className="section-header"><div><p className="section-label">Admin schedule</p><h3>Responsive appointment list.</h3></div></div>
+              <div className="section-header">
+                <div>
+                  <p className="section-label">Admin schedule</p>
+                  <h3>Responsive appointment queue for front desk review.</h3>
+                </div>
+              </div>
               <div className="admin-list">
-                {sortedAppointments.length === 0
-                  ? <p className="empty-note">No booked appointments yet. Add one in the booking form.</p>
-                  : sortedAppointments.map(appt => (
+                {sortedAppointments.length === 0 ? (
+                  <p className="empty-note">No booked appointments yet. Add one in the booking form.</p>
+                ) : (
+                  sortedAppointments.map((appt) => (
                     <article className="admin-card" key={appt.id ?? `${appt.name}-${appt.date}-${appt.time}`}>
-                      <div><h4>{appt.name || 'Unnamed patient'}</h4><p>{appt.doctor || 'Doctor not set'}</p></div>
+                      <div>
+                        <h4>{appt.name || 'Unnamed patient'}</h4>
+                        <p>{appt.doctor || 'Doctor not set'}</p>
+                        <p>{appt.reason || 'No concern specified'}</p>
+                      </div>
                       <div className="admin-meta">
                         <span>{formatDateLabel(appt.date)}</span>
                         <span>{appt.time || 'TBA'}</span>
                         <span>{appt.type || 'Consultation'}</span>
+                        <span>{appt.phone || 'No phone'}</span>
+                        <span>{appt.insurance || 'No insurance listed'}</span>
                       </div>
                     </article>
-                  ))}
+                  ))
+                )}
               </div>
             </section>
           )}
         </main>
       </div>
-      <div className={`toast${toast.open ? ' show' : ''}`} role="status" aria-live="polite">{toast.message}</div>
+
+      <div className={`toast ${toast.open ? 'show' : ''}`} role="status" aria-live="polite">
+        {toast.message}
+      </div>
     </>
   );
 }
