@@ -2,20 +2,19 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './styles.css';
 
 const NAV_ITEMS = [
-  { id: 'home', label: 'Home' },
-  { id: 'services', label: 'Services' },
-  { id: 'book', label: 'Book' },
-  { id: 'contact', label: 'Contact' },
-  { id: 'admin', label: 'Admin' },
+  { id: 'home', label: '🏠 Home' },
+  { id: 'services', label: '👁 Services' },
+  { id: 'contact', label: '📍 Contact' },
+  { id: 'admin', label: '🗂 Admin' },
 ];
 
 const SERVICE_ITEMS = [
-  { title: 'Comprehensive eye consultations', text: 'Routine eye examinations, refraction, visual screening, and primary ophthalmology consultations for adults and children.' },
-  { title: 'Glaucoma and retina evaluation', text: 'Focused screening support for eye pressure, diabetic eye monitoring, retinal concerns, and early detection workflows.' },
-  { title: 'Surgical care coordination', text: 'Consultation booking, procedure preparation, and post-operative follow-up scheduling in one organized system.' },
-  { title: 'Follow-up and continuity care', text: 'Easy revisit scheduling for ongoing treatment plans, medication review, and progress monitoring.' },
-  { title: 'Clinic scheduling assistance', text: 'Patient appointment intake with structured doctor, date, time, concern, and insurance capture.' },
-  { title: 'Front desk appointment dashboard', text: 'Staff can review the upcoming appointment list in a clean mobile-friendly admin panel backed by Cloudflare D1.' },
+  { icon: '🔬', title: 'Comprehensive Eye Exam', text: 'Routine examinations, refraction, visual screening for adults and children.' },
+  { icon: '👁', title: 'Glaucoma & Retina', text: 'Eye pressure screening, diabetic eye monitoring, retinal evaluation.' },
+  { icon: '🏥', title: 'Surgical Coordination', text: 'Pre-op consultation, procedure scheduling, post-operative follow-up.' },
+  { icon: '🔄', title: 'Follow-up Care', text: 'Ongoing treatment plans, medication review, progress monitoring.' },
+  { icon: '📋', title: 'Patient Intake', text: 'Structured name, mobile, date, concern, and insurance capture.' },
+  { icon: '📊', title: 'Front Desk Dashboard', text: 'Staff appointment queue backed by Cloudflare D1, accessible on any device.' },
 ];
 
 const DOCTOR_OPTIONS = [
@@ -32,25 +31,16 @@ const APPOINTMENT_TYPES = [
   'General eye concern',
 ];
 
-const CLINIC_HIGHLIGHTS = [
-  { title: 'Fast first step', text: 'Patients immediately see where to book, reducing friction for mobile users who only need schedule essentials.' },
-  { title: 'Clinic essentials visible', text: 'Location, phone, social page, appointment types, and doctor options are surfaced in concise sections.' },
-  { title: 'Built for Pages + D1', text: 'The interface already posts to /appointments so the booking flow stays connected to your Cloudflare stack.' },
-];
-
 const CONTACT_CARDS = [
-  { title: 'Clinic name', text: 'Albacete Eye Center & Medical Clinics' },
-  { title: 'Location', text: 'JEA Building, E. Lopez Street, Jaro, Iloilo City, beside Jollibee.' },
-  { title: 'Phone', text: '+63 963 862 9414' },
-  { title: 'Facebook', text: '@AlbaceteEyeClinic', href: 'https://www.facebook.com/AlbaceteEyeClinic/' },
-  { title: 'Branch note', text: 'Patients should confirm updated schedules, announcements, and clinic advisories through the official Facebook page.' },
-  { title: 'Booking note', text: 'The online form collects patient name, mobile, date, time, doctor, visit type, reason, and insurance details.' },
+  { icon: '🏥', title: 'Clinic', text: 'Albacete Eye Center & Medical Clinics' },
+  { icon: '📍', title: 'Location', text: 'JEA Building, E. Lopez St, Jaro, Iloilo City (beside Jollibee)' },
+  { icon: '📞', title: 'Phone', text: '+63 963 862 9414' },
+  { icon: '📘', title: 'Facebook', text: '@AlbaceteEyeClinic', href: 'https://www.facebook.com/AlbaceteEyeClinic/' },
 ];
 
 const GALLERY = [
-  { src: 'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/80ceed31f437ab9db8814d4df4b63ca5ba15fb36.jpg', alt: 'Eye doctor consulting a patient in a clinic', eyebrow: 'Patient care', title: 'Comfort-first consultations' },
-  { src: 'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/f35f2a2aba3d3d0493183d10505572519256f53a.jpg', alt: 'Eye exam being performed with diagnostic equipment', eyebrow: 'Diagnostics', title: 'Modern eye examination flow' },
-  { src: 'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/858d7ba1300b302e33f95e00a0c798ae1e520d27.jpg', alt: 'Eye clinic examination room with ophthalmology equipment', eyebrow: 'Clinic space', title: 'Clean and organized exam rooms' },
+  { src: 'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/80ceed31f437ab9db8814d4df4b63ca5ba15fb36.jpg', alt: 'Eye doctor consulting a patient' },
+  { src: 'https://pplx-res.cloudinary.com/image/upload/pplx_search_images/f35f2a2aba3d3d0493183d10505572519256f53a.jpg', alt: 'Eye exam with diagnostic equipment' },
 ];
 
 const EMPTY_FORM = { name: '', phone: '', date: '', time: '', doctor: '', type: '', reason: '', insurance: '' };
@@ -62,98 +52,17 @@ const formatDateLabel = (d) => {
 
 const statusLabel = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Pending');
 
-function App() {
-  const [activeView, setActiveView] = useState('home');
-  const [appointments, setAppointments] = useState([]);
-  const [todayLabel, setTodayLabel] = useState('Today');
-  const [toast, setToast] = useState({ open: false, message: '' });
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [bookingStep, setBookingStep] = useState(1);
+function BookingForm({ onSuccess }) {
+  const [step, setStep] = useState(1);
   const [form, setForm] = useState(EMPTY_FORM);
-  const [adminSearch, setAdminSearch] = useState('');
-  const [isLoadingAppointments, setIsLoadingAppointments] = useState(true);
-  const toastRef = useRef(null);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const minDate = useMemo(() => new Date().toISOString().split('T')[0], []);
-
-  useEffect(() => {
-    const now = new Date();
-    setTodayLabel(`Today · ${now.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}`);
-  }, []);
-
-  useEffect(() => () => toastRef.current && window.clearTimeout(toastRef.current), []);
-
-  const loadAppointments = async () => {
-    setIsLoadingAppointments(true);
-    try {
-      const res = await fetch('/appointments', { headers: { Accept: 'application/json' } });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setAppointments(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error('Failed to load appointments', err);
-      setAppointments([]);
-    } finally {
-      setIsLoadingAppointments(false);
-    }
-  };
-
-  useEffect(() => {
-    loadAppointments();
-  }, []);
-
-  const sorted = useMemo(
-    () =>
-      [...appointments].sort((a, b) => {
-        const ta = `${a.date || ''}T${a.time || '00:00'}`;
-        const tb = `${b.date || ''}T${b.time || '00:00'}`;
-        return new Date(ta) - new Date(tb);
-      }),
-    [appointments],
-  );
-
-  const filtered = useMemo(() => {
-    const q = adminSearch.trim().toLowerCase();
-    if (!q) return sorted;
-    return sorted.filter(
-      (a) => (a.name || '').toLowerCase().includes(q) || (a.date || '').includes(q),
-    );
-  }, [adminSearch, sorted]);
-
-  const showToast = (message) => {
-    setToast({ open: true, message });
-    if (toastRef.current) window.clearTimeout(toastRef.current);
-    toastRef.current = window.setTimeout(() => {
-      setToast((p) => ({ ...p, open: false }));
-      toastRef.current = null;
-    }, 2800);
-  };
-
-  const jumpTo = (view) => {
-    setActiveView(view);
-    setMenuOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   const handleFieldChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
 
   const goToReview = (e) => {
     e.preventDefault();
-    if (e.currentTarget.reportValidity()) setBookingStep(2);
-  };
-
-  const handleDeleteAppointment = async (id) => {
-    if (!id || !window.confirm('Cancel this appointment?')) return;
-    try {
-      const res = await fetch(`/appointments?id=${id}`, { method: 'DELETE', headers: { Accept: 'application/json' } });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      await loadAppointments();
-      showToast('Appointment cancelled.');
-    } catch (err) {
-      console.error('Failed to delete appointment', err);
-      showToast('Could not cancel appointment.');
-    }
+    if (e.currentTarget.reportValidity()) setStep(2);
   };
 
   const handleSubmit = async (e) => {
@@ -166,239 +75,329 @@ function App() {
         body: JSON.stringify({ ...form, status: 'pending' }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      await loadAppointments();
       setForm(EMPTY_FORM);
-      setBookingStep(1);
-      jumpTo('admin');
-      showToast('Appointment saved to clinic schedule.');
+      setStep(1);
+      onSuccess('Appointment booked! Check the admin panel.');
     } catch (err) {
-      console.error('Failed to save appointment', err);
-      showToast('Could not save appointment. Check Pages Functions and D1 binding.');
+      onSuccess('Could not save appointment. Check Pages Functions and D1 binding.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
+    <div className="booking-widget card" id="booking-form">
+      <div className="booking-widget-header">
+        <div className="booking-icon">📅</div>
+        <div>
+          <p className="section-label">Book Appointment</p>
+          <h3>Quick scheduling</h3>
+        </div>
+      </div>
+
+      <div className="step-bar">
+        <div className={`step-dot${step >= 1 ? ' done' : ''}`}>1</div>
+        <div className="step-line" />
+        <div className={`step-dot${step >= 2 ? ' done' : ''}`}>2</div>
+      </div>
+
+      {step === 1 ? (
+        <form onSubmit={goToReview} autoComplete="off" className="booking-form">
+          <label>Full name<input name="name" type="text" placeholder="Maria Santos" required value={form.name} onChange={handleFieldChange} /></label>
+          <label>Mobile number<input name="phone" type="tel" placeholder="09xx xxx xxxx" required value={form.phone} onChange={handleFieldChange} /></label>
+          <div className="form-row">
+            <label>Date<input name="date" type="date" min={minDate} required value={form.date} onChange={handleFieldChange} /></label>
+            <label>Time<input name="time" type="time" required value={form.time} onChange={handleFieldChange} /></label>
+          </div>
+          <label>Doctor
+            <select name="doctor" required value={form.doctor} onChange={handleFieldChange}>
+              <option value="" disabled>Select doctor</option>
+              {DOCTOR_OPTIONS.map((o) => <option key={o}>{o}</option>)}
+            </select>
+          </label>
+          <label>Visit type
+            <select name="type" required value={form.type} onChange={handleFieldChange}>
+              <option value="" disabled>Select type</option>
+              {APPOINTMENT_TYPES.map((o) => <option key={o}>{o}</option>)}
+            </select>
+          </label>
+          <label>Main concern<textarea name="reason" placeholder="Blurry vision, follow-up, post-op concern…" required value={form.reason} onChange={handleFieldChange} /></label>
+          <label>Insurance / HMO <span className="optional">(optional)</span><input name="insurance" type="text" placeholder="PhilHealth, Maxicare, etc." value={form.insurance} onChange={handleFieldChange} /></label>
+          <button type="submit" className="primary-btn full-width">Review → </button>
+        </form>
+      ) : (
+        <form onSubmit={handleSubmit} className="booking-form">
+          <div className="review-block">
+            <div className="review-row"><span>Name</span><strong>{form.name}</strong></div>
+            <div className="review-row"><span>Mobile</span><strong>{form.phone}</strong></div>
+            <div className="review-row"><span>Date & Time</span><strong>{formatDateLabel(form.date)} · {form.time}</strong></div>
+            <div className="review-row"><span>Doctor</span><strong>{form.doctor}</strong></div>
+            <div className="review-row"><span>Type</span><strong>{form.type}</strong></div>
+            <div className="review-row"><span>Concern</span><strong>{form.reason}</strong></div>
+            {form.insurance && <div className="review-row"><span>Insurance</span><strong>{form.insurance}</strong></div>}
+          </div>
+          <div className="form-actions">
+            <button type="button" className="secondary-btn" onClick={() => setStep(1)} disabled={isSubmitting}>← Edit</button>
+            <button type="submit" className="primary-btn" disabled={isSubmitting}>{isSubmitting ? 'Saving…' : 'Confirm Booking'}</button>
+          </div>
+        </form>
+      )}
+    </div>
+  );
+}
+
+function App() {
+  const [activeView, setActiveView] = useState('home');
+  const [appointments, setAppointments] = useState([]);
+  const [todayLabel, setTodayLabel] = useState('Today');
+  const [toast, setToast] = useState({ open: false, message: '' });
+  const [adminSearch, setAdminSearch] = useState('');
+  const [isLoadingAppointments, setIsLoadingAppointments] = useState(true);
+  const toastRef = useRef(null);
+
+  useEffect(() => {
+    const now = new Date();
+    setTodayLabel(now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }));
+  }, []);
+
+  useEffect(() => () => toastRef.current && window.clearTimeout(toastRef.current), []);
+
+  const loadAppointments = async () => {
+    setIsLoadingAppointments(true);
+    try {
+      const res = await fetch('/appointments', { headers: { Accept: 'application/json' } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setAppointments(Array.isArray(data) ? data : []);
+    } catch { setAppointments([]); }
+    finally { setIsLoadingAppointments(false); }
+  };
+
+  useEffect(() => { loadAppointments(); }, []);
+
+  const sorted = useMemo(() =>
+    [...appointments].sort((a, b) => new Date(`${a.date}T${a.time||'00:00'}`) - new Date(`${b.date}T${b.time||'00:00'}`)),
+  [appointments]);
+
+  const filtered = useMemo(() => {
+    const q = adminSearch.trim().toLowerCase();
+    if (!q) return sorted;
+    return sorted.filter((a) => (a.name||'').toLowerCase().includes(q) || (a.date||'').includes(q));
+  }, [adminSearch, sorted]);
+
+  const showToast = (message) => {
+    setToast({ open: true, message });
+    if (toastRef.current) window.clearTimeout(toastRef.current);
+    toastRef.current = window.setTimeout(() => setToast((p) => ({ ...p, open: false })), 3000);
+  };
+
+  const jumpTo = (view) => { setActiveView(view); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+
+  const handleDelete = async (id) => {
+    if (!id || !window.confirm('Cancel this appointment?')) return;
+    try {
+      const res = await fetch(`/appointments?id=${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+      await loadAppointments();
+      showToast('Appointment cancelled.');
+    } catch { showToast('Could not cancel.'); }
+  };
+
+  return (
     <>
       <div className="app-bg" />
       <div className="app-shell">
+
+        {/* TOP HEADER */}
         <header className="topbar">
           <div className="brand-block">
             <div className="brand-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" /><circle cx="12" cy="12" r="3.2" /></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" />
+                <circle cx="12" cy="12" r="3.2" />
+              </svg>
             </div>
             <div>
-              <p className="eyebrow">Albacete Eye Center &amp; Medical Clinics</p>
-              <h1 className="site-title">Clearer eye care, simpler appointments.</h1>
+              <p className="eyebrow">Albacete Eye Center & Medical Clinics</p>
+              <h1 className="site-title">Clearer vision, simpler care.</h1>
             </div>
           </div>
-          <button className="menu-toggle" type="button" onClick={() => setMenuOpen((p) => !p)} aria-expanded={menuOpen} aria-label="Toggle navigation">
-            <span /><span /><span />
-          </button>
-          <nav className={`topnav ${menuOpen ? 'open' : ''}`} aria-label="Primary navigation">
+          <nav className="topnav" aria-label="Primary navigation">
             {NAV_ITEMS.map((item) => (
-              <button key={item.id} type="button" className={activeView === item.id ? 'nav-link active' : 'nav-link'} onClick={() => jumpTo(item.id)}>
+              <button key={item.id} type="button"
+                className={activeView === item.id ? 'nav-link active' : 'nav-link'}
+                onClick={() => jumpTo(item.id)}>
                 {item.label}
               </button>
             ))}
           </nav>
         </header>
 
-        <main className="layout-grid">
-          <section className="hero-panel card">
-            <div className="hero-copy-block">
-              <span className="soft-badge">Jaro, Iloilo City</span>
-              <h2>Appointments, clinic details, and patient intake in one streamlined eye care experience.</h2>
-              <p>Albacete Eye Center &amp; Medical Clinics now combines a cleaner public-facing clinic page with a working Cloudflare Pages + D1 appointment workflow for front desk scheduling.</p>
-              <div className="hero-actions">
-                <button type="button" className="primary-btn" onClick={() => jumpTo('book')}>Book appointment</button>
-                <button type="button" className="secondary-btn" onClick={() => jumpTo('services')}>View services</button>
-              </div>
-            </div>
-            <div className="hero-image-stack">
-              <article className="feature-image-card large">
-                <img src={GALLERY[0].src} alt={GALLERY[0].alt} loading="lazy" width="1500" height="1000" />
-                <div className="image-meta"><span>{GALLERY[0].eyebrow}</span><strong>{GALLERY[0].title}</strong></div>
-              </article>
-              <div className="mini-image-row">
-                {GALLERY.slice(1).map((item) => (
-                  <article key={item.title} className="feature-image-card small">
-                    <img src={item.src} alt={item.alt} loading="lazy" width="1024" height="768" />
-                    <div className="image-meta compact"><span>{item.eyebrow}</span><strong>{item.title}</strong></div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          </section>
+        {/* MAIN TWO-COLUMN LAYOUT */}
+        <div className="page-grid">
 
-          <aside className="summary-panel card">
-            <div className="panel-heading-row">
-              <div><p className="section-label">Schedule preview</p><h3>{todayLabel}</h3></div>
-              <span className="live-pill">Booking live</span>
-            </div>
-            <div className="stat-list">
-              <div className="stat-item"><span>Upcoming appointments</span><strong>{sorted.length}</strong></div>
-              <div className="stat-item"><span>Main doctor</span><strong>Dr. Thomas Louie F. Albacete</strong></div>
-              <div className="stat-item"><span>Contact</span><strong>+63 963 862 9414</strong></div>
-            </div>
-            <div className="timeline-list">
-              {sorted.length === 0 ? (
-                <p className="empty-note">No upcoming appointments yet. New bookings will appear here automatically.</p>
-              ) : (
-                sorted.slice(0, 5).map((appt) => (
-                  <div className="timeline-item" key={appt.id ?? `${appt.name}-${appt.date}-${appt.time}`}>
-                    <div>
-                      <strong>{appt.name || 'Unnamed patient'}</strong>
-                      <p>{formatDateLabel(appt.date)} · {appt.time || 'TBA'} · {appt.doctor || 'Any doctor'}</p>
-                    </div>
-                    <span>{appt.type || 'Consultation'}</span>
+          {/* LEFT COLUMN — content */}
+          <main className="left-col">
+
+            {activeView === 'home' && (
+              <>
+                {/* Hero */}
+                <section className="hero-card card">
+                  <div className="hero-images">
+                    {GALLERY.map((g, i) => (
+                      <img key={i} src={g.src} alt={g.alt} className={i === 0 ? 'hero-img-main' : 'hero-img-sub'} loading="lazy" />
+                    ))}
                   </div>
-                ))
-              )}
+                  <div className="hero-copy">
+                    <span className="soft-badge">📍 Jaro, Iloilo City</span>
+                    <h2>Eye care appointments made simple for patients and staff.</h2>
+                    <p>Walk-in or schedule ahead — our online booking goes directly to the clinic's appointment queue.</p>
+                    <div className="hero-actions">
+                      <a href="#booking-form" className="primary-btn">Book now ↓</a>
+                      <button type="button" className="secondary-btn" onClick={() => jumpTo('contact')}>📞 Contact us</button>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Quick stats */}
+                <section className="stats-row">
+                  <div className="stat-chip"><strong>{sorted.length}</strong><span>Upcoming</span></div>
+                  <div className="stat-chip"><strong>Mon–Sat</strong><span>Open days</span></div>
+                  <div className="stat-chip"><strong>D1</strong><span>Live database</span></div>
+                  <div className="stat-chip"><strong>Jaro</strong><span>Iloilo City</span></div>
+                </section>
+
+                {/* Services preview */}
+                <section className="services-section card">
+                  <p className="section-label">Services</p>
+                  <h3>What we offer</h3>
+                  <div className="services-grid">
+                    {SERVICE_ITEMS.map((s) => (
+                      <div className="service-card" key={s.title}>
+                        <span className="service-icon">{s.icon}</span>
+                        <div><strong>{s.title}</strong><p>{s.text}</p></div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </>
+            )}
+
+            {activeView === 'services' && (
+              <section className="services-section card">
+                <p className="section-label">All Services</p>
+                <h3>Eye clinic services &amp; care workflow</h3>
+                <div className="services-grid">
+                  {SERVICE_ITEMS.map((s) => (
+                    <div className="service-card" key={s.title}>
+                      <span className="service-icon">{s.icon}</span>
+                      <div><strong>{s.title}</strong><p>{s.text}</p></div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {activeView === 'contact' && (
+              <section className="contact-section card">
+                <p className="section-label">Contact</p>
+                <h3>Clinic details &amp; location</h3>
+                <div className="contact-list">
+                  {CONTACT_CARDS.map((c) => (
+                    <div className="contact-item" key={c.title}>
+                      <span className="contact-icon">{c.icon}</span>
+                      <div>
+                        <span className="contact-label">{c.title}</span>
+                        {c.href
+                          ? <a href={c.href} target="_blank" rel="noopener noreferrer">{c.text}</a>
+                          : <strong>{c.text}</strong>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="map-placeholder">
+                  <iframe
+                    title="Clinic location"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.5!2d122.563!3d10.734!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zSmFybywgSWxvaWxvIENpdHk!5e0!3m2!1sen!2sph!4v1"
+                    width="100%" height="220" style={{border:0, borderRadius:'16px'}} allowFullScreen loading="lazy"
+                  />
+                </div>
+              </section>
+            )}
+
+            {activeView === 'admin' && (
+              <section className="admin-section card">
+                <div className="section-header-row">
+                  <div><p className="section-label">Admin</p><h3>Appointment queue · {todayLabel}</h3></div>
+                  <button type="button" className="secondary-btn sm" onClick={loadAppointments}>↻ Refresh</button>
+                </div>
+                <input type="text" className="admin-search" placeholder="Search patient name or date…" value={adminSearch} onChange={(e) => setAdminSearch(e.target.value)} />
+                <div className="admin-list">
+                  {isLoadingAppointments ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <div className="admin-card skeleton-card" key={i} aria-hidden="true">
+                        <div className="skeleton sk-title" /><div className="skeleton sk-line" /><div className="skeleton sk-line short" />
+                      </div>
+                    ))
+                  ) : filtered.length === 0 ? (
+                    <div className="empty-state">📭 No appointments yet. Use the booking form to add one.</div>
+                  ) : (
+                    filtered.map((appt) => (
+                      <article className="admin-card" key={appt.id ?? `${appt.name}-${appt.date}`}>
+                        <div className="admin-card-top">
+                          <div className="admin-name-row">
+                            <h4>{appt.name || 'Unnamed'}</h4>
+                            <span className={`badge badge-${appt.status||'pending'}`}>{statusLabel(appt.status)}</span>
+                          </div>
+                          <p className="admin-sub">{appt.doctor || 'Doctor TBA'} · {appt.type || 'Consultation'}</p>
+                          <p className="admin-reason">{appt.reason || 'No concern specified'}</p>
+                        </div>
+                        <div className="admin-card-bottom">
+                          <div className="admin-pills">
+                            <span>📅 {formatDateLabel(appt.date)}</span>
+                            <span>🕐 {appt.time || 'TBA'}</span>
+                            <span>📞 {appt.phone || '—'}</span>
+                            {appt.insurance && <span>🏥 {appt.insurance}</span>}
+                          </div>
+                          <button type="button" className="danger-btn sm" onClick={() => handleDelete(appt.id)}>Cancel</button>
+                        </div>
+                      </article>
+                    ))
+                  )}
+                </div>
+              </section>
+            )}
+
+          </main>
+
+          {/* RIGHT COLUMN — always-visible sticky booking form */}
+          <aside className="right-col">
+            <BookingForm onSuccess={(msg) => { showToast(msg); loadAppointments(); }} />
+
+            {/* Clinic info card below form */}
+            <div className="clinic-info-card card">
+              <p className="section-label">Clinic info</p>
+              <ul className="clinic-info-list">
+                <li>📍 JEA Building, E. Lopez St, Jaro</li>
+                <li>📞 +63 963 862 9414</li>
+                <li>📘 <a href="https://www.facebook.com/AlbaceteEyeClinic/" target="_blank" rel="noopener noreferrer">@AlbaceteEyeClinic</a></li>
+              </ul>
             </div>
           </aside>
+        </div>
 
-          {activeView === 'home' && (
-            <section className="content-panel card span-2">
-              <div className="section-header"><div><p className="section-label">Clinic overview</p><h3>Essential details from the old interface, now organized for patients and staff.</h3></div></div>
-              <div className="feature-grid">
-                {CLINIC_HIGHLIGHTS.map((item) => <article className="info-card" key={item.title}><h4>{item.title}</h4><p>{item.text}</p></article>)}
-              </div>
-            </section>
-          )}
+        {/* BOTTOM NAV for mobile */}
+        <nav className="bottom-nav" aria-label="Mobile navigation">
+          {NAV_ITEMS.map((item) => (
+            <button key={item.id} type="button"
+              className={activeView === item.id ? 'bnav-btn active' : 'bnav-btn'}
+              onClick={() => jumpTo(item.id)}>
+              {item.label}
+            </button>
+          ))}
+          <a href="#booking-form" className="bnav-btn bnav-book">📅 Book</a>
+        </nav>
 
-          {activeView === 'services' && (
-            <section className="content-panel card span-2">
-              <div className="section-header"><div><p className="section-label">Services</p><h3>Eye clinic services and patient care workflow.</h3></div></div>
-              <div className="feature-grid">
-                {SERVICE_ITEMS.map((item) => <article className="info-card" key={item.title}><h4>{item.title}</h4><p>{item.text}</p></article>)}
-              </div>
-            </section>
-          )}
-
-          {activeView === 'book' && (
-            <section className="content-panel card span-2">
-              <div className="section-header"><div><p className="section-label">Appointment form</p><h3>Complete patient intake for the cloud-backed appointment system.</h3></div></div>
-              <div className="step-indicator">
-                <span className={`step-pill${bookingStep === 1 ? ' active' : ''}`}>1. Fill in details</span>
-                <span className={`step-pill${bookingStep === 2 ? ' active' : ''}`}>2. Review &amp; confirm</span>
-              </div>
-
-              {bookingStep === 1 ? (
-                <form className="booking-form" onSubmit={goToReview} autoComplete="off">
-                  <div className="input-grid">
-                    <label>Full name<input name="name" type="text" placeholder="Maria Santos" required value={form.name} onChange={handleFieldChange} /></label>
-                    <label>Mobile number<input name="phone" type="tel" placeholder="09xx xxx xxxx" required value={form.phone} onChange={handleFieldChange} /></label>
-                    <label>Preferred date<input name="date" type="date" min={minDate} required value={form.date} onChange={handleFieldChange} /></label>
-                    <label>Preferred time<input name="time" type="time" required value={form.time} onChange={handleFieldChange} /></label>
-                    <label>Doctor
-                      <select name="doctor" required value={form.doctor} onChange={handleFieldChange}>
-                        <option value="" disabled>Select doctor</option>
-                        {DOCTOR_OPTIONS.map((o) => <option key={o}>{o}</option>)}
-                      </select>
-                    </label>
-                    <label>Appointment type
-                      <select name="type" required value={form.type} onChange={handleFieldChange}>
-                        <option value="" disabled>Select type</option>
-                        {APPOINTMENT_TYPES.map((o) => <option key={o}>{o}</option>)}
-                      </select>
-                    </label>
-                  </div>
-                  <label>Main concern
-                    <textarea name="reason" placeholder="Blurry vision, follow-up review, eye irritation, diabetic eye screening, post-op concern" required value={form.reason} onChange={handleFieldChange} />
-                  </label>
-                  <label>Insurance / HMO<input name="insurance" type="text" placeholder="Optional" value={form.insurance} onChange={handleFieldChange} /></label>
-                  <div className="form-actions">
-                    <p className="support-note">This form submits to <code>/appointments</code> and saves to the D1 appointments table.</p>
-                    <button type="submit" className="primary-btn">Review appointment →</button>
-                  </div>
-                </form>
-              ) : (
-                <form className="booking-form" onSubmit={handleSubmit}>
-                  <div className="review-card">
-                    <div className="review-grid">
-                      <div><span>Full name</span><strong>{form.name || '—'}</strong></div>
-                      <div><span>Mobile number</span><strong>{form.phone || '—'}</strong></div>
-                      <div><span>Preferred date</span><strong>{formatDateLabel(form.date) || '—'}</strong></div>
-                      <div><span>Preferred time</span><strong>{form.time || '—'}</strong></div>
-                      <div><span>Doctor</span><strong>{form.doctor || '—'}</strong></div>
-                      <div><span>Appointment type</span><strong>{form.type || '—'}</strong></div>
-                      <div className="span-2"><span>Main concern</span><strong>{form.reason || '—'}</strong></div>
-                      <div className="span-2"><span>Insurance / HMO</span><strong>{form.insurance || 'Not provided'}</strong></div>
-                    </div>
-                  </div>
-                  <div className="form-actions">
-                    <button type="button" className="secondary-btn" onClick={() => setBookingStep(1)} disabled={isSubmitting}>Back to edit</button>
-                    <button type="submit" className="primary-btn" disabled={isSubmitting}>{isSubmitting ? 'Saving…' : 'Confirm and save'}</button>
-                  </div>
-                </form>
-              )}
-            </section>
-          )}
-
-          {activeView === 'contact' && (
-            <section className="content-panel card span-2">
-              <div className="section-header"><div><p className="section-label">Contact</p><h3>Clinic details, location, and booking reference information.</h3></div></div>
-              <div className="contact-grid">
-                {CONTACT_CARDS.map((item) => (
-                  <article className="info-card" key={item.title}>
-                    <h4>{item.title}</h4>
-                    <p>{item.href ? <a href={item.href} target="_blank" rel="noopener noreferrer">{item.text}</a> : item.text}</p>
-                  </article>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {activeView === 'admin' && (
-            <section className="content-panel card span-2">
-              <div className="section-header"><div><p className="section-label">Admin schedule</p><h3>Responsive appointment queue for front desk review.</h3></div></div>
-              <div className="admin-toolbar">
-                <input type="text" className="admin-search" placeholder="Search by patient name or date (YYYY-MM-DD)…" value={adminSearch} onChange={(e) => setAdminSearch(e.target.value)} />
-              </div>
-              <div className="admin-list">
-                {isLoadingAppointments ? (
-                  Array.from({ length: 3 }).map((_, index) => (
-                    <article className="admin-card admin-card-skeleton" key={`skeleton-${index}`} aria-hidden="true">
-                      <div className="admin-card-body">
-                        <div className="admin-card-heading"><div className="skeleton skeleton-title" /><div className="skeleton skeleton-badge" /></div>
-                        <div className="skeleton skeleton-line" />
-                        <div className="skeleton skeleton-line short" />
-                      </div>
-                      <div className="admin-meta skeleton-meta"><div className="skeleton skeleton-pill" /><div className="skeleton skeleton-pill" /><div className="skeleton skeleton-pill" /></div>
-                    </article>
-                  ))
-                ) : filtered.length === 0 ? (
-                  <p className="empty-note">{adminSearch ? 'No appointments match your search.' : 'No booked appointments yet. Add one in the booking form.'}</p>
-                ) : (
-                  filtered.map((appt) => (
-                    <article className="admin-card" key={appt.id ?? `${appt.name}-${appt.date}-${appt.time}`}>
-                      <div className="admin-card-body">
-                        <div className="admin-card-heading">
-                          <h4>{appt.name || 'Unnamed patient'}</h4>
-                          <span className={`status-badge status-${appt.status || 'pending'}`}>{statusLabel(appt.status)}</span>
-                        </div>
-                        <p>{appt.doctor || 'Doctor not set'}</p>
-                        <p>{appt.reason || 'No concern specified'}</p>
-                      </div>
-                      <div className="admin-meta">
-                        <span>{formatDateLabel(appt.date)}</span>
-                        <span>{appt.time || 'TBA'}</span>
-                        <span>{appt.type || 'Consultation'}</span>
-                        <span>{appt.phone || 'No phone'}</span>
-                        <span>{appt.insurance || 'No insurance listed'}</span>
-                      </div>
-                      <div className="admin-actions">
-                        <button type="button" className="danger-btn" onClick={() => handleDeleteAppointment(appt.id)}>Cancel</button>
-                      </div>
-                    </article>
-                  ))
-                )}
-              </div>
-            </section>
-          )}
-        </main>
       </div>
 
       <div className={`toast${toast.open ? ' show' : ''}`} role="status" aria-live="polite">{toast.message}</div>
