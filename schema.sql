@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS sessions (
   expires_at TEXT NOT NULL
 );
 
+CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
+
 -- ── Appointments
 CREATE TABLE IF NOT EXISTS appointments (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,10 +39,13 @@ CREATE TABLE IF NOT EXISTS appointments (
                 CHECK(status IN ('pending','confirmed','cancelled'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_appt_date ON appointments(date, time);
+CREATE INDEX IF NOT EXISTS idx_appt_date   ON appointments(date, time);
+CREATE INDEX IF NOT EXISTS idx_appt_status ON appointments(status);
 
--- ── Seed superadmin (password: Admin1234!)
--- SHA-256('Admin1234!:albacete-salt') -- change after first login!
+-- ── Seed superadmin
+-- Default password: Admin1234!
+-- SHA-256('Admin1234!:albacete-salt')
+-- ⚠️  Change this password immediately after first login!
 INSERT OR IGNORE INTO admins (username, password_hash, full_name, role)
 VALUES (
   'admin',

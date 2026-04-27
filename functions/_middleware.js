@@ -1,4 +1,4 @@
-// Global middleware: attach DB to context, handle CORS preflight
+// Global middleware: handle CORS preflight
 export async function onRequest(context) {
   if (context.request.method === 'OPTIONS') {
     return new Response(null, {
@@ -7,6 +7,7 @@ export async function onRequest(context) {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type,Accept,Cookie',
+        'Access-Control-Max-Age': '86400',
       },
     });
   }
