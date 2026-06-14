@@ -33,11 +33,27 @@ async function requireAdmin(request, env) {
   }
 }
 
+async function writeAudit(env, adminId, action, targetId, detail, ip) {
+  try {
+    await env.DB
+      .prepare(`INSERT INTO audit_logs(admin_id, action, target_id, detail, ip_address)
+                VALUES(?,?,?,?,?)`)
+      .bind(adminId, action, targetId, detail, ip)
+      .run();
+  } catch (e) {
+    // audit failure must never break the main operation
+    console.error('audit_log write error:', e.message);
+  }
+}
+
 export const onRequestOptions = () => new Response(null, { status: 204, headers: CORS });
 
 export async function onRequestGet({ request, env }) {
   const admin = await requireAdmin(request, env);
   if (!admin) return text('Unauthorized', 401);
+
+  const ip = request.headers.get('CF-Connecting-IP') || '';
+
   try {
     const { results } = await env.DB
       .prepare(`SELECT id, created_at, name, phone, date, time, doctor, type, reason, insurance,
@@ -45,6 +61,10 @@ export async function onRequestGet({ request, env }) {
                 FROM appointments
                 ORDER BY date, time, created_at`)
       .all();
+
+    // DPA: log that admin viewed the full patient list
+    await writeAudit(env, admin.id, 'VIEW', null, `viewed all appointments (${results?.length ?? 0} rows)`, ip);
+
     return json(results || []);
   } catch (e) {
     console.error('GET /admin/appointments error:', e.message);
@@ -65,11 +85,17 @@ export async function onRequestPut({ request, env }) {
   const status = VALID_STATUSES.includes(p.status) ? p.status : null;
   if (!status) return text('Invalid status. Must be: pending, confirmed, or cancelled', 400);
 
+  const ip = request.headers.get('CF-Connecting-IP') || '';
+
   try {
     const r = await env.DB
       .prepare('UPDATE appointments SET status=? WHERE id=?')
       .bind(status, id).run();
     if (!r.meta?.changes) return text('Appointment not found', 404);
+
+    // DPA: log status change
+    await writeAudit(env, admin.id, 'STATUS_UPDATE', id, `status→${status}`, ip);
+
     const row = await env.DB
       .prepare(`SELECT id, created_at, name, phone, date, time, doctor, type, reason, insurance,
                        COALESCE(status,'pending') AS status
@@ -89,7 +115,12 @@ export async function onRequestDelete({ request, env }) {
   const id = Number(new URL(request.url).searchParams.get('id'));
   if (!Number.isInteger(id) || id <= 0) return text('Valid id required', 400);
 
+  const ip = request.headers.get('CF-Connecting-IP') || '';
+
   try {
+    // DPA: log deletion BEFORE removing the row (so target_id still means something)
+    await writeAudit(env, admin.id, 'DELETE', id, 'appointment hard-deleted', ip);
+
     const r = await env.DB
       .prepare('DELETE FROM appointments WHERE id=?')
       .bind(id).run();

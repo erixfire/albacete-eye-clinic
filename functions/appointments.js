@@ -12,6 +12,11 @@ const clean = (v, n)       => (v || '').toString().trim().slice(0, n);
 
 const VALID_STATUSES = ['pending', 'confirmed', 'cancelled'];
 
+const CONSENT_TEXT =
+  'I consent to Albacete Eye Clinic collecting and processing my personal data ' +
+  'for appointment scheduling, as governed by RA 10173 (Data Privacy Act of 2012). ' +
+  'Data will be retained for 10 years per DOH guidelines.';
+
 export const onRequestOptions = () => new Response(null, { status: 204, headers: CORS });
 
 export async function onRequestGet({ env }) {
@@ -45,13 +50,15 @@ export async function onRequestPost({ request, env }) {
 
   if (!name || !phone || !date || !time) return text('name, phone, date and time are required', 400);
 
-  // Validate date format YYYY-MM-DD
+  // DPA: consent must be explicitly confirmed by the client
+  if (!p.consent) return text('Patient consent is required under RA 10173', 400);
+
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return text('Invalid date format', 400);
+  if (!/^\d{2}:\d{2}$/.test(time))        return text('Invalid time format', 400);
 
-  // Validate time format HH:MM
-  if (!/^\d{2}:\d{2}$/.test(time)) return text('Invalid time format', 400);
+  const ip        = request.headers.get('CF-Connecting-IP') || '';
+  const userAgent = (request.headers.get('User-Agent') || '').slice(0, 300);
 
-  // Block duplicate slot (same date+time+doctor, non-cancelled)
   try {
     const dup = await env.DB
       .prepare(`SELECT id FROM appointments WHERE date=? AND time=? AND doctor=? AND status!='cancelled' LIMIT 1`)
@@ -64,13 +71,22 @@ export async function onRequestPost({ request, env }) {
       .bind(name, phone, date, time, doctor, type, reason, insurance, 'pending')
       .run();
 
+    const aptId = info.meta.last_row_id;
+
+    // ── DPA: log patient consent ────────────────────────────────
+    await env.DB
+      .prepare(`INSERT INTO consent_logs(appointment_id, ip_address, user_agent, consent_text)
+                VALUES(?,?,?,?)`)
+      .bind(aptId, ip, userAgent, CONSENT_TEXT)
+      .run();
+
     const row = await env.DB
       .prepare(`SELECT id, created_at, name, phone, date, time, doctor, type, reason, insurance,
                        COALESCE(status,'pending') AS status
                 FROM appointments WHERE id=?`)
-      .bind(info.meta.last_row_id).first();
+      .bind(aptId).first();
 
-    return json(row || { id: info.meta.last_row_id, name, date, time, status: 'pending' }, 201);
+    return json(row || { id: aptId, name, date, time, status: 'pending' }, 201);
   } catch (e) {
     if (e.message?.includes('UNIQUE')) return text('That slot is already booked', 409);
     console.error('POST /appointments error:', e.message);

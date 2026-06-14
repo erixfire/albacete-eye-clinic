@@ -25,22 +25,53 @@ CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
 
 -- ── Appointments
 CREATE TABLE IF NOT EXISTS appointments (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  created_at  TEXT NOT NULL DEFAULT (datetime('now')),
-  name        TEXT NOT NULL,
-  phone       TEXT NOT NULL DEFAULT '',
-  date        TEXT NOT NULL,
-  time        TEXT NOT NULL,
-  doctor      TEXT NOT NULL DEFAULT '',
-  type        TEXT NOT NULL DEFAULT '',
-  reason      TEXT NOT NULL DEFAULT '',
-  insurance   TEXT NOT NULL DEFAULT '',
-  status      TEXT NOT NULL DEFAULT 'pending'
-                CHECK(status IN ('pending','confirmed','cancelled'))
+  id           INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at   TEXT NOT NULL DEFAULT (datetime('now')),
+  name         TEXT NOT NULL,
+  phone        TEXT NOT NULL DEFAULT '',
+  date         TEXT NOT NULL,
+  time         TEXT NOT NULL,
+  doctor       TEXT NOT NULL DEFAULT '',
+  type         TEXT NOT NULL DEFAULT '',
+  reason       TEXT NOT NULL DEFAULT '',
+  insurance    TEXT NOT NULL DEFAULT '',
+  status       TEXT NOT NULL DEFAULT 'pending'
+                 CHECK(status IN ('pending','confirmed','cancelled')),
+  retain_until TEXT NOT NULL DEFAULT (date('now','+10 years'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_appt_date   ON appointments(date, time);
 CREATE INDEX IF NOT EXISTS idx_appt_status ON appointments(status);
+CREATE INDEX IF NOT EXISTS idx_appt_retain ON appointments(retain_until);
+
+-- ── Consent Logs (RA 10173 — proof of patient consent)
+-- Records the exact consent text shown and patient identifiers at booking time.
+CREATE TABLE IF NOT EXISTS consent_logs (
+  id             INTEGER PRIMARY KEY AUTOINCREMENT,
+  appointment_id INTEGER NOT NULL REFERENCES appointments(id) ON DELETE CASCADE,
+  ip_address     TEXT    NOT NULL DEFAULT '',
+  user_agent     TEXT    NOT NULL DEFAULT '',
+  consent_text   TEXT    NOT NULL,
+  consented_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_consent_appt ON consent_logs(appointment_id);
+
+-- ── Audit Logs (RA 10173 — access & modification trail for SPI)
+-- Every admin action on patient data must be logged.
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  admin_id    INTEGER REFERENCES admins(id) ON DELETE SET NULL,
+  action      TEXT NOT NULL,  -- VIEW | STATUS_UPDATE | DELETE
+  target_id   INTEGER,        -- appointments.id
+  detail      TEXT NOT NULL DEFAULT '',
+  ip_address  TEXT NOT NULL DEFAULT '',
+  created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_created  ON audit_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_audit_admin    ON audit_logs(admin_id);
+CREATE INDEX IF NOT EXISTS idx_audit_target   ON audit_logs(target_id);
 
 -- ── Seed superadmin
 -- Default password: Admin1234!

@@ -1,3 +1,5 @@
 # Cloudflare Pages redirect rules
 # Clean URL: /admin → /admin.html
-/admin   /admin.html   200
+/admin    /admin.html    200
+# Clean URL: /privacy → /privacy.html
+/privacy  /privacy.html  200
