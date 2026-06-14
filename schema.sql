@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
 
 -- ── Appointments
+-- NOTE: retain_until is added via ALTER TABLE in migrate.sql for existing DBs.
+-- New databases get it here automatically.
 CREATE TABLE IF NOT EXISTS appointments (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   created_at   TEXT NOT NULL DEFAULT (datetime('now')),
@@ -36,16 +38,13 @@ CREATE TABLE IF NOT EXISTS appointments (
   reason       TEXT NOT NULL DEFAULT '',
   insurance    TEXT NOT NULL DEFAULT '',
   status       TEXT NOT NULL DEFAULT 'pending'
-                 CHECK(status IN ('pending','confirmed','cancelled')),
-  retain_until TEXT NOT NULL DEFAULT (date('now','+10 years'))
+                 CHECK(status IN ('pending','confirmed','cancelled'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_appt_date   ON appointments(date, time);
 CREATE INDEX IF NOT EXISTS idx_appt_status ON appointments(status);
-CREATE INDEX IF NOT EXISTS idx_appt_retain ON appointments(retain_until);
 
 -- ── Consent Logs (RA 10173 — proof of patient consent)
--- Records the exact consent text shown and patient identifiers at booking time.
 CREATE TABLE IF NOT EXISTS consent_logs (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,
   appointment_id INTEGER NOT NULL REFERENCES appointments(id) ON DELETE CASCADE,
@@ -58,12 +57,11 @@ CREATE TABLE IF NOT EXISTS consent_logs (
 CREATE INDEX IF NOT EXISTS idx_consent_appt ON consent_logs(appointment_id);
 
 -- ── Audit Logs (RA 10173 — access & modification trail for SPI)
--- Every admin action on patient data must be logged.
 CREATE TABLE IF NOT EXISTS audit_logs (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   admin_id    INTEGER REFERENCES admins(id) ON DELETE SET NULL,
-  action      TEXT NOT NULL,  -- VIEW | STATUS_UPDATE | DELETE
-  target_id   INTEGER,        -- appointments.id
+  action      TEXT NOT NULL,
+  target_id   INTEGER,
   detail      TEXT NOT NULL DEFAULT '',
   ip_address  TEXT NOT NULL DEFAULT '',
   created_at  TEXT NOT NULL DEFAULT (datetime('now'))
@@ -75,7 +73,6 @@ CREATE INDEX IF NOT EXISTS idx_audit_target   ON audit_logs(target_id);
 
 -- ── Seed superadmin
 -- Default password: Admin1234!
--- SHA-256('Admin1234!:albacete-salt')
 -- ⚠️  Change this password immediately after first login!
 INSERT OR IGNORE INTO admins (username, password_hash, full_name, role)
 VALUES (
