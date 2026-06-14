@@ -270,7 +270,7 @@ function WeekCalendar({ appointments }) {
 
 /* ── Booking Form ───────────────────────────────────────────── */
 function BookingForm({ appointments, onSuccess }) {
-  const EMPTY = { name:'', phone:'', date:'', time:'', doctor:DOCTOR_OPTIONS[0], type:'', reason:'', insurance:'' };
+  const EMPTY = { name:'', phone:'', date:'', time:'', doctor:DOCTOR_OPTIONS[0], type:'', reason:'', insurance:'', consent: false };
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(EMPTY);
   const [busy, setBusy] = useState(false);
@@ -286,6 +286,7 @@ function BookingForm({ appointments, onSuccess }) {
   const goReview = e => {
     e.preventDefault();
     if (!form.date || !form.time) return;
+    if (!form.consent) return;
     if (e.currentTarget.reportValidity()) setStep(2);
   };
 
@@ -296,7 +297,8 @@ function BookingForm({ appointments, onSuccess }) {
       const res = await fetch('/appointments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ ...form, status: 'pending' }),
+        // consent: true is sent so the server can verify and log it
+        body: JSON.stringify({ ...form, status: 'pending', consent: true }),
       });
       if (!res.ok) throw new Error(await res.text());
       setForm(EMPTY);
@@ -364,7 +366,27 @@ function BookingForm({ appointments, onSuccess }) {
             </div>
           )}
 
-          <button type="submit" className="primary-btn full-width" disabled={!form.date || !form.time}>
+          {/* ── DPA Consent Checkbox (RA 10173 §12(a)) ── */}
+          <div className="bw-section">
+            <label className="consent-label">
+              <input
+                type="checkbox"
+                name="consent"
+                required
+                checked={form.consent}
+                onChange={e => setForm(p => ({ ...p, consent: e.target.checked }))}
+              />
+              <span>
+                I consent to Albacete Eye Clinic collecting and processing my personal data
+                for appointment scheduling under{' '}
+                <a href="/privacy" target="_blank" rel="noopener noreferrer">
+                  RA 10173 (Data Privacy Act of 2012)
+                </a>. Data will be retained for 10 years per DOH guidelines.
+              </span>
+            </label>
+          </div>
+
+          <button type="submit" className="primary-btn full-width" disabled={!form.date || !form.time || !form.consent}>
             {form.date && form.time
               ? `Review booking → ${formatDateLabel(form.date)} ${fmt12(form.time)}`
               : form.date ? 'Select a time to continue' : 'Select a date to continue'}
@@ -389,6 +411,7 @@ function BookingForm({ appointments, onSuccess }) {
               <div className="review-row"><span>Type</span><strong>{form.type}</strong></div>
               <div className="review-row"><span>Concern</span><strong>{form.reason}</strong></div>
               {form.insurance && <div className="review-row"><span>Insurance</span><strong>{form.insurance}</strong></div>}
+              <div className="review-row"><span>Consent</span><strong>✅ Given (RA 10173)</strong></div>
             </div>
           </div>
           <div className="form-actions">
@@ -865,6 +888,7 @@ function App() {
                 <li>📞 +63 963 862 9414</li>
                 <li>🕐 Mon–Sat · 8:00 AM – 5:00 PM</li>
                 <li>📘 <a href="https://www.facebook.com/AlbaceteEyeClinic/" target="_blank" rel="noopener noreferrer">@AlbaceteEyeClinic</a></li>
+                <li>🔒 <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy (RA 10173)</a></li>
               </ul>
             </div>
           </aside>
