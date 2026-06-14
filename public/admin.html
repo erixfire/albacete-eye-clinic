@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Albacete Eye Clinic</title>
+  <link rel="stylesheet" href="/admin.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231a56db' stroke-width='2'><path d='M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z'/><circle cx='12' cy='12' r='3.2'/></svg>" />
+</head>
+<body>
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="login-brand">
+        <div class="login-brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/>
+            <circle cx="12" cy="12" r="3.2"/>
+          </svg>
+        </div>
+        <div>
+          <p class="login-eyebrow">Albacete Eye Center</p>
+          <h1 class="login-title">Admin Dashboard</h1>
+        </div>
+      </div>
+      <form id="login-form" autocomplete="off">
+        <label>Username
+          <input id="login-username" type="text" autocomplete="username" placeholder="admin" required />
+        </label>
+        <label>Password
+          <div class="pw-wrap">
+            <input id="login-password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+            <button type="button" id="pw-toggle" class="pw-toggle" aria-label="Toggle password">👁</button>
+          </div>
+        </label>
+        <div id="login-error" class="login-error hidden"></div>
+        <button type="submit" id="login-btn" class="btn-primary full">Sign in</button>
+      </form>
+      <p class="login-back"><a href="/">← Back to clinic website</a></p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="dashboard hidden">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"/>
+            <circle cx="12" cy="12" r="3.2"/>
+          </svg>
+        </div>
+        <div class="sidebar-brand-text">
+          <span class="sidebar-clinic">Albacete Eye</span>
+          <span class="sidebar-sub">Admin Panel</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="overview">📊 Overview</button>
+        <button class="nav-item" data-tab="appointments">📅 Appointments</button>
+        <button class="nav-item" data-tab="calendar">🗓 Calendar</button>
+        <button class="nav-item" data-tab="users" id="users-nav-item">👥 Staff Users</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="sidebar-avatar" id="sidebar-avatar">A</div>
+          <div class="sidebar-user-info">
+            <span id="sidebar-name">Admin</span>
+            <span id="sidebar-role" class="sidebar-role">superadmin</span>
+          </div>
+        </div>
+        <button id="logout-btn" class="btn-ghost logout-btn" title="Sign out">⏻</button>
+      </div>
+    </aside>
+
+    <!-- Mobile header -->
+    <header class="mobile-header">
+      <button id="sidebar-toggle" class="btn-ghost">☰</button>
+      <span class="mobile-title">Albacete Admin</span>
+      <button id="mobile-logout" class="btn-ghost">⏻</button>
+    </header>
+
+    <!-- Main content -->
+    <main class="main-content">
+
+      <!-- ── OVERVIEW TAB ── -->
+      <section id="tab-overview" class="tab-section">
+        <div class="page-header">
+          <div>
+            <h2>Overview</h2>
+            <p id="overview-date" class="page-subtitle"></p>
+          </div>
+          <button class="btn-secondary" id="overview-refresh">↻ Refresh</button>
+        </div>
+
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card accent">
+            <div class="stat-icon">📅</div>
+            <div class="stat-body">
+              <span class="stat-label">Today</span>
+              <strong class="stat-val" id="stat-today">—</strong>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-body">
+              <span class="stat-label">Total</span>
+              <strong class="stat-val" id="stat-total">—</strong>
+            </div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-body">
+              <span class="stat-label">Pending</span>
+              <strong class="stat-val" id="stat-pending">—</strong>
+            </div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-icon">✅</div>
+            <div class="stat-body">
+              <span class="stat-label">Confirmed</span>
+              <strong class="stat-val" id="stat-confirmed">—</strong>
+            </div>
+          </div>
+          <div class="stat-card danger">
+            <div class="stat-icon">🚫</div>
+            <div class="stat-body">
+              <span class="stat-label">Cancelled</span>
+              <strong class="stat-val" id="stat-cancelled">—</strong>
+            </div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-icon">📆</div>
+            <div class="stat-body">
+              <span class="stat-label">This Week</span>
+              <strong class="stat-val" id="stat-week">—</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="overview-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Today's Appointments</h3>
+              <span class="badge badge-accent" id="today-count">0</span>
+            </div>
+            <div id="today-list" class="today-list"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <h3>Upcoming (Next 7 Days)</h3>
+              <span class="badge badge-default" id="upcoming-count">0</span>
+            </div>
+            <div id="upcoming-list" class="today-list"></div>
+          </div>
+        </div>
+
+        <div class="panel mt-16">
+          <div class="panel-header">
+            <h3>Recent Bookings</h3>
+            <span class="text-muted">Last 10 added</span>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>Patient</th><th>Date</th><th>Time</th><th>Type</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="recent-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── APPOINTMENTS TAB ── -->
+      <section id="tab-appointments" class="tab-section hidden">
+        <div class="page-header">
+          <div>
+            <h2>All Appointments</h2>
+            <p class="page-subtitle">Manage, confirm, and cancel patient bookings</p>
+          </div>
+          <button class="btn-secondary" id="appt-refresh">↻ Refresh</button>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="appt-search" class="filter-input" placeholder="Search name, phone, date…" />
+          <select id="appt-status-filter" class="filter-select">
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <input type="date" id="appt-date-filter" class="filter-date" />
+          <button id="appt-clear-filters" class="btn-ghost sm hidden">✕ Clear</button>
+          <span id="appt-count" class="filter-count"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>ID</th><th>Patient</th><th>Phone</th><th>Date</th><th>Time</th><th>Type</th><th>Doctor</th><th>Insurance</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="appt-tbody"></tbody>
+          </table>
+        </div>
+        <div id="appt-empty" class="empty-state hidden">📭 No appointments found.</div>
+      </section>
+
+      <!-- ── CALENDAR TAB ── -->
+      <section id="tab-calendar" class="tab-section hidden">
+        <div class="page-header">
+          <div>
+            <h2>Weekly Calendar</h2>
+            <p class="page-subtitle">Dr. Albacete — schedule at a glance</p>
+          </div>
+          <div class="cal-header-actions">
+            <button class="btn-ghost sm" id="cal-prev">‹ Prev</button>
+            <span id="cal-range" class="cal-range-label"></span>
+            <button class="btn-ghost sm" id="cal-next">Next ›</button>
+            <button class="btn-secondary sm" id="cal-today">Today</button>
+          </div>
+        </div>
+        <div class="panel">
+          <div id="cal-grid" class="cal-grid-wrap"></div>
+          <div class="cal-legend">
+            <span><span class="leg-dot pending"></span>Pending</span>
+            <span><span class="leg-dot confirmed"></span>Confirmed</span>
+            <span><span class="leg-dot cancelled"></span>Cancelled</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── STAFF USERS TAB ── -->
+      <section id="tab-users" class="tab-section hidden">
+        <div class="page-header">
+          <div>
+            <h2>Staff Users</h2>
+            <p class="page-subtitle">Superadmin only — manage clinic staff accounts</p>
+          </div>
+          <button class="btn-primary" id="add-user-btn">+ Add Staff</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>ID</th><th>Username</th><th>Full Name</th><th>Role</th><th>Created</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+        <div id="users-empty" class="empty-state hidden">No staff users found.</div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL: Appointment Detail -->
+  <div id="appt-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="appt-modal-title">Appointment Details</h3>
+        <button class="modal-close" data-close="appt-modal">✕</button>
+      </div>
+      <div id="appt-modal-body" class="modal-body"></div>
+      <div class="modal-footer" id="appt-modal-footer"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: Add Staff User -->
+  <div id="user-modal" class="modal-overlay hidden">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3>Add Staff User</h3>
+        <button class="modal-close" data-close="user-modal">✕</button>
+      </div>
+      <form id="add-user-form" class="modal-body">
+        <label>Full Name
+          <input name="full_name" type="text" placeholder="Maria Santos" required />
+        </label>
+        <label>Username
+          <input name="username" type="text" placeholder="maria.santos" required />
+        </label>
+        <label>Password <span class="optional">(min 8 chars)</span>
+          <input name="password" type="password" minlength="8" required />
+        </label>
+        <label>Role
+          <select name="role">
+            <option value="staff">Staff</option>
+            <option value="superadmin">Superadmin</option>
+          </select>
+        </label>
+        <div id="user-modal-error" class="login-error hidden"></div>
+      </form>
+      <div class="modal-footer">
+        <button class="btn-secondary" data-close="user-modal">Cancel</button>
+        <button class="btn-primary" id="save-user-btn">Create User</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/admin.js"></script>
+</body>
+</html>
