@@ -58,7 +58,7 @@ const Dashboard = () => {
     <AnimatedPage className="space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Overview</h1>
-        <p className="text-slate-500 text-sm mt-1">Here is what's happening at the clinic today.</p>
+        <p className="text-slate-500 text-sm mt-1">Here is what&apos;s happening at the clinic today.</p>
       </motion.div>
 
       <motion.div 

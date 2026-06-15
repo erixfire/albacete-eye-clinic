@@ -83,7 +83,7 @@ const AppLayout = ({ children }) => {
                   : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
               )}
             >
-              <item.icon size={18} className={({ isActive }) => cn("transition-colors", isActive ? "text-primary" : "text-slate-400")} />
+              <item.icon size={18} />
               {item.name}
             </NavLink>
           ))}
