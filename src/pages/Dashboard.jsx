@@ -10,6 +10,8 @@ import {
   Package
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { AnimatedPage, staggeredContainer, staggeredItem } from '../components/AnimatedPage';
+import { motion } from 'framer-motion';
 
 const Dashboard = () => {
   const [summary, setSummary] = useState(null);
@@ -35,7 +37,7 @@ const Dashboard = () => {
   }, []);
 
   if (loading) return (
-    <div className="animate-pulse space-y-8">
+    <AnimatedPage className="animate-pulse space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[1,2,3,4].map(i => <div key={i} className="h-32 bg-gray-200 rounded-2xl" />)}
       </div>
@@ -43,41 +45,53 @@ const Dashboard = () => {
         <div className="lg:col-span-2 h-96 bg-gray-200 rounded-2xl" />
         <div className="h-96 bg-gray-200 rounded-2xl" />
       </div>
-    </div>
+    </AnimatedPage>
   );
 
   const stats = [
     { label: 'Today\'s Appointments', value: summary?.today_appointments || 0, icon: Calendar, color: 'text-blue-600', bg: 'bg-blue-50', link: '/appointments' },
     { label: 'Total Patients', value: summary?.total_patients || 0, icon: Users, color: 'text-indigo-600', bg: 'bg-indigo-50', link: '/patients' },
     { label: 'Low Stock Items', value: summary?.low_stock_count || 0, icon: AlertTriangle, color: 'text-amber-600', bg: 'bg-amber-50', link: '/inventory?filter=low' },
-    { label: 'Expiring Soon', value: summary?.expiring_meds_count || 0, icon: Clock, color: 'text-rose-600', bg: 'bg-rose-50', link: '/inventory?filter=expiring' },
+    { label: 'Expiring Soon', value: summary?.expiring_meds_count || 0, icon: Clock, color: 'text-red-600', bg: 'bg-red-50', link: '/inventory?filter=expiring' },
   ];
 
   return (
-    <div className="space-y-8">
-      <div>
+    <AnimatedPage className="space-y-8">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <h1 className="text-2xl font-bold text-gray-900">Clinic Overview</h1>
         <p className="text-gray-500 text-sm mt-1">Welcome back. Here's what's happening today.</p>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div 
+        variants={staggeredContainer}
+        initial="initial"
+        animate="animate"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+      >
         {stats.map((stat) => (
-          <Link key={stat.label} to={stat.link} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
-            <div className="flex items-center justify-between mb-4">
-              <div className={`${stat.bg} ${stat.color} p-3 rounded-xl group-hover:scale-110 transition-transform`}>
-                <stat.icon size={24} />
+          <motion.div key={stat.label} variants={staggeredItem}>
+            <Link to={stat.link} className="block bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all group">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`${stat.bg} ${stat.color} p-3 rounded-xl group-hover:scale-110 transition-transform`}>
+                  <stat.icon size={24} />
+                </div>
+                <ChevronRight className="text-gray-300 group-hover:text-primary transition-colors" size={20} />
               </div>
-              <ChevronRight className="text-gray-300 group-hover:text-gray-400 transition-colors" size={20} />
-            </div>
-            <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-            <p className="text-sm font-medium text-gray-500 mt-1">{stat.label}</p>
-          </Link>
+              <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+              <p className="text-sm font-medium text-gray-500 mt-1">{stat.label}</p>
+            </Link>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <motion.div 
+        variants={staggeredContainer}
+        initial="initial"
+        animate="animate"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+      >
         {/* Recent Appointments */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <motion.div variants={staggeredItem} className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-gray-50 flex items-center justify-between">
             <h3 className="font-bold text-gray-900">Recent Appointments</h3>
             <Link to="/appointments" className="text-primary text-sm font-semibold hover:underline flex items-center gap-1">
@@ -89,7 +103,7 @@ const Dashboard = () => {
               recentAppointments.map((appt) => (
                 <div key={appt.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-blue-50 text-primary flex items-center justify-center font-bold text-sm">
                       {appt.patient_name?.charAt(0)}
                     </div>
                     <div>
@@ -118,11 +132,11 @@ const Dashboard = () => {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Inventory Quick Actions */}
-        <div className="space-y-6">
-          <div className="bg-gradient-to-br from-primary to-primary-dark p-6 rounded-2xl text-white shadow-lg shadow-primary/20">
+        <motion.div variants={staggeredItem} className="space-y-6">
+          <div className="bg-gradient-to-br from-primary to-primary-dark p-6 rounded-2xl text-white shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">
             <div className="flex items-center gap-3 mb-4">
               <Package size={24} />
               <h3 className="font-bold">Inventory Alert</h3>
@@ -156,9 +170,9 @@ const Dashboard = () => {
               </Link>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </AnimatedPage>
   );
 };
 

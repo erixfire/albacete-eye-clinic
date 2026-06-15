@@ -8,6 +8,8 @@ import {
   ArrowUpRight,
   TrendingDown
 } from 'lucide-react';
+import { AnimatedPage, staggeredContainer, staggeredItem } from '../../components/AnimatedPage';
+import { motion } from 'framer-motion';
 
 const MedicineList = () => {
   const [medicines, setMedicines] = useState([]);
@@ -36,7 +38,7 @@ const MedicineList = () => {
   }, [filter]);
 
   return (
-    <div className="space-y-6">
+    <AnimatedPage className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
@@ -69,12 +71,17 @@ const MedicineList = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <motion.div 
+        variants={staggeredContainer}
+        initial="initial"
+        animate="animate"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
         {loading ? (
           [1,2,3,4,5,6].map(i => <div key={i} className="h-48 bg-gray-200 animate-pulse rounded-2xl" />)
         ) : medicines.length > 0 ? (
           medicines.map((med) => (
-            <div key={med.id} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
+            <motion.div key={med.id} variants={staggeredItem} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
               <div className="flex justify-between items-start mb-4">
                 <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
                   <Package size={20} />
@@ -105,7 +112,7 @@ const MedicineList = () => {
                 Adjust Stock
                 <ArrowUpRight size={14} />
               </button>
-            </div>
+            </motion.div>
           ))
         ) : (
           <div className="col-span-full py-20 text-center text-gray-400">
@@ -113,8 +120,8 @@ const MedicineList = () => {
             <p>No medicines found in inventory.</p>
           </div>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </AnimatedPage>
   );
 };
 

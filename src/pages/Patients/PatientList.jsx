@@ -10,6 +10,7 @@ import {
   Phone,
   User
 } from 'lucide-react';
+import { AnimatedPage } from '../../components/AnimatedPage';
 
 const PatientList = () => {
   const [patients, setPatients] = useState([]);
@@ -39,7 +40,7 @@ const PatientList = () => {
   }, [searchTerm]);
 
   return (
-    <div className="space-y-6">
+    <AnimatedPage className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Patients</h1>
@@ -108,7 +109,7 @@ const PatientList = () => {
                   <tr key={patient.id} className="hover:bg-gray-50/50 transition-colors group">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">
+                        <div className="w-10 h-10 rounded-full bg-primary-soft text-primary flex items-center justify-center font-bold text-sm">
                           {patient.full_name.charAt(0)}
                         </div>
                         <div>
@@ -162,7 +163,7 @@ const PatientList = () => {
           </table>
         </div>
       </div>
-    </div>
+    </AnimatedPage>
   );
 };
 
