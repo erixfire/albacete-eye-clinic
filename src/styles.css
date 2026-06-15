@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,27 +13,27 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:          #f0f4f8;
+  --bg:          #F0FDFA;
   --surface:     #ffffff;
-  --surface2:    #f7f9fc;
-  --border:      #e2e8f0;
-  --primary:     #1a56db;
-  --primary-h:   #1e429f;
-  --primary-soft:#ebf0ff;
-  --accent:      #0ea5e9;
-  --text:        #1e293b;
+  --surface2:    #F0FDFA;
+  --border:      #CCFBF1;
+  --primary:     #0891B2;
+  --primary-h:   #0e7490;
+  --primary-soft:#E8F1F6;
+  --accent:      #16A34A;
+  --text:        #134E4A;
   --text-2:      #475569;
   --text-3:      #94a3b8;
-  --success:     #059669;
-  --success-bg:  #d1fae5;
+  --success:     #16A34A;
+  --success-bg:  #dcfce7;
   --warning:     #d97706;
   --warning-bg:  #fef3c7;
-  --danger:      #dc2626;
+  --danger:      #DC2626;
   --danger-bg:   #fee2e2;
   --radius:      14px;
   --shadow:      0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
   --shadow-lg:   0 4px 24px rgba(0,0,0,.10);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Figtree', 'Noto Sans', system-ui, -apple-system, sans-serif;
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
