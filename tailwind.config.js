@@ -8,27 +8,25 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#1C1917', // Stone 900 (Premium Black)
-          dark: '#0C0A09',    // Stone 950
-          soft: '#E8ECF0',    // Muted
+          DEFAULT: '#2563EB', // Blue 600
+          dark: '#1D4ED8',    // Blue 700
+          soft: '#EFF6FF',    // Blue 50
         },
         accent: {
-          DEFAULT: '#A16207', // Yellow 700 (Gold)
-          dark: '#854D0E',    // Yellow 800
-          soft: '#FEF08A',    // Yellow 200
+          DEFAULT: '#0EA5E9', // Sky 500
+          dark: '#0284C7',    // Sky 600
+          soft: '#E0F2FE',    // Sky 50
         },
-        surface: 'rgba(255, 255, 255, 0.7)',
-        surface2: 'rgba(255, 255, 255, 0.4)',
+        surface: '#ffffff',
+        surface2: '#F8FAFC',  // Slate 50
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        serif: ['Playfair Display', 'Georgia', 'serif'],
       },
-      backdropBlur: {
-        xs: '2px',
-        md: '8px',
-        lg: '16px',
-        xl: '24px',
+      boxShadow: {
+        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        'DEFAULT': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
       }
     },
   },

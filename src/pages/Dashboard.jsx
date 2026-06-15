@@ -6,7 +6,6 @@ import {
   Clock, 
   ArrowRight,
   ChevronRight,
-  TrendingUp,
   Package
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -39,46 +38,46 @@ const Dashboard = () => {
   if (loading) return (
     <AnimatedPage className="animate-pulse space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[1,2,3,4].map(i => <div key={i} className="h-32 glass-panel rounded-2xl" />)}
+        {[1,2,3,4].map(i => <div key={i} className="h-32 bg-white rounded-xl border border-slate-200" />)}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 h-96 glass-panel rounded-2xl" />
-        <div className="h-96 glass-panel rounded-2xl" />
+        <div className="lg:col-span-2 h-96 bg-white rounded-xl border border-slate-200" />
+        <div className="h-96 bg-white rounded-xl border border-slate-200" />
       </div>
     </AnimatedPage>
   );
 
   const stats = [
-    { label: 'Today\'s Appointments', value: summary?.today_appointments || 0, icon: Calendar, color: 'text-primary', bg: 'bg-primary/10', link: '/appointments' },
-    { label: 'Total Patients', value: summary?.total_patients || 0, icon: Users, color: 'text-primary', bg: 'bg-primary/10', link: '/patients' },
-    { label: 'Low Stock Items', value: summary?.low_stock_count || 0, icon: AlertTriangle, color: 'text-accent', bg: 'bg-accent/10', link: '/inventory?filter=low' },
-    { label: 'Expiring Soon', value: summary?.expiring_meds_count || 0, icon: Clock, color: 'text-red-700', bg: 'bg-red-50', link: '/inventory?filter=expiring' },
+    { label: 'Today\'s Appointments', value: summary?.today_appointments || 0, icon: Calendar, color: 'text-primary', bg: 'bg-blue-50', link: '/appointments' },
+    { label: 'Total Patients', value: summary?.total_patients || 0, icon: Users, color: 'text-primary', bg: 'bg-blue-50', link: '/patients' },
+    { label: 'Low Stock Items', value: summary?.low_stock_count || 0, icon: AlertTriangle, color: 'text-amber-600', bg: 'bg-amber-50', link: '/inventory?filter=low' },
+    { label: 'Expiring Soon', value: summary?.expiring_meds_count || 0, icon: Clock, color: 'text-red-600', bg: 'bg-red-50', link: '/inventory?filter=expiring' },
   ];
 
   return (
-    <AnimatedPage className="space-y-8">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <h1 className="text-3xl font-bold text-gray-900 serif-text">Clinic Overview</h1>
-        <p className="text-gray-600 text-sm mt-2">Welcome back. Here is your daily summary.</p>
+    <AnimatedPage className="space-y-6">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Overview</h1>
+        <p className="text-slate-500 text-sm mt-1">Here is what's happening at the clinic today.</p>
       </motion.div>
 
       <motion.div 
         variants={staggeredContainer}
         initial="initial"
         animate="animate"
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
       >
         {stats.map((stat) => (
           <motion.div key={stat.label} variants={staggeredItem}>
-            <Link to={stat.link} className="block glass-panel p-6 rounded-3xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
-              <div className="flex items-center justify-between mb-4">
-                <div className={`${stat.bg} ${stat.color} p-3.5 rounded-2xl group-hover:scale-110 transition-transform duration-300`}>
-                  <stat.icon size={22} />
+            <Link to={stat.link} className="block bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 group">
+              <div className="flex items-center justify-between mb-3">
+                <div className={`${stat.bg} ${stat.color} p-2.5 rounded-lg group-hover:scale-105 transition-transform duration-200`}>
+                  <stat.icon size={20} />
                 </div>
-                <ChevronRight className="text-gray-400 group-hover:text-primary transition-colors" size={20} />
+                <ChevronRight className="text-slate-300 group-hover:text-primary transition-colors" size={18} />
               </div>
-              <p className="text-4xl font-bold text-gray-900 serif-text">{stat.value}</p>
-              <p className="text-sm font-medium text-gray-600 mt-2">{stat.label}</p>
+              <p className="text-3xl font-bold text-slate-900">{stat.value}</p>
+              <p className="text-sm font-medium text-slate-500 mt-1">{stat.label}</p>
             </Link>
           </motion.div>
         ))}
@@ -88,37 +87,37 @@ const Dashboard = () => {
         variants={staggeredContainer}
         initial="initial"
         animate="animate"
-        className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
       >
         {/* Recent Appointments */}
-        <motion.div variants={staggeredItem} className="lg:col-span-2 glass-panel rounded-3xl overflow-hidden flex flex-col">
-          <div className="p-6 border-b border-black/5 flex items-center justify-between bg-white/40">
-            <h3 className="font-bold text-gray-900 serif-text text-lg">Recent Appointments</h3>
-            <Link to="/appointments" className="text-primary text-sm font-semibold hover:text-accent transition-colors flex items-center gap-1">
+        <motion.div variants={staggeredItem} className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col">
+          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+            <h3 className="font-semibold text-slate-900">Recent Appointments</h3>
+            <Link to="/appointments" className="text-primary text-sm font-medium hover:text-primary-h transition-colors flex items-center gap-1">
               View all <ArrowRight size={14} />
             </Link>
           </div>
-          <div className="divide-y divide-black/5 flex-1">
+          <div className="divide-y divide-slate-100 flex-1">
             {recentAppointments.length > 0 ? (
               recentAppointments.map((appt) => (
-                <div key={appt.id} className="p-5 flex items-center justify-between hover:bg-white/40 transition-colors">
+                <div key={appt.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary text-accent-soft flex items-center justify-center font-bold shadow-inner">
+                    <div className="w-10 h-10 rounded-full bg-blue-50 text-primary flex items-center justify-center font-bold text-sm">
                       {appt.patient_name?.charAt(0)}
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-gray-900">{appt.patient_name}</p>
-                      <p className="text-xs text-gray-600 mt-0.5">{appt.specialization_name} • Dr. {appt.doctor_name}</p>
+                      <p className="text-sm font-bold text-slate-900">{appt.patient_name}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{appt.specialization_name} • Dr. {appt.doctor_name}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-gray-900">
+                    <p className="text-sm font-semibold text-slate-900">
                       {new Date(appt.appointment_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
-                    <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mt-1.5 shadow-sm ${
-                      appt.status === 'scheduled' ? 'bg-white text-primary border border-black/5' :
-                      appt.status === 'completed' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-200 text-gray-700'
+                    <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide mt-1 ${
+                      appt.status === 'scheduled' ? 'bg-blue-50 text-blue-700' :
+                      appt.status === 'completed' ? 'bg-emerald-50 text-emerald-700' :
+                      'bg-slate-100 text-slate-600'
                     }`}>
                       {appt.status}
                     </span>
@@ -126,9 +125,9 @@ const Dashboard = () => {
                 </div>
               ))
             ) : (
-              <div className="p-16 text-center text-gray-400">
-                <Calendar className="mx-auto mb-3 opacity-20" size={56} />
-                <p>No appointments scheduled</p>
+              <div className="p-12 text-center text-slate-400">
+                <Calendar className="mx-auto mb-2 opacity-30" size={40} />
+                <p className="text-sm">No appointments scheduled</p>
               </div>
             )}
           </div>
@@ -136,40 +135,39 @@ const Dashboard = () => {
 
         {/* Inventory Quick Actions */}
         <motion.div variants={staggeredItem} className="space-y-6">
-          <div className="bg-gradient-to-br from-primary to-primary-dark p-8 rounded-3xl text-white shadow-xl hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden">
-            <div className="absolute -right-4 -top-4 w-24 h-24 bg-accent/20 rounded-full blur-2xl"></div>
-            <div className="flex items-center gap-3 mb-4 relative z-10">
-              <div className="p-2 bg-white/10 rounded-xl backdrop-blur-sm">
-                <Package size={22} className="text-accent-soft" />
+          <div className="bg-primary p-6 rounded-xl text-white shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <Package size={20} />
               </div>
-              <h3 className="font-bold serif-text text-lg text-accent-soft">Inventory Alert</h3>
+              <h3 className="font-semibold text-white">Inventory Status</h3>
             </div>
-            <p className="text-gray-300 text-sm leading-relaxed mb-6 relative z-10">
+            <p className="text-blue-100 text-sm leading-relaxed mb-5">
               {summary?.low_stock_count > 0 
-                ? `You have ${summary.low_stock_count} items below reorder level. Please check and restock.`
+                ? `You have ${summary.low_stock_count} items below reorder level.`
                 : "All medicine stock levels are currently healthy."}
             </p>
-            <Link to="/inventory" className="block w-full bg-white/10 hover:bg-white/20 border border-white/10 transition-colors text-center py-3 rounded-xl text-sm font-bold backdrop-blur-sm relative z-10">
+            <Link to="/inventory" className="block w-full bg-white text-primary text-center py-2.5 rounded-lg text-sm font-bold shadow-sm hover:bg-blue-50 transition-colors">
               Manage Inventory
             </Link>
           </div>
 
-          <div className="glass-panel p-6 rounded-3xl">
-            <h3 className="font-bold text-gray-900 mb-5 serif-text text-lg px-2">Quick Links</h3>
-            <div className="space-y-3">
-              <Link to="/patients" className="flex items-center justify-between p-4 rounded-2xl bg-white/50 hover:bg-primary hover:text-white transition-all duration-300 group shadow-sm">
-                <div className="flex items-center gap-3">
-                  <Users size={18} />
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <h3 className="font-semibold text-slate-900 mb-4">Quick Links</h3>
+            <div className="space-y-2">
+              <Link to="/patients" className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-primary hover:bg-blue-50 hover:text-primary transition-all duration-200 group">
+                <div className="flex items-center gap-3 text-slate-600 group-hover:text-primary">
+                  <Users size={16} />
                   <span className="text-sm font-medium">New Patient Visit</span>
                 </div>
-                <ChevronRight size={16} className="text-gray-400 group-hover:text-accent-soft transition-colors" />
+                <ChevronRight size={16} className="text-slate-300 group-hover:text-primary transition-colors" />
               </Link>
-              <Link to="/appointments" className="flex items-center justify-between p-4 rounded-2xl bg-white/50 hover:bg-primary hover:text-white transition-all duration-300 group shadow-sm">
-                <div className="flex items-center gap-3">
-                  <Calendar size={18} />
+              <Link to="/appointments" className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-primary hover:bg-blue-50 hover:text-primary transition-all duration-200 group">
+                <div className="flex items-center gap-3 text-slate-600 group-hover:text-primary">
+                  <Calendar size={16} />
                   <span className="text-sm font-medium">Schedule Appointment</span>
                 </div>
-                <ChevronRight size={16} className="text-gray-400 group-hover:text-accent-soft transition-colors" />
+                <ChevronRight size={16} className="text-slate-300 group-hover:text-primary transition-colors" />
               </Link>
             </div>
           </div>
