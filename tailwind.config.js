@@ -8,21 +8,28 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#0891B2', // Cyan 600
-          dark: '#0e7490',    // Cyan 700
-          soft: '#E8F1F6',    // Muted light blue/teal
+          DEFAULT: '#1C1917', // Stone 900 (Premium Black)
+          dark: '#0C0A09',    // Stone 950
+          soft: '#E8ECF0',    // Muted
         },
         accent: {
-          DEFAULT: '#16A34A', // Green 600
-          dark: '#15803d',    // Green 700
-          soft: '#dcfce7',    // Green 50
+          DEFAULT: '#A16207', // Yellow 700 (Gold)
+          dark: '#854D0E',    // Yellow 800
+          soft: '#FEF08A',    // Yellow 200
         },
-        surface: '#ffffff',
-        surface2: '#F0FDFA',  // Teal 50
+        surface: 'rgba(255, 255, 255, 0.7)',
+        surface2: 'rgba(255, 255, 255, 0.4)',
       },
       fontFamily: {
-        sans: ['Figtree', 'Noto Sans', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        serif: ['Playfair Display', 'Georgia', 'serif'],
       },
+      backdropBlur: {
+        xs: '2px',
+        md: '8px',
+        lg: '16px',
+        xl: '24px',
+      }
     },
   },
   plugins: [],

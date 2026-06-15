@@ -1,53 +1,67 @@
-@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ============================================================
-   Albacete Eye Clinic — Styles
-   Cloudflare Pages + D1 · React + Vite
+   Albacete Eye Clinic — Luxury Premium Styles
    ============================================================ */
 
 /* ── Reset & Base ─────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:          #F0FDFA;
-  --surface:     #ffffff;
-  --surface2:    #F0FDFA;
-  --border:      #CCFBF1;
-  --primary:     #0891B2;
-  --primary-h:   #0e7490;
-  --primary-soft:#E8F1F6;
-  --accent:      #16A34A;
-  --text:        #134E4A;
-  --text-2:      #475569;
-  --text-3:      #94a3b8;
-  --success:     #16A34A;
-  --success-bg:  #dcfce7;
-  --warning:     #d97706;
-  --warning-bg:  #fef3c7;
+  --bg:          #FAFAF9; /* Stone 50 */
+  --surface:     rgba(255, 255, 255, 0.7);
+  --surface2:    rgba(255, 255, 255, 0.4);
+  --border:      rgba(214, 211, 209, 0.6); /* Stone 300 transparent */
+  --primary:     #1C1917; /* Stone 900 */
+  --primary-h:   #0C0A09; /* Stone 950 */
+  --primary-soft:rgba(28, 25, 23, 0.05);
+  --accent:      #A16207; /* Yellow 700 / Gold */
+  --text:        #0C0A09;
+  --text-2:      #44403C; /* Stone 700 */
+  --text-3:      #78716C; /* Stone 500 */
+  --success:     #15803d;
+  --success-bg:  rgba(220, 252, 231, 0.7);
+  --warning:     #b45309;
+  --warning-bg:  rgba(254, 243, 199, 0.7);
   --danger:      #DC2626;
-  --danger-bg:   #fee2e2;
-  --radius:      14px;
-  --shadow:      0 1px 4px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
-  --shadow-lg:   0 4px 24px rgba(0,0,0,.10);
-  font-family: 'Figtree', 'Noto Sans', system-ui, -apple-system, sans-serif;
+  --danger-bg:   rgba(254, 226, 226, 0.7);
+  --radius:      16px;
+  --shadow:      0 8px 32px rgba(28, 25, 23, 0.04), 0 1px 2px rgba(28, 25, 23, 0.02);
+  --shadow-lg:   0 16px 48px rgba(28, 25, 23, 0.08), 0 2px 4px rgba(28, 25, 23, 0.02);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
 }
 
-body { min-height: 100dvh; }
-a { color: var(--primary); text-decoration: none; }
-a:hover { text-decoration: underline; }
+h1, h2, h3, .serif-text {
+  font-family: 'Playfair Display', Georgia, serif;
+}
 
-/* ── Layout ───────────────────────────────────────────────── */
+body { min-height: 100dvh; background: var(--bg); }
+a { color: var(--accent); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+/* ── Layout & Liquid Glass Effects ─────────────────────────── */
 .app-bg {
   position: fixed; inset: 0; z-index: -1;
-  background: radial-gradient(ellipse 90% 60% at 60% -10%, #dbeafe 0%, transparent 70%),
-              radial-gradient(ellipse 50% 40% at -10% 80%, #e0f2fe 0%, transparent 70%);
+  background: 
+    radial-gradient(circle at 15% 50%, rgba(161, 98, 7, 0.03), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(28, 25, 23, 0.04), transparent 25%),
+    radial-gradient(circle at 50% 80%, rgba(161, 98, 7, 0.02), transparent 30%);
+  filter: blur(40px);
+}
+
+.glass-panel {
+  background: var(--surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
 }
 .app-shell { max-width: 1280px; margin: 0 auto; padding: 0 16px 80px; }
 .page-grid {
