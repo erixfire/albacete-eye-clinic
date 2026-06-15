@@ -1,83 +1,192 @@
--- ============================================================
--- Albacete Eye Clinic · D1 Schema
--- Run: wrangler d1 execute albacete-clinic-db --remote --file=schema.sql
--- ============================================================
+-- Albacete Clinic - D1 Schema
 
--- ── Admins (clinic staff logins)
-CREATE TABLE IF NOT EXISTS admins (
-  id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  username      TEXT NOT NULL UNIQUE COLLATE NOCASE,
+-- Specializations
+CREATE TABLE specializations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT UNIQUE NOT NULL,
+  description TEXT
+);
+
+-- Users / Staff
+CREATE TABLE users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  full_name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
-  full_name     TEXT NOT NULL DEFAULT '',
-  role          TEXT NOT NULL DEFAULT 'staff' CHECK(role IN ('superadmin','staff')),
-  created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+  role TEXT NOT NULL CHECK(role IN ('admin','doctor','nurse','pharmacist')),
+  specialization_id INTEGER,
+  is_active INTEGER DEFAULT 1,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (specialization_id) REFERENCES specializations(id)
 );
 
--- ── Sessions (cookie-based auth)
-CREATE TABLE IF NOT EXISTS sessions (
-  token      TEXT PRIMARY KEY,
-  admin_id   INTEGER NOT NULL REFERENCES admins(id) ON DELETE CASCADE,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  expires_at TEXT NOT NULL
+-- Patients
+CREATE TABLE patients (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  patient_code TEXT UNIQUE NOT NULL,
+  full_name TEXT NOT NULL,
+  date_of_birth TEXT,
+  gender TEXT,
+  contact_number TEXT,
+  email TEXT,
+  address TEXT,
+  emergency_contact_name TEXT,
+  emergency_contact_number TEXT,
+  blood_type TEXT,
+  known_allergies TEXT,
+  medical_history_notes TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
-
--- ── Appointments
--- NOTE: retain_until is added via ALTER TABLE in migrate.sql for existing DBs.
--- New databases get it here automatically.
-CREATE TABLE IF NOT EXISTS appointments (
-  id           INTEGER PRIMARY KEY AUTOINCREMENT,
-  created_at   TEXT NOT NULL DEFAULT (datetime('now')),
-  name         TEXT NOT NULL,
-  phone        TEXT NOT NULL DEFAULT '',
-  date         TEXT NOT NULL,
-  time         TEXT NOT NULL,
-  doctor       TEXT NOT NULL DEFAULT '',
-  type         TEXT NOT NULL DEFAULT '',
-  reason       TEXT NOT NULL DEFAULT '',
-  insurance    TEXT NOT NULL DEFAULT '',
-  status       TEXT NOT NULL DEFAULT 'pending'
-                 CHECK(status IN ('pending','confirmed','cancelled'))
+-- Visits / Encounters
+CREATE TABLE visits (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  patient_id INTEGER NOT NULL,
+  doctor_id INTEGER NOT NULL,
+  specialization_id INTEGER NOT NULL,
+  visit_date TEXT DEFAULT CURRENT_TIMESTAMP,
+  chief_complaint TEXT,
+  diagnosis TEXT,
+  treatment_plan TEXT,
+  notes TEXT,
+  follow_up_date TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (patient_id) REFERENCES patients(id),
+  FOREIGN KEY (doctor_id) REFERENCES users(id),
+  FOREIGN KEY (specialization_id) REFERENCES specializations(id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_appt_date   ON appointments(date, time);
-CREATE INDEX IF NOT EXISTS idx_appt_status ON appointments(status);
-
--- ── Consent Logs (RA 10173 — proof of patient consent)
-CREATE TABLE IF NOT EXISTS consent_logs (
-  id             INTEGER PRIMARY KEY AUTOINCREMENT,
-  appointment_id INTEGER NOT NULL REFERENCES appointments(id) ON DELETE CASCADE,
-  ip_address     TEXT    NOT NULL DEFAULT '',
-  user_agent     TEXT    NOT NULL DEFAULT '',
-  consent_text   TEXT    NOT NULL,
-  consented_at   TEXT    NOT NULL DEFAULT (datetime('now'))
+-- Eye Exam (Ophthalmology-specific)
+CREATE TABLE eye_exams (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  visit_id INTEGER NOT NULL UNIQUE,
+  va_right_uncorrected TEXT,
+  va_right_corrected TEXT,
+  va_left_uncorrected TEXT,
+  va_left_corrected TEXT,
+  iop_right REAL,
+  iop_left REAL,
+  refraction_right TEXT,
+  refraction_left TEXT,
+  anterior_segment_right TEXT,
+  anterior_segment_left TEXT,
+  fundus_right TEXT,
+  fundus_left TEXT,
+  pupil_exam TEXT,
+  color_vision_test TEXT,
+  additional_notes TEXT,
+  FOREIGN KEY (visit_id) REFERENCES visits(id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_consent_appt ON consent_logs(appointment_id);
-
--- ── Audit Logs (RA 10173 — access & modification trail for SPI)
-CREATE TABLE IF NOT EXISTS audit_logs (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  admin_id    INTEGER REFERENCES admins(id) ON DELETE SET NULL,
-  action      TEXT NOT NULL,
-  target_id   INTEGER,
-  detail      TEXT NOT NULL DEFAULT '',
-  ip_address  TEXT NOT NULL DEFAULT '',
-  created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+-- Custom fields for other specialties
+CREATE TABLE visit_custom_fields (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  visit_id INTEGER NOT NULL,
+  field_name TEXT NOT NULL,
+  field_value TEXT,
+  FOREIGN KEY (visit_id) REFERENCES visits(id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_audit_created  ON audit_logs(created_at);
-CREATE INDEX IF NOT EXISTS idx_audit_admin    ON audit_logs(admin_id);
-CREATE INDEX IF NOT EXISTS idx_audit_target   ON audit_logs(target_id);
-
--- ── Seed superadmin
--- Default password: Admin1234!
--- ⚠️  Change this password immediately after first login!
-INSERT OR IGNORE INTO admins (username, password_hash, full_name, role)
-VALUES (
-  'admin',
-  '7f8b2c1a9d4e6f3b0a5c8e2d7f4b1a9c3e6d8f2b5a7c0e3d6f9b2a4c7e0d3f6',
-  'Clinic Administrator',
-  'superadmin'
+-- Suppliers
+CREATE TABLE suppliers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  contact_person TEXT,
+  phone TEXT,
+  email TEXT,
+  address TEXT
 );
+
+-- Medicines / Inventory
+CREATE TABLE medicines (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  generic_name TEXT,
+  category TEXT,
+  manufacturer TEXT,
+  supplier_id INTEGER,
+  unit TEXT,
+  unit_price REAL DEFAULT 0,
+  stock_quantity INTEGER DEFAULT 0,
+  reorder_level INTEGER DEFAULT 10,
+  batch_number TEXT,
+  expiry_date TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (supplier_id) REFERENCES suppliers(id)
+);
+
+-- Inventory Transactions
+CREATE TABLE inventory_transactions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  medicine_id INTEGER NOT NULL,
+  transaction_type TEXT NOT NULL CHECK(transaction_type IN ('in','out','adjustment')),
+  quantity INTEGER NOT NULL,
+  reference_type TEXT,
+  reference_id INTEGER,
+  performed_by INTEGER,
+  notes TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (medicine_id) REFERENCES medicines(id),
+  FOREIGN KEY (performed_by) REFERENCES users(id)
+);
+
+-- Prescriptions
+CREATE TABLE prescriptions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  visit_id INTEGER NOT NULL,
+  medicine_id INTEGER NOT NULL,
+  dosage TEXT,
+  frequency TEXT,
+  duration TEXT,
+  quantity_prescribed INTEGER,
+  instructions TEXT,
+  FOREIGN KEY (visit_id) REFERENCES visits(id),
+  FOREIGN KEY (medicine_id) REFERENCES medicines(id)
+);
+
+-- Appointments
+CREATE TABLE appointments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  patient_id INTEGER NOT NULL,
+  doctor_id INTEGER NOT NULL,
+  specialization_id INTEGER NOT NULL,
+  appointment_date TEXT NOT NULL,
+  status TEXT DEFAULT 'scheduled' CHECK(status IN ('scheduled','completed','cancelled','no_show')),
+  notes TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (patient_id) REFERENCES patients(id),
+  FOREIGN KEY (doctor_id) REFERENCES users(id),
+  FOREIGN KEY (specialization_id) REFERENCES specializations(id)
+);
+
+-- Attachments
+CREATE TABLE attachments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  patient_id INTEGER NOT NULL,
+  visit_id INTEGER,
+  file_name TEXT NOT NULL,
+  file_type TEXT,
+  r2_key TEXT NOT NULL UNIQUE,
+  description TEXT,
+  uploaded_by INTEGER,
+  uploaded_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (patient_id) REFERENCES patients(id),
+  FOREIGN KEY (visit_id) REFERENCES visits(id),
+  FOREIGN KEY (uploaded_by) REFERENCES users(id)
+);
+
+-- Seed Data
+INSERT INTO specializations (name, description) VALUES 
+('Ophthalmology', 'Eye care and vision'),
+('General Medicine', 'Primary healthcare'),
+('Dermatology', 'Skin, hair, and nails'),
+('ENT', 'Ear, Nose, and Throat'),
+('Pediatrics', 'Children healthcare');
+
+-- Initial Admin (Password: Admin123! - hashed using PBKDF2 placeholder for now)
+-- Actually, I'll need to generate a real hash later or use a known one if I have a helper.
+-- For now, let's put a dummy hash and I'll update it when I implement the auth.
+INSERT INTO users (full_name, email, password_hash, role) VALUES 
+('System Admin', 'admin@albaceteclinic.com', 'REPLACE_WITH_HASH', 'admin');

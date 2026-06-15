@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* ============================================================
    Albacete Eye Clinic — Styles
    Cloudflare Pages + D1 · React + Vite
