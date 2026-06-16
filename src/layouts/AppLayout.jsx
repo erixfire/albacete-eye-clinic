@@ -26,11 +26,11 @@ const AppLayout = ({ children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['admin', 'doctor', 'nurse', 'pharmacist'] },
-    { name: 'Patients', path: '/patients', icon: Users, roles: ['admin', 'doctor', 'nurse'] },
-    { name: 'Appointments', path: '/appointments', icon: Calendar, roles: ['admin', 'doctor', 'nurse'] },
-    { name: 'Inventory', path: '/inventory', icon: Pill, roles: ['admin', 'pharmacist'] },
-    { name: 'Admin', path: '/admin', icon: Settings, roles: ['admin'] },
+    { name: 'Dashboard',    path: '/dashboard',    icon: LayoutDashboard, roles: ['admin', 'doctor', 'nurse', 'pharmacist', 'frontdesk'] },
+    { name: 'Patients',     path: '/patients',     icon: Users,           roles: ['admin', 'doctor', 'nurse', 'frontdesk'] },
+    { name: 'Appointments', path: '/appointments', icon: Calendar,        roles: ['admin', 'doctor', 'nurse', 'frontdesk'] },
+    { name: 'Inventory',    path: '/inventory',    icon: Pill,            roles: ['admin', 'pharmacist'] },
+    { name: 'Admin',        path: '/admin',        icon: Settings,        roles: ['admin'] },
   ];
 
   const filteredNav = navItems.filter(item => item.roles.includes(user?.role));
