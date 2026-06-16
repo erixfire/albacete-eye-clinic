@@ -11,14 +11,14 @@ export default function Hero() {
         <div className="hero__content">
           <div className="hero__label">
             <span className="hero__label-dot" aria-hidden="true" />
-            Certified Clinic &middot; Albacete
+            Jaro, Iloilo City &middot; Philippines
           </div>
           <h1 className="hero__title" id="hero-title">
             Your vision deserves<br />the best <em>care</em>
           </h1>
           <p className="hero__subtitle">
-            Eye care specialists with over 20 years of experience. Advanced diagnostics,
-            laser surgery and personalised treatment for the whole family.
+            Albacete Eye Center &amp; Medical Clinics is Iloilo City&rsquo;s trusted eye care and multi-specialty clinic.
+            Comprehensive eye exams, laser surgery and personalised treatment for the whole family &mdash; in Jaro and Cabatuan.
           </p>
           <div className="hero__actions">
             <a href="#appointment" className="btn-primary">
@@ -37,18 +37,18 @@ export default function Hero() {
               </svg>
             </a>
           </div>
-          <div className="hero__stats" aria-label="Clinic statistics">
+          <div className="hero__stats" aria-label="Clinic highlights">
             <div className="hero__stat">
-              <div className="hero__stat-num">20+</div>
-              <div className="hero__stat-label">Years of experience</div>
+              <div className="hero__stat-num">2</div>
+              <div className="hero__stat-label">Clinic branches</div>
             </div>
             <div className="hero__stat">
-              <div className="hero__stat-num">8,500+</div>
-              <div className="hero__stat-label">Patients treated</div>
+              <div className="hero__stat-num">3,500+</div>
+              <div className="hero__stat-label">Followers &amp; patients</div>
             </div>
             <div className="hero__stat">
-              <div className="hero__stat-num">4.9&#9733;</div>
-              <div className="hero__stat-label">Average rating</div>
+              <div className="hero__stat-num">Mon&ndash;Sat</div>
+              <div className="hero__stat-label">8:00 AM &ndash; 5:00 PM</div>
             </div>
           </div>
         </div>
@@ -78,25 +78,20 @@ export default function Hero() {
             </svg>
             <div className="hero__float-card hero__float-card--1">
               <div className="hero__float-icon hero__float-icon--accent" aria-hidden="true">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                </svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
               </div>
               <div>
-                <div className="hero__float-title">OCT Diagnostics</div>
-                <div className="hero__float-sub">High resolution</div>
+                <div className="hero__float-title">Eye Specialist</div>
+                <div className="hero__float-sub">Dr. Thomas Louie Albacete</div>
               </div>
             </div>
             <div className="hero__float-card hero__float-card--2">
               <div className="hero__float-icon hero__float-icon--success" aria-hidden="true">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="m9 12 2 2 4-4"/>
-                  <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/>
-                </svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 12 2 2 4-4"/><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/></svg>
               </div>
               <div>
-                <div className="hero__float-title">Laser Surgery</div>
-                <div className="hero__float-sub">LASIK &middot; PRK &middot; SMILE</div>
+                <div className="hero__float-title">2 Branches</div>
+                <div className="hero__float-sub">Jaro &middot; Cabatuan</div>
               </div>
             </div>
           </div>

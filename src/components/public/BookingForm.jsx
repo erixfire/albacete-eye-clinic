@@ -2,17 +2,17 @@ import { useState } from 'react';
 import './BookingForm.css';
 
 const SERVICES = [
-  { value: 'checkup',   label: 'Comprehensive Eye Exam' },
-  { value: 'laser',     label: 'Laser Surgery (LASIK / PRK)' },
-  { value: 'cataracts', label: 'Cataract Surgery' },
-  { value: 'glaucoma',  label: 'Glaucoma' },
-  { value: 'retina',    label: 'Retina & Macula' },
-  { value: 'paediatric',label: 'Paediatric Ophthalmology' },
-  { value: 'other',     label: 'Other enquiry' },
+  { value: 'checkup',    label: 'Comprehensive Eye Exam' },
+  { value: 'refraction', label: 'Refraction & Optical' },
+  { value: 'cataracts',  label: 'Cataract Surgery' },
+  { value: 'glaucoma',   label: 'Glaucoma Management' },
+  { value: 'paediatric', label: 'Paediatric Eye Care' },
+  { value: 'obgyn',      label: 'OB-GYN (Cabatuan Branch)' },
+  { value: 'other',      label: 'Other enquiry' },
 ];
 
 export default function BookingForm() {
-  const [form, setForm] = useState({ firstName:'', lastName:'', phone:'', email:'', service:'', date:'', slot:'', notes:'' });
+  const [form, setForm] = useState({ firstName:'', lastName:'', phone:'', email:'', service:'', branch:'', date:'', slot:'', notes:'' });
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -44,15 +44,16 @@ export default function BookingForm() {
           telefono: form.phone,
           email: form.email,
           servicio: form.service,
+          branch: form.branch,
           fecha: form.date,
           turno: form.slot,
           notas: form.notes,
         }),
       });
       if (res.ok) setSubmitted(true);
-      else setErrors({ general: 'Submission failed. Please try again or call us directly.' });
+      else setErrors({ general: 'Submission failed. Please call us at 0963 862 9414 or message us on Facebook.' });
     } catch {
-      setErrors({ general: 'Connection error. Please call us directly.' });
+      setErrors({ general: 'Connection error. Please call 0963 862 9414 or message us on Facebook.' });
     } finally {
       setLoading(false);
     }
@@ -71,7 +72,7 @@ export default function BookingForm() {
         </svg>
         <div>
           <div className="booking-success__title">Appointment requested!</div>
-          <div className="booking-success__sub">We will contact you within 24 hours to confirm.</div>
+          <div className="booking-success__sub">We will contact you to confirm. You can also reach us at 0963 862 9414.</div>
         </div>
       </div>
     );
@@ -99,7 +100,7 @@ export default function BookingForm() {
           <label className="form-label" htmlFor="phone">Phone *</label>
           <input className={`form-input${errors.phone ? ' form-input--error' : ''}`}
             type="tel" id="phone" value={form.phone} onChange={set('phone')}
-            placeholder="07700 000000" autoComplete="tel" required/>
+            placeholder="09XX XXX XXXX" autoComplete="tel" required/>
           {errors.phone && <span className="form-error">{errors.phone}</span>}
         </div>
         <div className="form-group">
@@ -119,17 +120,17 @@ export default function BookingForm() {
           {errors.service && <span className="form-error">{errors.service}</span>}
         </div>
         <div className="form-group">
+          <label className="form-label" htmlFor="branch">Preferred branch</label>
+          <select className="form-input form-select" id="branch" value={form.branch} onChange={set('branch')}>
+            <option value="">No preference</option>
+            <option value="jaro">Jaro, Iloilo City (JEA Bldg, E. Lopez St.)</option>
+            <option value="cabatuan">Cabatuan, Iloilo</option>
+          </select>
+        </div>
+        <div className="form-group">
           <label className="form-label" htmlFor="date">Preferred date</label>
           <input className="form-input" type="date" id="date" value={form.date}
             onChange={set('date')} min={minDate}/>
-        </div>
-        <div className="form-group">
-          <label className="form-label" htmlFor="slot">Preferred time slot</label>
-          <select className="form-input form-select" id="slot" value={form.slot} onChange={set('slot')}>
-            <option value="">No preference</option>
-            <option value="morning">Morning (9:00–13:00)</option>
-            <option value="afternoon">Afternoon (15:00–20:00)</option>
-          </select>
         </div>
         <div className="form-group form-group--full">
           <label className="form-label" htmlFor="notes">Reason or additional notes</label>
@@ -145,7 +146,7 @@ export default function BookingForm() {
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
         </svg>
-        Your data is protected in accordance with GDPR
+        Your information is kept private and secure
       </p>
     </form>
   );

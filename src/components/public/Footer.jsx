@@ -10,17 +10,17 @@ export default function Footer() {
               <ellipse cx="16" cy="16" rx="15" ry="15" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5"/>
               <circle cx="16" cy="16" r="4" fill="rgba(255,255,255,0.7)"/>
             </svg>
-            <span>ALBACETE EYE CLINIC</span>
+            <span>ALBACETE EYE CENTER</span>
           </div>
-          <div className="footer__brand-name">Albacete</div>
+          <div className="footer__brand-name">&amp; Medical Clinics</div>
           <p className="footer__brand-desc">
-            Eye care specialists with over 20 years looking after the vision of families across Albacete.
+            Trusted eye care and multi-specialty medical clinic serving patients in Iloilo City and nearby communities.
           </p>
         </div>
         <div>
           <div className="footer__col-title">Services</div>
           <div className="footer__links">
-            {['Eye Exam','Laser Surgery','Cataracts','Glaucoma','Retina'].map((s) => (
+            {['Eye Exam','Refraction & Optical','Cataract Surgery','Glaucoma','Paediatric Eye Care','OB-GYN'].map((s) => (
               <a key={s} href="#services" className="footer__link">{s}</a>
             ))}
           </div>
@@ -31,22 +31,22 @@ export default function Footer() {
             <a href="#about" className="footer__link">About us</a>
             <a href="#testimonials" className="footer__link">Reviews</a>
             <a href="#appointment" className="footer__link">Book appointment</a>
-            <a href="/privacy" className="footer__link">Privacy policy</a>
+            <a href="https://www.facebook.com/AlbaceteEyeClinic/" target="_blank" rel="noopener noreferrer" className="footer__link">Facebook Page</a>
           </div>
         </div>
         <div>
           <div className="footer__col-title">Contact</div>
           <div className="footer__links">
-            <span className="footer__link">967 000 000</span>
-            <span className="footer__link">info@albacete-eyeclinic.com</span>
-            <span className="footer__link">Calle Mayor 12, Albacete</span>
-            <span className="footer__link">Mon&ndash;Fri: 9:00&ndash;20:00</span>
+            <span className="footer__link">0963 862 9414</span>
+            <span className="footer__link">JEA Bldg, E. Lopez St., Jaro, Iloilo City</span>
+            <span className="footer__link">Cabatuan, Iloilo (2nd Branch)</span>
+            <span className="footer__link">Mon&ndash;Sat: 8:00 AM &ndash; 5:00 PM</span>
           </div>
         </div>
       </div>
       <div className="footer__bottom">
-        <span>&copy; 2026 Albacete Eye Clinic. All rights reserved.</span>
-        <span>Cloudflare Pages &middot; Built with clinical precision</span>
+        <span>&copy; 2026 Albacete Eye Center &amp; Medical Clinics, Iloilo City, Philippines. All rights reserved.</span>
+        <span>Powered by Cloudflare Pages</span>
       </div>
     </footer>
   );

@@ -10,12 +10,9 @@ const NavLinks = ({ mobile = false, onClose }) => {
     { href: '#appointment',  label: 'Appointment'},
   ];
   return links.map(({ href, label }) => (
-    <a
-      key={href}
-      href={href}
+    <a key={href} href={href}
       className={mobile ? 'nav__mobile-link' : 'nav__link'}
-      onClick={onClose}
-    >
+      onClick={onClose}>
       {label}
     </a>
   ));
@@ -39,7 +36,7 @@ export default function Navbar() {
       <a href="#main" className="skip-link">Skip to content</a>
       <nav className={`nav${scrolled ? ' nav--scrolled' : ''}`} aria-label="Main navigation">
         <div className="nav__inner">
-          <a href="/" className="nav__logo" aria-label="Albacete Eye Clinic">
+          <a href="/" className="nav__logo" aria-label="Albacete Eye Center & Medical Clinics">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
               <ellipse cx="16" cy="16" rx="15" ry="15" stroke="var(--color-primary)" strokeWidth="1.5"/>
               <ellipse cx="16" cy="16" rx="8" ry="8" fill="var(--color-primary)" opacity="0.12"/>
@@ -47,7 +44,7 @@ export default function Navbar() {
               <circle cx="18.5" cy="13.5" r="1.5" fill="white" opacity="0.8"/>
               <path d="M4 16 C8 9, 24 9, 28 16 C24 23, 8 23, 4 16Z" stroke="var(--color-primary)" strokeWidth="1.2" fill="none" opacity="0.4"/>
             </svg>
-            <span>Albacete<br/><strong>Eye Clinic</strong></span>
+            <span>Albacete Eye Center<br/><strong>&amp; Medical Clinics</strong></span>
           </a>
 
           <div className="nav__links" role="list">
@@ -55,11 +52,8 @@ export default function Navbar() {
           </div>
 
           <div className="nav__actions">
-            <button
-              className="nav__theme-toggle"
-              onClick={toggle}
-              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-            >
+            <button className="nav__theme-toggle" onClick={toggle}
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
               {theme === 'dark' ? (
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="5"/>
@@ -72,16 +66,12 @@ export default function Navbar() {
               )}
             </button>
             <a href="#appointment" className="nav__cta">Book Appointment</a>
-            <button
-              className="nav__hamburger"
+            <button className="nav__hamburger"
               onClick={() => setMenuOpen((o) => !o)}
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={menuOpen}
-            >
+              aria-expanded={menuOpen}>
               {menuOpen ? (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6 6 18M6 6l12 12"/>
-                </svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
               ) : (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="3" y1="6" x2="21" y2="6"/>

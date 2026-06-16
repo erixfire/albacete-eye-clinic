@@ -5,37 +5,37 @@ const SERVICES = [
     id: 'checkup',
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>,
     title: 'Comprehensive Eye Exam',
-    desc: 'Full evaluation of visual acuity, eye pressure and fundus examination to detect any abnormality early.',
+    desc: 'Complete evaluation of visual acuity, eye pressure and retinal health. Walk-in consultations and scheduled appointments available.',
   },
   {
-    id: 'laser',
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M9.5 9.5a3 3 0 1 1 5 2.5c-.6.5-1 1.3-1 2.5"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>,
-    title: 'Laser Surgery (LASIK / PRK)',
-    desc: 'Correction of myopia, hyperopia and astigmatism. Freedom from glasses with the latest-generation technology.',
+    id: 'refraction',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.5 9.5a3 3 0 1 1 5 2.5c-.6.5-1 1.3-1 2.5"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>,
+    title: 'Refraction & Optical',
+    desc: 'Precise prescription testing for eyeglasses and contact lenses. Correction of myopia, hyperopia and astigmatism.',
   },
   {
     id: 'cataracts',
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>,
     title: 'Cataract Surgery',
-    desc: 'Surgery with premium intraocular lens implant. Restore visual clarity safely and effectively.',
+    desc: 'Surgical removal of cataracts with intraocular lens implant. Restore clear vision safely and effectively.',
   },
   {
     id: 'glaucoma',
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
-    title: 'Glaucoma',
-    desc: 'Early diagnosis and treatment using the latest OCT and tonometry technology.',
-  },
-  {
-    id: 'retina',
-    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
-    title: 'Retina & Macula',
-    desc: 'Treatment of macular degeneration, diabetic retinopathy and retinal detachment using minimally invasive techniques.',
+    title: 'Glaucoma Management',
+    desc: 'Early detection and monitoring of glaucoma through tonometry and optic nerve evaluation to prevent vision loss.',
   },
   {
     id: 'paediatric',
     icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
-    title: 'Paediatric Ophthalmology',
-    desc: 'Specialist check-ups for children. Early detection of strabismus, amblyopia and refractive problems.',
+    title: 'Paediatric Eye Care',
+    desc: 'Specialist eye check-ups for children. Early detection and treatment of strabismus, amblyopia and refractive errors.',
+  },
+  {
+    id: 'medical',
+    icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
+    title: 'Multi-Specialty Clinics',
+    desc: 'Beyond eye care, we offer OB-GYN and other medical specialty services at our Cabatuan branch. One clinic, complete care.',
   },
 ];
 
@@ -44,12 +44,12 @@ export default function Services() {
     <section className="services" id="services" aria-labelledby="services-title">
       <div className="container">
         <div className="section-header reveal">
-          <div className="section-tag">Specialities</div>
+          <div className="section-tag">Our Specialities</div>
           <h2 className="section-title" id="services-title">
-            Complete <em>ophthalmology</em> services
+            Complete <em>eye &amp; medical</em> care
           </h2>
           <p className="section-desc">
-            From preventive check-ups to refractive surgery, we cover every aspect of your eye health.
+            From routine eye exams to surgical procedures and multi-specialty consultations &mdash; all under one roof in Iloilo City.
           </p>
         </div>
         <div className="services__grid">
