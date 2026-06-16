@@ -79,8 +79,8 @@ const AppLayout = ({ children }) => {
               className={({ isActive }) => cn(
                 "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
                 isActive 
-                  ? "bg-blue-50 text-primary" 
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  ? "bg-primary-soft text-primary" 
+                  : "text-slate-600 hover:bg-primary-soft hover:text-slate-900"
               )}
             >
               <item.icon size={18} />
@@ -89,9 +89,9 @@ const AppLayout = ({ children }) => {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-slate-200 m-4 rounded-xl bg-slate-50">
+        <div className="p-4 border-t border-slate-200 m-4 rounded-xl bg-primary-soft/50">
           <div className="flex items-center gap-3 px-2 py-2">
-            <div className="w-9 h-9 rounded-full bg-blue-100 text-primary flex items-center justify-center font-bold text-sm">
+            <div className="w-9 h-9 rounded-full bg-primary-soft text-primary flex items-center justify-center font-bold text-sm">
               {user?.full_name?.charAt(0)}
             </div>
             <div className="flex-1 min-w-0">

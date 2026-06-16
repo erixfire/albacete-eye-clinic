@@ -26,15 +26,15 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <div className="flex justify-center">
           <div className="bg-primary text-white p-3 rounded-2xl shadow-lg">
             <Eye size={32} />
           </div>
         </div>
-        <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Albacete Clinic</h2>
-        <p className="mt-2 text-sm text-gray-600 font-medium">
+        <h2 className="mt-6 text-3xl font-extrabold text-foreground">Albacete Clinic</h2>
+        <p className="mt-2 text-sm text-slate-600 font-medium">
           Multi-Specialty & Eye Care Management
         </p>
       </div>
@@ -50,7 +50,7 @@ const Login = () => {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
+              <label htmlFor="email" className="block text-sm font-semibold text-foreground">
                 Email Address
               </label>
               <div className="mt-1 relative">
@@ -70,7 +70,7 @@ const Login = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
+              <label htmlFor="password" className="block text-sm font-semibold text-foreground">
                 Password
               </label>
               <div className="mt-1 relative">

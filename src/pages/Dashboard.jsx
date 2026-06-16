@@ -48,8 +48,8 @@ const Dashboard = () => {
   );
 
   const stats = [
-    { label: 'Today\'s Appointments', value: summary?.today_appointments || 0, icon: Calendar, color: 'text-primary', bg: 'bg-blue-50', link: '/appointments' },
-    { label: 'Total Patients', value: summary?.total_patients || 0, icon: Users, color: 'text-primary', bg: 'bg-blue-50', link: '/patients' },
+    { label: 'Today\'s Appointments', value: summary?.today_appointments || 0, icon: Calendar, color: 'text-primary', bg: 'bg-primary-soft', link: '/appointments' },
+    { label: 'Total Patients', value: summary?.total_patients || 0, icon: Users, color: 'text-primary', bg: 'bg-primary-soft', link: '/patients' },
     { label: 'Low Stock Items', value: summary?.low_stock_count || 0, icon: AlertTriangle, color: 'text-amber-600', bg: 'bg-amber-50', link: '/inventory?filter=low' },
     { label: 'Expiring Soon', value: summary?.expiring_meds_count || 0, icon: Clock, color: 'text-red-600', bg: 'bg-red-50', link: '/inventory?filter=expiring' },
   ];
@@ -100,9 +100,9 @@ const Dashboard = () => {
           <div className="divide-y divide-slate-100 flex-1">
             {recentAppointments.length > 0 ? (
               recentAppointments.map((appt) => (
-                <div key={appt.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                <div key={appt.id} className="p-4 flex items-center justify-between hover:bg-surface2 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-50 text-primary flex items-center justify-center font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-primary-soft text-primary flex items-center justify-center font-bold text-sm">
                       {appt.patient_name?.charAt(0)}
                     </div>
                     <div>
@@ -115,7 +115,7 @@ const Dashboard = () => {
                       {new Date(appt.appointment_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                     <span className={`inline-block px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide mt-1 ${
-                      appt.status === 'scheduled' ? 'bg-blue-50 text-blue-700' :
+                      appt.status === 'scheduled' ? 'bg-primary-soft text-primary-dark' :
                       appt.status === 'completed' ? 'bg-emerald-50 text-emerald-700' :
                       'bg-slate-100 text-slate-600'
                     }`}>
@@ -142,12 +142,12 @@ const Dashboard = () => {
               </div>
               <h3 className="font-semibold text-white">Inventory Status</h3>
             </div>
-            <p className="text-blue-100 text-sm leading-relaxed mb-5">
+            <p className="text-primary-soft text-sm leading-relaxed mb-5">
               {summary?.low_stock_count > 0 
                 ? `You have ${summary.low_stock_count} items below reorder level.`
                 : "All medicine stock levels are currently healthy."}
             </p>
-            <Link to="/inventory" className="block w-full bg-white text-primary text-center py-2.5 rounded-lg text-sm font-bold shadow-sm hover:bg-blue-50 transition-colors">
+            <Link to="/inventory" className="block w-full bg-white text-primary text-center py-2.5 rounded-lg text-sm font-bold shadow-sm hover:bg-primary-soft transition-colors">
               Manage Inventory
             </Link>
           </div>
@@ -155,14 +155,14 @@ const Dashboard = () => {
           <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
             <h3 className="font-semibold text-slate-900 mb-4">Quick Links</h3>
             <div className="space-y-2">
-              <Link to="/patients" className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-primary hover:bg-blue-50 hover:text-primary transition-all duration-200 group">
+              <Link to="/patients" className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-primary hover:bg-primary-soft hover:text-primary transition-all duration-200 group">
                 <div className="flex items-center gap-3 text-slate-600 group-hover:text-primary">
                   <Users size={16} />
                   <span className="text-sm font-medium">New Patient Visit</span>
                 </div>
                 <ChevronRight size={16} className="text-slate-300 group-hover:text-primary transition-colors" />
               </Link>
-              <Link to="/appointments" className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-primary hover:bg-blue-50 hover:text-primary transition-all duration-200 group">
+              <Link to="/appointments" className="flex items-center justify-between p-3 rounded-lg border border-slate-100 hover:border-primary hover:bg-primary-soft hover:text-primary transition-all duration-200 group">
                 <div className="flex items-center gap-3 text-slate-600 group-hover:text-primary">
                   <Calendar size={16} />
                   <span className="text-sm font-medium">Schedule Appointment</span>

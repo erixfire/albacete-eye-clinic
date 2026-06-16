@@ -87,7 +87,7 @@ const PatientForm = () => {
               <h3 className="font-bold text-gray-900 border-b border-gray-50 pb-4">Personal Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name *</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Full Name *</label>
                   <input
                     type="text"
                     name="full_name"
@@ -99,7 +99,7 @@ const PatientForm = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Date of Birth</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Date of Birth</label>
                   <input
                     type="date"
                     name="date_of_birth"
@@ -109,7 +109,7 @@ const PatientForm = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Gender</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Gender</label>
                   <select
                     name="gender"
                     value={formData.gender}
@@ -123,7 +123,7 @@ const PatientForm = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Contact Number</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Contact Number</label>
                   <input
                     type="tel"
                     name="contact_number"
@@ -134,7 +134,7 @@ const PatientForm = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Email Address</label>
                   <input
                     type="email"
                     name="email"
@@ -145,7 +145,7 @@ const PatientForm = () => {
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Home Address</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Home Address</label>
                   <textarea
                     name="address"
                     rows="2"
@@ -162,7 +162,7 @@ const PatientForm = () => {
               <h3 className="font-bold text-gray-900 border-b border-gray-50 pb-4">Medical Background</h3>
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Known Allergies</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Known Allergies</label>
                   <textarea
                     name="known_allergies"
                     rows="2"
@@ -173,7 +173,7 @@ const PatientForm = () => {
                   ></textarea>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Medical History Notes</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Medical History Notes</label>
                   <textarea
                     name="medical_history_notes"
                     rows="4"
@@ -192,7 +192,7 @@ const PatientForm = () => {
               <h3 className="font-bold text-gray-900 border-b border-gray-50 pb-4">Emergency Contact</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Contact Name</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Contact Name</label>
                   <input
                     type="text"
                     name="emergency_contact_name"
@@ -202,7 +202,7 @@ const PatientForm = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Contact Number</label>
+                  <label className="block text-sm font-semibold text-foreground mb-1">Contact Number</label>
                   <input
                     type="tel"
                     name="emergency_contact_number"
@@ -217,7 +217,7 @@ const PatientForm = () => {
             <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
               <h3 className="font-bold text-gray-900 border-b border-gray-50 pb-4">Other Info</h3>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Blood Type</label>
+                <label className="block text-sm font-semibold text-foreground mb-1">Blood Type</label>
                 <select
                   name="blood_type"
                   value={formData.blood_type}

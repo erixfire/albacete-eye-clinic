@@ -83,7 +83,7 @@ const MedicineList = () => {
           medicines.map((med) => (
             <motion.div key={med.id} variants={staggeredItem} className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
               <div className="flex justify-between items-start mb-4">
-                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                <div className="p-3 bg-primary-soft text-primary rounded-xl">
                   <Package size={20} />
                 </div>
                 {med.stock_quantity <= med.reorder_level && (

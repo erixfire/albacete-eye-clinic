@@ -8,25 +8,29 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#2563EB', // Blue 600
-          dark: '#1D4ED8',    // Blue 700
-          soft: '#EFF6FF',    // Blue 50
+          DEFAULT: '#0891B2', // Medical Teal
+          dark: '#0E7490',
+          soft: '#ECFEFF',    // Cyan 50
         },
         accent: {
-          DEFAULT: '#0EA5E9', // Sky 500
-          dark: '#0284C7',    // Sky 600
-          soft: '#E0F2FE',    // Sky 50
+          DEFAULT: '#16A34A', // Health Green
+          dark: '#15803D',
+          soft: '#F0FDF4',    // Green 50
         },
-        surface: '#ffffff',
-        surface2: '#F8FAFC',  // Slate 50
+        surface: '#FFFFFF',
+        surface2: '#F0FDFA', // Mint background
+        background: '#F0FDFA',
+        foreground: '#134E4A',
+        border: '#CCFBF1',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['Figtree', 'system-ui', 'sans-serif'],
+        sans: ['Noto Sans', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        'sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        'DEFAULT': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
-        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+        'sm': '0 1px 2px 0 rgba(19, 78, 74, 0.05)',
+        'DEFAULT': '0 1px 3px rgba(19, 78, 74, 0.05), 0 4px 12px rgba(19, 78, 74, 0.05)',
+        'md': '0 10px 25px -5px rgba(19, 78, 74, 0.1)',
       }
     },
   },

@@ -108,7 +108,7 @@ const PatientList = () => {
                   <tr key={patient.id} className="hover:bg-slate-50 transition-colors group">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-blue-50 text-primary flex items-center justify-center font-bold text-sm">
+                        <div className="w-10 h-10 rounded-full bg-primary-soft text-primary flex items-center justify-center font-bold text-sm">
                           {patient.full_name.charAt(0)}
                         </div>
                         <div>
@@ -142,7 +142,7 @@ const PatientList = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Link to={`/patients/${patient.id}`} className="p-2 text-slate-400 hover:text-primary hover:bg-blue-50 rounded-lg transition-colors">
+                        <Link to={`/patients/${patient.id}`} className="p-2 text-slate-400 hover:text-primary hover:bg-primary-soft rounded-lg transition-colors">
                           <ChevronRight size={18} />
                         </Link>
                       </div>
