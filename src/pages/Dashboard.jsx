@@ -18,9 +18,9 @@ const STATUS = {
 function StatCard({ label, value, icon: Icon, iconBg, iconColor, link, accent }) {
   const [hov, setHov] = useState(false);
   return (
-    <Link to={link} style={{ textDecoration:'none', display:'block' }}>
+    <Link to={link} style={{ textDecoration:'none', display:'block', height:'100%' }}>
       <div onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{
-        background: accent ? `linear-gradient(135deg,#0891b2,#0e7490)` : '#fff',
+        background: accent ? 'linear-gradient(135deg,#0891b2,#0e7490)' : '#fff',
         border: accent ? 'none' : '1px solid #f1f5f9',
         borderRadius:'18px', padding:'22px',
         boxShadow: hov ? '0 12px 32px rgba(0,0,0,0.12)' : accent ? '0 4px 20px rgba(8,145,178,0.3)' : '0 1px 4px rgba(0,0,0,0.05)',
@@ -72,7 +72,7 @@ export default function Dashboard() {
     { label:"Today's Appointments", value:summary?.today_appointments??0, icon:Calendar,      iconBg:'#e0f2fe', iconColor:'#0891b2', link:'/appointments', show:isClinic },
     { label:"Today's Visits",       value:summary?.today_visits??0,        icon:Activity,      iconBg:'#ede9fe', iconColor:'#7c3aed', link:'/appointments', show:isClinic },
     { label:'Total Patients',       value:summary?.total_patients??0,       icon:Users,         iconBg:'#dcfce7', iconColor:'#16a34a', link:'/patients',     show:isClinic },
-    { label:'Pending Requests',     value:summary?.pending_requests??0,     icon:Inbox,         iconBg: summary?.pending_requests>0?'#fef3c7':'#f8fafc', iconColor:summary?.pending_requests>0?'#d97706':'#94a3b8', link:'/appointments', show:isClinic },
+    { label:'Pending Requests',     value:summary?.pending_requests??0,     icon:Inbox,         iconBg:summary?.pending_requests>0?'#fef3c7':'#f8fafc', iconColor:summary?.pending_requests>0?'#d97706':'#94a3b8', link:'/appointments', show:isClinic },
     { label:'Low Stock Items',      value:summary?.low_stock_count??0,       icon:AlertTriangle, iconBg:summary?.low_stock_count>0?'#fff7ed':'#f8fafc',  iconColor:summary?.low_stock_count>0?'#ea580c':'#94a3b8',  link:'/inventory',   show:isPharmacist },
     { label:'Expiring Soon',        value:summary?.expiring_meds_count??0,  icon:Clock,         iconBg:summary?.expiring_meds_count>0?'#fef2f2':'#f8fafc', iconColor:summary?.expiring_meds_count>0?'#dc2626':'#94a3b8', link:'/inventory', show:isPharmacist },
   ].filter(s=>s.show);
@@ -80,16 +80,20 @@ export default function Dashboard() {
   const recentVisits  = summary?.recent_visits  || [];
   const lowStockItems = summary?.low_stock_items || [];
 
+  const cols = stats.length <= 3 ? stats.length : stats.length <= 4 ? 2 : 3;
+
   return (
     <AnimatedPage>
       {/* Header */}
       <motion.div initial={{opacity:0,y:-8}} animate={{opacity:1,y:0}} transition={{duration:0.3}}
-        style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'28px' }}>
+        style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'28px', flexWrap:'wrap', gap:'12px' }}>
         <div>
-          <h1 style={{ fontSize:'26px', fontWeight:800, color:'#0f172a', margin:'0 0 4px', letterSpacing:'-0.02em' }}>Good {new Date().getHours()<12?'morning':'afternoon'}, {user?.full_name?.split(' ')[0]} 👋</h1>
+          <h1 style={{ fontSize:'26px', fontWeight:800, color:'#0f172a', margin:'0 0 4px', letterSpacing:'-0.02em' }}>
+            Good {new Date().getHours()<12?'morning':'afternoon'}, {user?.full_name?.split(' ')[0]} &#128075;
+          </h1>
           <p style={{ fontSize:'13px', color:'#94a3b8', margin:0 }}>
             {new Date().toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}
-            {lastFetch && <span style={{ marginLeft:'12px' }}>· Updated {lastFetch.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'})}</span>}
+            {lastFetch && <span style={{ marginLeft:'12px' }}>&#183; Updated {lastFetch.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'})}</span>}
           </p>
         </div>
         <button onClick={fetchDashboard}
@@ -100,11 +104,11 @@ export default function Dashboard() {
         </button>
       </motion.div>
 
-      {/* Stat grid */}
+      {/* Stat grid — always fills rows cleanly */}
       <motion.div variants={staggeredContainer} initial="initial" animate="animate"
-        style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))', gap:'14px', marginBottom:'28px' }}>
+        style={{ display:'grid', gridTemplateColumns:`repeat(${cols},1fr)`, gap:'14px', marginBottom:'28px' }}>
         {stats.map((s,i) => (
-          <motion.div key={s.label} variants={staggeredItem}>
+          <motion.div key={s.label} variants={staggeredItem} style={{ minWidth:0 }}>
             <StatCard {...s} accent={i===0}/>
           </motion.div>
         ))}
@@ -113,7 +117,6 @@ export default function Dashboard() {
       {/* Bottom grid */}
       <div style={{ display:'grid', gridTemplateColumns: isClinic?'1fr 320px':'1fr', gap:'20px', alignItems:'start' }}>
 
-        {/* Recent Visits */}
         {isClinic && (
           <motion.div initial={{opacity:0,y:12}} animate={{opacity:1,y:0}} transition={{delay:0.15}}
             style={{ background:'#fff', borderRadius:'18px', border:'1px solid #f1f5f9', boxShadow:'0 1px 4px rgba(0,0,0,0.05)', overflow:'hidden' }}>
@@ -140,7 +143,7 @@ export default function Dashboard() {
                         </div>
                         <div>
                           <p style={{ fontWeight:600, color:'#0f172a', margin:0, fontSize:'14px' }}>{v.patient_name}</p>
-                          <p style={{ fontSize:'12px', color:'#94a3b8', margin:'2px 0 0' }}>{v.chief_complaint||'General consultation'}{v.doctor_name?` • Dr. ${v.doctor_name}`:''}</p>
+                          <p style={{ fontSize:'12px', color:'#94a3b8', margin:'2px 0 0' }}>{v.chief_complaint||'General consultation'}{v.doctor_name?` \u2022 Dr. ${v.doctor_name}`:''}</p>
                         </div>
                       </div>
                       <div style={{ textAlign:'right', flexShrink:0 }}>
@@ -160,10 +163,7 @@ export default function Dashboard() {
           </motion.div>
         )}
 
-        {/* Right column */}
         <div style={{ display:'flex', flexDirection:'column', gap:'14px' }}>
-
-          {/* Pending alert */}
           {isClinic && summary?.pending_requests>0 && (
             <Link to="/appointments" style={{ textDecoration:'none' }}>
               <div style={{ background:'linear-gradient(135deg,#fffbeb,#fef3c7)', border:'1px solid #fde68a', borderRadius:'14px', padding:'14px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer' }}
@@ -181,7 +181,6 @@ export default function Dashboard() {
             </Link>
           )}
 
-          {/* Inventory */}
           {isPharmacist && (
             <div style={{ background:'linear-gradient(160deg,#0c4a6e,#0891b2)', borderRadius:'18px', padding:'20px', color:'white', boxShadow:'0 4px 20px rgba(8,145,178,0.3)' }}>
               <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'14px' }}>
@@ -210,13 +209,12 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Quick Links */}
           <div style={{ background:'#fff', border:'1px solid #f1f5f9', borderRadius:'18px', padding:'18px 20px', boxShadow:'0 1px 4px rgba(0,0,0,0.05)' }}>
             <h3 style={{ fontWeight:700, color:'#0f172a', margin:'0 0 12px', fontSize:'15px' }}>Quick Actions</h3>
             <div style={{ display:'flex', flexDirection:'column', gap:'6px' }}>
               {(isClinic ? [
-                {to:'/patients/new', label:'Register New Patient', icon:Users, color:'#0891b2', bg:'#e0f2fe'},
-                {to:'/appointments', label:'Schedule Appointment',  icon:Calendar, color:'#7c3aed', bg:'#ede9fe'},
+                {to:'/patients/new', label:'Register New Patient', icon:Users,    color:'#0891b2', bg:'#e0f2fe'},
+                {to:'/appointments', label:'Schedule Appointment', icon:Calendar, color:'#7c3aed', bg:'#ede9fe'},
               ] : []).concat(isPharmacist ? [{to:'/inventory', label:'Update Stock', icon:Package, color:'#16a34a', bg:'#dcfce7'}] : [])
               .map(({to,label,icon:Icon,color,bg})=>(
                 <Link key={to} to={to} style={{ textDecoration:'none' }}>

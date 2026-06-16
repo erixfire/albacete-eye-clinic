@@ -3,6 +3,22 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Search, UserPlus, ChevronRight, Eye, Phone, Calendar } from 'lucide-react';
 
+const C = {
+  primary:'#0891b2', primaryDark:'#0e7490', primaryBg:'#e0f2fe',
+  border:'#f1f5f9', borderMid:'#e2e8f0', bg:'#f8fafc', white:'#fff',
+  text:'#0f172a', textMid:'#475569', textSoft:'#94a3b8',
+};
+
+const inputStyle = {
+  width:'100%', padding:'9px 12px 9px 36px',
+  border:`1.5px solid ${C.borderMid}`, borderRadius:'10px',
+  fontSize:'13px', outline:'none', fontFamily:'inherit',
+  background:C.bg, color:C.text, boxSizing:'border-box',
+  transition:'border-color 0.15s, box-shadow 0.15s',
+};
+const fi = e=>{ e.target.style.borderColor=C.primary; e.target.style.boxShadow='0 0 0 3px rgba(8,145,178,0.12)'; e.target.style.background='#fff'; };
+const fo = e=>{ e.target.style.borderColor=C.borderMid; e.target.style.boxShadow='none'; e.target.style.background=C.bg; };
+
 export default function PatientList() {
   const { user } = useAuth();
   const navigate  = useNavigate();
@@ -17,120 +33,137 @@ export default function PatientList() {
   const fetchPatients = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({ q, branch, page, limit });
-    const res = await fetch(`/api/patients?${params}`, { credentials: 'include' });
+    const res = await fetch(`/api/patients?${params}`, { credentials:'include' });
     if (res.ok) { const d = await res.json(); setPatients(d.patients); setTotal(d.total); }
     setLoading(false);
   }, [q, branch, page]);
+  useEffect(()=>{ fetchPatients(); }, [fetchPatients]);
 
-  useEffect(() => { fetchPatients(); }, [fetchPatients]);
+  const selectStyle = {
+    padding:'9px 12px', border:`1.5px solid ${C.borderMid}`, borderRadius:'10px',
+    fontSize:'13px', outline:'none', fontFamily:'inherit', background:C.bg,
+    color:C.text, cursor:'pointer', transition:'border-color 0.15s',
+    appearance:'none', WebkitAppearance:'none', paddingRight:'32px',
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-6">
+    <div style={{ maxWidth:'1280px', margin:'0 auto', padding:'24px 20px' }}>
+
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:'24px', flexWrap:'wrap', gap:'12px' }}>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Patients</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{total} total records</p>
+          <h1 style={{ fontSize:'26px', fontWeight:800, color:C.text, margin:'0 0 4px', letterSpacing:'-0.02em' }}>Patients</h1>
+          <p style={{ fontSize:'13px', color:C.textSoft, margin:0 }}>{total} total records</p>
         </div>
         {['admin','doctor','nurse','frontdesk'].includes(user?.role) && (
-          <Link to="/patients/new"
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition">
-            <UserPlus size={16}/> New Patient
+          <Link to="/patients/new" style={{ textDecoration:'none' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:'7px', padding:'9px 18px', background:`linear-gradient(135deg,${C.primary},${C.primaryDark})`, color:'white', border:'none', borderRadius:'11px', fontWeight:700, fontSize:'13px', cursor:'pointer', boxShadow:'0 3px 12px rgba(8,145,178,0.35)', userSelect:'none' }}>
+              <UserPlus size={15}/> New Patient
+            </div>
           </Link>
         )}
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 mb-5">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
-          <input type="text" value={q} onChange={e => { setQ(e.target.value); setPage(1); }}
-            placeholder="Search by name, code, or phone..."
-            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"/>
+      {/* Search + filter */}
+      <div style={{ display:'flex', gap:'10px', marginBottom:'18px', flexWrap:'wrap' }}>
+        <div style={{ position:'relative', flex:1, minWidth:'200px' }}>
+          <Search size={14} style={{ position:'absolute', left:'11px', top:'50%', transform:'translateY(-50%)', color:C.textSoft, pointerEvents:'none' }}/>
+          <input type="text" value={q} onChange={e=>{ setQ(e.target.value); setPage(1); }}
+            placeholder="Search by name, code, or phone…"
+            style={inputStyle} onFocus={fi} onBlur={fo}/>
         </div>
-        <select value={branch} onChange={e => { setBranch(e.target.value); setPage(1); }}
-          className="px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
-          <option value="">All Branches</option>
-          <option value="jaro">Jaro</option>
-          <option value="cabatuan">Cabatuan</option>
-        </select>
+        <div style={{ position:'relative' }}>
+          <select value={branch} onChange={e=>{ setBranch(e.target.value); setPage(1); }}
+            style={selectStyle} onFocus={fi} onBlur={fo}>
+            <option value="">All Branches</option>
+            <option value="jaro">Jaro</option>
+            <option value="cabatuan">Cabatuan</option>
+          </select>
+          <ChevronRight size={13} style={{ position:'absolute', right:'10px', top:'50%', transform:'translateY(-50%) rotate(90deg)', color:C.textSoft, pointerEvents:'none' }}/>
+        </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      {/* Table */}
+      <div style={{ background:C.white, borderRadius:'18px', border:`1px solid ${C.border}`, boxShadow:'0 1px 4px rgba(0,0,0,0.05)', overflow:'hidden' }}>
         {loading ? (
-          <div className="flex items-center justify-center h-48">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"/>
+          <div style={{ display:'flex', justifyContent:'center', padding:'48px 0' }}>
+            <div style={{ width:'32px', height:'32px', border:`3px solid ${C.primaryBg}`, borderTopColor:C.primary, borderRadius:'50%', animation:'spin 0.8s linear infinite' }}/>
           </div>
-        ) : patients.length === 0 ? (
-          <div className="text-center py-16 text-gray-400">
-            <Eye size={40} className="mx-auto mb-3 opacity-30"/>
-            <p className="font-medium">No patients found</p>
-            <p className="text-sm">Try a different search term</p>
+        ) : patients.length===0 ? (
+          <div style={{ textAlign:'center', padding:'64px 20px', color:C.textSoft }}>
+            <Eye size={40} style={{ margin:'0 auto 12px', opacity:0.25 }}/>
+            <p style={{ fontWeight:600, margin:'0 0 4px', color:C.textMid }}>No patients found</p>
+            <p style={{ fontSize:'13px', margin:0 }}>Try a different search term</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div style={{ overflowX:'auto' }}>
+            <table style={{ width:'100%', borderCollapse:'collapse' }}>
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50/50">
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Patient</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Code</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">Contact</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Last Visit</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Branch</th>
-                  <th className="w-8"/>
+                <tr style={{ borderBottom:`1px solid ${C.border}`, background:C.bg }}>
+                  {['Patient','Code','Contact','Last Visit','Branch',''].map((h,i)=>(
+                    <th key={i} style={{ textAlign:'left', padding:'12px 16px', fontSize:'11px', fontWeight:700, color:C.textSoft, textTransform:'uppercase', letterSpacing:'0.06em', whiteSpace:'nowrap' }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody>
                 {patients.map(p => (
-                  <tr key={p.id} onClick={() => navigate(`/patients/${p.id}`)}
-                    className="hover:bg-gray-50 cursor-pointer transition">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm flex-shrink-0">
-                          {p.full_name?.split(' ').map(n => n[0]).slice(0,2).join('')}
+                  <tr key={p.id} onClick={()=>navigate(`/patients/${p.id}`)}
+                    style={{ borderBottom:`1px solid ${C.bg}`, cursor:'pointer', transition:'background 0.12s' }}
+                    onMouseEnter={e=>e.currentTarget.style.background=C.bg}
+                    onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                    <td style={{ padding:'12px 16px' }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+                        <div style={{ width:'36px', height:'36px', borderRadius:'50%', background:C.primaryBg, color:C.primary, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:'13px', flexShrink:0 }}>
+                          {p.full_name?.split(' ').map(n=>n[0]).slice(0,2).join('')}
                         </div>
                         <div>
-                          <div className="font-medium text-foreground text-sm">{p.full_name}</div>
-                          {p.date_of_birth && <div className="text-xs text-gray-400">DOB: {p.date_of_birth}</div>}
+                          <p style={{ fontWeight:600, color:C.text, margin:0, fontSize:'13px' }}>{p.full_name}</p>
+                          {p.date_of_birth && <p style={{ fontSize:'11px', color:C.textSoft, margin:'1px 0 0' }}>DOB: {p.date_of_birth}</p>}
                         </div>
                         {p.gender && (
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                            p.gender === 'Male' ? 'bg-blue-100 text-blue-700' :
-                            p.gender === 'Female' ? 'bg-pink-100 text-pink-700' : 'bg-gray-100 text-gray-600'
-                          }`}>{p.gender}</span>
+                          <span style={{ fontSize:'11px', fontWeight:700, padding:'2px 8px', borderRadius:'999px',
+                            background: p.gender==='Male'?'#eff6ff':p.gender==='Female'?'#fdf2f8':'#f1f5f9',
+                            color:      p.gender==='Male'?'#1d4ed8':p.gender==='Female'?'#be185d':C.textMid,
+                          }}>{p.gender}</span>
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 hidden sm:table-cell">
-                      <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{p.patient_code}</span>
+                    <td style={{ padding:'12px 16px' }}>
+                      <span style={{ fontSize:'11px', fontFamily:'monospace', color:C.textMid, background:C.bg, padding:'3px 8px', borderRadius:'6px', border:`1px solid ${C.border}` }}>{p.patient_code}</span>
                     </td>
-                    <td className="px-4 py-3 hidden md:table-cell">
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
-                        <Phone size={12}/> {p.contact_number || '—'}
+                    <td style={{ padding:'12px 16px' }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:'4px', fontSize:'12px', color:C.textMid }}>
+                        <Phone size={11} color={C.textSoft}/> {p.contact_number||'\u2014'}
                       </div>
                     </td>
-                    <td className="px-4 py-3 hidden lg:table-cell">
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
-                        <Calendar size={12}/>
-                        {p.last_visit ? new Date(p.last_visit).toLocaleDateString() : <span className="text-gray-300">No visits</span>}
+                    <td style={{ padding:'12px 16px' }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:'4px', fontSize:'12px', color:C.textMid }}>
+                        <Calendar size={11} color={C.textSoft}/>
+                        {p.last_visit ? new Date(p.last_visit).toLocaleDateString() : <span style={{ color:C.textSoft }}>No visits</span>}
                       </div>
                     </td>
-                    <td className="px-4 py-3 hidden lg:table-cell">
-                      <span className="text-xs capitalize text-gray-500">{p.branch || 'jaro'}</span>
+                    <td style={{ padding:'12px 16px' }}>
+                      <span style={{ fontSize:'12px', textTransform:'capitalize', color:C.textMid }}>{p.branch||'jaro'}</span>
                     </td>
-                    <td className="px-4 py-3"><ChevronRight size={16} className="text-gray-300"/></td>
+                    <td style={{ padding:'12px 16px' }}>
+                      <ChevronRight size={15} color={C.border}/>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
-        {total > limit && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
-            <span className="text-xs text-gray-500">Showing {((page-1)*limit)+1}–{Math.min(page*limit,total)} of {total}</span>
-            <div className="flex gap-2">
-              <button disabled={page===1} onClick={() => setPage(p=>p-1)}
-                className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Previous</button>
-              <button disabled={page*limit>=total} onClick={() => setPage(p=>p+1)}
-                className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Next</button>
+        {total>limit && (
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 18px', borderTop:`1px solid ${C.border}` }}>
+            <span style={{ fontSize:'12px', color:C.textSoft }}>Showing {((page-1)*limit)+1}\u2013{Math.min(page*limit,total)} of {total}</span>
+            <div style={{ display:'flex', gap:'8px' }}>
+              {[{label:'Previous',disabled:page===1,fn:()=>setPage(p=>p-1)},{label:'Next',disabled:page*limit>=total,fn:()=>setPage(p=>p+1)}].map(b=>(
+                <button key={b.label} disabled={b.disabled} onClick={b.fn}
+                  style={{ padding:'7px 14px', fontSize:'12px', fontWeight:600, borderRadius:'8px', border:`1px solid ${C.borderMid}`, background:C.white, color:b.disabled?C.textSoft:C.textMid, cursor:b.disabled?'not-allowed':'pointer', opacity:b.disabled?0.5:1, fontFamily:'inherit' }}>
+                  {b.label}
+                </button>
+              ))}
             </div>
           </div>
         )}

@@ -1,266 +1,232 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import {
-  Calendar, Clock, User, ChevronRight, Plus, Inbox,
-  CheckCircle, AlertCircle, XCircle, RefreshCw, ClipboardList
-} from 'lucide-react';
+import { Calendar, Clock, User, ChevronRight, Plus, Inbox, XCircle, RefreshCw, ClipboardList } from 'lucide-react';
 import AppointmentForm from './AppointmentForm';
 import AppointmentRequestCard from './AppointmentRequestCard';
 
-const STATUS_STYLES = {
-  scheduled:   'bg-blue-100 text-blue-700',
-  'checked-in':'bg-yellow-100 text-yellow-700',
-  seen:        'bg-purple-100 text-purple-700',
-  done:        'bg-green-100 text-green-700',
-  cancelled:   'bg-red-100 text-red-600',
+const C = {
+  primary:'#0891b2', primaryDark:'#0e7490', primaryBg:'#e0f2fe',
+  border:'#f1f5f9', borderMid:'#e2e8f0', bg:'#f8fafc', white:'#fff',
+  text:'#0f172a', textMid:'#475569', textSoft:'#94a3b8',
+  danger:'#dc2626', dangerBg:'#fef2f2',
 };
 
-const STATUS_NEXT = {
-  scheduled:   'checked-in',
-  'checked-in':'seen',
-  seen:        'done',
+const STATUS_COLORS = {
+  scheduled:    { bg:'#eff6ff', color:'#1d4ed8' },
+  'checked-in': { bg:'#fefce8', color:'#a16207' },
+  seen:         { bg:'#f5f3ff', color:'#6d28d9' },
+  done:         { bg:'#f0fdf4', color:'#15803d' },
+  cancelled:    { bg:'#fef2f2', color:'#dc2626' },
 };
 
-const STATUS_LABEL_NEXT = {
-  scheduled:   'Check In',
-  'checked-in':'Mark Seen',
-  seen:        'Mark Done',
+const STATUS_NEXT = { scheduled:'checked-in', 'checked-in':'seen', seen:'done' };
+const STATUS_LABEL_NEXT = { scheduled:'Check In', 'checked-in':'Mark Seen', seen:'Mark Done' };
+
+const inputStyle = {
+  padding:'8px 12px', border:`1.5px solid ${C.borderMid}`, borderRadius:'10px',
+  fontSize:'13px', outline:'none', fontFamily:'inherit', background:C.bg,
+  color:C.text, boxSizing:'border-box', transition:'border-color 0.15s, box-shadow 0.15s',
 };
+const fi = e=>{ e.target.style.borderColor=C.primary; e.target.style.boxShadow='0 0 0 3px rgba(8,145,178,0.12)'; e.target.style.background='#fff'; };
+const fo = e=>{ e.target.style.borderColor=C.borderMid; e.target.style.boxShadow='none'; e.target.style.background=C.bg; };
 
 export default function AppointmentList() {
   const { user } = useAuth();
-  const navigate  = useNavigate();
-
-  const [tab, setTab]         = useState('queue');
-  const [appts, setAppts]     = useState([]);
+  const [tab, setTab]           = useState('queue');
+  const [appts, setAppts]       = useState([]);
   const [requests, setRequests] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading]   = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().slice(0, 10)
-  );
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0,10));
 
   const fetchQueue = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/appointments?date=${selectedDate}`, { credentials: 'include' });
+    const res = await fetch(`/api/appointments?date=${selectedDate}`, { credentials:'include' });
     if (res.ok) setAppts(await res.json());
     setLoading(false);
   }, [selectedDate]);
 
   const fetchRequests = useCallback(async () => {
     setLoading(true);
-    const res = await fetch('/appointments', { credentials: 'include' });
-    if (res.ok) {
-      const data = await res.json();
-      setRequests(data.filter(r => r.status === 'pending'));
-    }
+    const res = await fetch('/appointments', { credentials:'include' });
+    if (res.ok) { const d = await res.json(); setRequests(d.filter(r=>r.status==='pending')); }
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    if (tab === 'queue')    fetchQueue();
-    if (tab === 'requests') fetchRequests();
+  useEffect(()=>{
+    if (tab==='queue')    fetchQueue();
+    if (tab==='requests') fetchRequests();
   }, [tab, fetchQueue, fetchRequests]);
 
   const advanceStatus = async (appt) => {
     const next = STATUS_NEXT[appt.status];
     if (!next) return;
-    await fetch(`/api/appointments/${appt.id}`, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: next, notes: appt.notes }),
-    });
+    await fetch(`/api/appointments/${appt.id}`, { method:'PUT', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ status:next, notes:appt.notes }) });
     fetchQueue();
   };
 
   const cancelAppt = async (appt) => {
     if (!confirm(`Cancel appointment for ${appt.patient_name}?`)) return;
-    await fetch(`/api/appointments/${appt.id}`, {
-      method: 'DELETE',
-      credentials: 'include',
-    });
+    await fetch(`/api/appointments/${appt.id}`, { method:'DELETE', credentials:'include' });
     fetchQueue();
   };
 
-  const todayLabel = new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-PH', {
-    weekday: 'long', month: 'long', day: 'numeric'
-  });
+  const todayLabel = new Date(selectedDate+'T00:00:00').toLocaleDateString('en-PH',{weekday:'long',month:'long',day:'numeric'});
+  const isToday = selectedDate === new Date().toISOString().slice(0,10);
 
-  const isToday = selectedDate === new Date().toISOString().slice(0, 10);
+  const Spinner = () => (
+    <div style={{ display:'flex', justifyContent:'center', padding:'48px 0' }}>
+      <div style={{ width:'32px', height:'32px', border:`3px solid ${C.primaryBg}`, borderTopColor:C.primary, borderRadius:'50%', animation:'spin 0.8s linear infinite' }}/>
+    </div>
+  );
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
+    <div style={{ maxWidth:'960px', margin:'0 auto', padding:'24px 20px' }}>
+
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:'24px', flexWrap:'wrap', gap:'12px' }}>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Appointments</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {tab === 'queue' ? todayLabel : 'Pending public booking requests'}
+          <h1 style={{ fontSize:'26px', fontWeight:800, color:C.text, margin:'0 0 4px', letterSpacing:'-0.02em' }}>Appointments</h1>
+          <p style={{ fontSize:'13px', color:C.textSoft, margin:0 }}>
+            {tab==='queue' ? todayLabel : 'Pending public booking requests'}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => tab === 'queue' ? fetchQueue() : fetchRequests()}
-            className="p-2 text-gray-400 hover:text-gray-700 rounded-xl hover:bg-gray-100 transition"
+        <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+          <button onClick={()=>tab==='queue'?fetchQueue():fetchRequests()}
             title="Refresh"
-          >
-            <RefreshCw size={16} />
+            style={{ padding:'9px', background:C.white, border:`1px solid ${C.borderMid}`, borderRadius:'10px', cursor:'pointer', display:'flex', color:C.textSoft, transition:'all 0.15s' }}
+            onMouseEnter={e=>{ e.currentTarget.style.borderColor=C.primary; e.currentTarget.style.color=C.primary; }}
+            onMouseLeave={e=>{ e.currentTarget.style.borderColor=C.borderMid; e.currentTarget.style.color=C.textSoft; }}>
+            <RefreshCw size={15}/>
           </button>
           {['admin','frontdesk','nurse'].includes(user?.role) && (
-            <button
-              onClick={() => setShowForm(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition"
-            >
-              <Plus size={16} /> New Appointment
+            <button onClick={()=>setShowForm(true)}
+              style={{ display:'flex', alignItems:'center', gap:'7px', padding:'9px 18px', background:`linear-gradient(135deg,${C.primary},${C.primaryDark})`, color:'white', border:'none', borderRadius:'11px', fontWeight:700, fontSize:'13px', cursor:'pointer', boxShadow:'0 3px 12px rgba(8,145,178,0.35)', fontFamily:'inherit' }}>
+              <Plus size={15}/> New Appointment
             </button>
           )}
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-5 p-1 bg-gray-100 rounded-xl w-fit">
-        <button
-          onClick={() => setTab('queue')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
-            tab === 'queue' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          <Calendar size={15} /> Today's Queue
-        </button>
-        <button
-          onClick={() => setTab('requests')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
-            tab === 'requests' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          <Inbox size={15} /> Requests Inbox
-          {requests.length > 0 && tab !== 'requests' && (
-            <span className="bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full leading-none">
-              {requests.length}
-            </span>
-          )}
-        </button>
+      <div style={{ display:'flex', gap:'4px', marginBottom:'20px', padding:'4px', background:C.bg, borderRadius:'12px', width:'fit-content', border:`1px solid ${C.border}` }}>
+        {[
+          { id:'queue',    label:"Today's Queue", icon:Calendar },
+          { id:'requests', label:'Requests Inbox', icon:Inbox },
+        ].map(t => (
+          <button key={t.id} onClick={()=>setTab(t.id)}
+            style={{
+              display:'flex', alignItems:'center', gap:'6px',
+              padding:'8px 16px', borderRadius:'9px', fontSize:'13px', fontWeight:600,
+              border:'none', cursor:'pointer', fontFamily:'inherit', transition:'all 0.15s',
+              background: tab===t.id ? C.white : 'transparent',
+              color: tab===t.id ? C.primary : C.textSoft,
+              boxShadow: tab===t.id ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
+            }}>
+            <t.icon size={14}/>
+            {t.label}
+            {t.id==='requests' && requests.length>0 && tab!=='requests' && (
+              <span style={{ background:C.danger, color:'white', fontSize:'10px', fontWeight:800, padding:'1px 6px', borderRadius:'999px', lineHeight:'1.4' }}>{requests.length}</span>
+            )}
+          </button>
+        ))}
       </div>
 
       {/* Queue Tab */}
-      {tab === 'queue' && (
+      {tab==='queue' && (
         <>
-          <div className="flex items-center gap-3 mb-4">
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={e => setSelectedDate(e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
+          <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'16px' }}>
+            <input type="date" value={selectedDate} onChange={e=>setSelectedDate(e.target.value)}
+              style={inputStyle} onFocus={fi} onBlur={fo}/>
             {!isToday && (
-              <button
-                onClick={() => setSelectedDate(new Date().toISOString().slice(0,10))}
-                className="text-xs text-primary underline"
-              >
+              <button onClick={()=>setSelectedDate(new Date().toISOString().slice(0,10))}
+                style={{ fontSize:'12px', color:C.primary, background:'none', border:'none', cursor:'pointer', fontFamily:'inherit', fontWeight:600, textDecoration:'underline' }}>
                 Back to today
               </button>
             )}
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            {loading ? (
-              <div className="flex items-center justify-center h-48">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-              </div>
-            ) : appts.length === 0 ? (
-              <div className="text-center py-16 text-gray-400">
-                <ClipboardList size={40} className="mx-auto mb-3 opacity-30" />
-                <p className="font-medium">No appointments</p>
-                <p className="text-sm">Nothing scheduled for {todayLabel}</p>
+          <div style={{ background:C.white, borderRadius:'18px', border:`1px solid ${C.border}`, boxShadow:'0 1px 4px rgba(0,0,0,0.05)', overflow:'hidden' }}>
+            {loading ? <Spinner/> : appts.length===0 ? (
+              <div style={{ textAlign:'center', padding:'64px 20px', color:C.textSoft }}>
+                <ClipboardList size={40} style={{ margin:'0 auto 12px', opacity:0.25 }}/>
+                <p style={{ fontWeight:600, margin:'0 0 4px', color:C.textMid }}>No appointments</p>
+                <p style={{ fontSize:'13px', margin:0 }}>Nothing scheduled for {todayLabel}</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
+              <div style={{ overflowX:'auto' }}>
+                <table style={{ width:'100%', borderCollapse:'collapse' }}>
                   <thead>
-                    <tr className="border-b border-gray-100 bg-gray-50/50">
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Time</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Patient</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">Doctor</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Specialization</th>
-                      <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                    <tr style={{ borderBottom:`1px solid ${C.border}`, background:C.bg }}>
+                      {['Time','Patient','Doctor','Status','Actions'].map(h=>(
+                        <th key={h} style={{ textAlign:h==='Actions'?'right':'left', padding:'12px 16px', fontSize:'11px', fontWeight:700, color:C.textSoft, textTransform:'uppercase', letterSpacing:'0.06em', whiteSpace:'nowrap' }}>{h}</th>
+                      ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {appts.map(appt => (
-                      <tr key={appt.id} className="hover:bg-gray-50 transition">
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
-                            <Clock size={13} className="text-gray-400" />
-                            {new Date(appt.appointment_date).toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' })}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <Link
-                            to={`/patients/${appt.patient_id}`}
-                            className="flex items-center gap-2 group"
-                            onClick={e => e.stopPropagation()}
-                          >
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold flex-shrink-0">
-                              {appt.patient_name?.split(' ').map(n => n[0]).slice(0,2).join('')}
+                  <tbody>
+                    {appts.map((appt,i) => {
+                      const sc = STATUS_COLORS[appt.status]||{bg:'#f1f5f9',color:C.textMid};
+                      return (
+                        <tr key={appt.id} style={{ borderBottom:`1px solid ${C.bg}`, transition:'background 0.12s' }}
+                          onMouseEnter={e=>e.currentTarget.style.background=C.bg}
+                          onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                          <td style={{ padding:'12px 16px' }}>
+                            <div style={{ display:'flex', alignItems:'center', gap:'5px', fontSize:'13px', fontWeight:600, color:C.textMid }}>
+                              <Clock size={12} color={C.textSoft}/>
+                              {new Date(appt.appointment_date).toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'})}
                             </div>
-                            <div>
-                              <div className="text-sm font-medium text-foreground group-hover:text-primary transition">
-                                {appt.patient_name}
+                          </td>
+                          <td style={{ padding:'12px 16px' }}>
+                            <Link to={`/patients/${appt.patient_id}`} style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:'10px' }}
+                              onClick={e=>e.stopPropagation()}>
+                              <div style={{ width:'32px', height:'32px', borderRadius:'50%', background:C.primaryBg, color:C.primary, display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700, fontSize:'12px', flexShrink:0 }}>
+                                {appt.patient_name?.split(' ').map(n=>n[0]).slice(0,2).join('')}
                               </div>
-                              <div className="text-xs text-gray-400 font-mono">{appt.patient_code}</div>
+                              <div>
+                                <p style={{ fontWeight:600, color:C.text, margin:0, fontSize:'13px' }}>{appt.patient_name}</p>
+                                <p style={{ fontSize:'11px', color:C.textSoft, margin:'1px 0 0', fontFamily:'monospace' }}>{appt.patient_code}</p>
+                              </div>
+                            </Link>
+                          </td>
+                          <td style={{ padding:'12px 16px' }}>
+                            <div style={{ display:'flex', alignItems:'center', gap:'5px', fontSize:'13px', color:C.textMid }}>
+                              <User size={12} color={C.textSoft}/>
+                              {appt.doctor_name||'—'}
                             </div>
-                          </Link>
-                        </td>
-                        <td className="px-4 py-3 hidden md:table-cell">
-                          <div className="flex items-center gap-1.5 text-sm text-gray-600">
-                            <User size={13} className="text-gray-400" />
-                            {appt.doctor_name}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 hidden lg:table-cell">
-                          <span className="text-xs text-gray-500">{appt.specialization_name}</span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${
-                            STATUS_STYLES[appt.status] || 'bg-gray-100 text-gray-600'
-                          }`}>
-                            {appt.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center justify-end gap-2">
-                            {STATUS_NEXT[appt.status] && (
-                              <button
-                                onClick={() => advanceStatus(appt)}
-                                className="px-3 py-1.5 text-xs font-semibold bg-primary text-white rounded-lg hover:bg-primary/90 transition"
-                              >
-                                {STATUS_LABEL_NEXT[appt.status]}
-                              </button>
-                            )}
-                            {appt.status === 'checked-in' || appt.status === 'seen' ? (
-                              <Link
-                                to={`/visits/new?patient_id=${appt.patient_id}&appointment_id=${appt.id}`}
-                                className="px-3 py-1.5 text-xs font-semibold bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-                              >
-                                Start Visit
-                              </Link>
-                            ) : null}
-                            {appt.status !== 'done' && appt.status !== 'cancelled' && (
-                              <button
-                                onClick={() => cancelAppt(appt)}
-                                className="p-1.5 text-gray-300 hover:text-red-400 rounded-lg transition"
-                                title="Cancel"
-                              >
-                                <XCircle size={16} />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td style={{ padding:'12px 16px' }}>
+                            <span style={{ fontSize:'11px', fontWeight:700, padding:'3px 10px', borderRadius:'999px', background:sc.bg, color:sc.color, textTransform:'capitalize', letterSpacing:'0.02em' }}>
+                              {appt.status}
+                            </span>
+                          </td>
+                          <td style={{ padding:'12px 16px' }}>
+                            <div style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', gap:'6px' }}>
+                              {STATUS_NEXT[appt.status] && (
+                                <button onClick={()=>advanceStatus(appt)}
+                                  style={{ padding:'6px 12px', fontSize:'11px', fontWeight:700, background:`linear-gradient(135deg,${C.primary},${C.primaryDark})`, color:'white', border:'none', borderRadius:'8px', cursor:'pointer', fontFamily:'inherit' }}>
+                                  {STATUS_LABEL_NEXT[appt.status]}
+                                </button>
+                              )}
+                              {(appt.status==='checked-in'||appt.status==='seen') && (
+                                <Link to={`/visits/new?patient_id=${appt.patient_id}&appointment_id=${appt.id}`}
+                                  style={{ padding:'6px 12px', fontSize:'11px', fontWeight:700, background:'#16a34a', color:'white', borderRadius:'8px', textDecoration:'none', display:'inline-block' }}>
+                                  Start Visit
+                                </Link>
+                              )}
+                              {appt.status!=='done'&&appt.status!=='cancelled' && (
+                                <button onClick={()=>cancelAppt(appt)} title="Cancel"
+                                  style={{ padding:'5px', background:'none', border:'none', cursor:'pointer', color:C.textSoft, display:'flex', borderRadius:'6px', transition:'color 0.15s' }}
+                                  onMouseEnter={e=>e.currentTarget.style.color=C.danger}
+                                  onMouseLeave={e=>e.currentTarget.style.color=C.textSoft}>
+                                  <XCircle size={16}/>
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -269,36 +235,25 @@ export default function AppointmentList() {
         </>
       )}
 
-      {/* Requests Inbox Tab */}
-      {tab === 'requests' && (
-        <div className="space-y-3">
-          {loading ? (
-            <div className="flex items-center justify-center h-48">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      {/* Requests Tab */}
+      {tab==='requests' && (
+        <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
+          {loading ? <Spinner/> : requests.length===0 ? (
+            <div style={{ textAlign:'center', padding:'64px 20px', color:C.textSoft }}>
+              <Inbox size={40} style={{ margin:'0 auto 12px', opacity:0.25 }}/>
+              <p style={{ fontWeight:600, margin:'0 0 4px', color:C.textMid }}>Inbox is clear</p>
+              <p style={{ fontSize:'13px', margin:0 }}>No pending booking requests</p>
             </div>
-          ) : requests.length === 0 ? (
-            <div className="text-center py-16 text-gray-400">
-              <Inbox size={40} className="mx-auto mb-3 opacity-30" />
-              <p className="font-medium">Inbox is clear</p>
-              <p className="text-sm">No pending booking requests</p>
-            </div>
-          ) : requests.map(req => (
-            <AppointmentRequestCard
-              key={req.id}
-              request={req}
-              onConverted={() => { fetchRequests(); fetchQueue(); }}
-              onDismissed={fetchRequests}
-            />
+          ) : requests.map(req=>(
+            <AppointmentRequestCard key={req.id} request={req}
+              onConverted={()=>{ fetchRequests(); fetchQueue(); }}
+              onDismissed={fetchRequests}/>
           ))}
         </div>
       )}
 
-      {/* New Appointment Modal */}
       {showForm && (
-        <AppointmentForm
-          onClose={() => setShowForm(false)}
-          onSaved={() => { setShowForm(false); fetchQueue(); }}
-        />
+        <AppointmentForm onClose={()=>setShowForm(false)} onSaved={()=>{ setShowForm(false); fetchQueue(); }}/>
       )}
     </div>
   );
