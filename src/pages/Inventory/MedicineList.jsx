@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Package, Search, Plus, AlertTriangle, Clock,
-  TrendingDown, TrendingUp, X, History, ChevronDown, ChevronUp, RefreshCw
+  TrendingDown, TrendingUp, X, History, RefreshCw
 } from 'lucide-react';
 import { AnimatedPage, staggeredContainer, staggeredItem } from '../../components/AnimatedPage';
 import { motion } from 'framer-motion';
 
-// ─── Add/Edit Medicine Modal ──────────────────────────────────────────────────
+// ─── Add/Edit Medicine Modal ───────────────────────────────────────────────────────────────────────
 function MedicineModal({ medicine, onClose, onSaved }) {
   const isEdit = !!medicine?.id;
   const [form, setForm] = useState({
@@ -22,7 +22,7 @@ function MedicineModal({ medicine, onClose, onSaved }) {
     expiry_date:    medicine?.expiry_date    || '',
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [error,   setError]   = useState('');
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -46,7 +46,7 @@ function MedicineModal({ medicine, onClose, onSaved }) {
     );
     setLoading(false);
     if (res.ok) { onSaved(); }
-    else { const d = await res.json().catch(()=>({}))); setError(d.error || 'Save failed.'); }
+    else { const d = await res.json().catch(() => ({})); setError(d.error || 'Save failed.'); }
   };
 
   const fields = [
@@ -97,12 +97,12 @@ function MedicineModal({ medicine, onClose, onSaved }) {
   );
 }
 
-// ─── Adjust Stock Modal ───────────────────────────────────────────────────────
+// ─── Adjust Stock Modal ─────────────────────────────────────────────────────────────────────────────
 function AdjustModal({ medicine, onClose, onSaved }) {
-  const [delta,  setDelta]  = useState('');
-  const [reason, setReason] = useState('');
+  const [delta,   setDelta]   = useState('');
+  const [reason,  setReason]  = useState('');
   const [loading, setLoading] = useState(false);
-  const [error,  setError]  = useState('');
+  const [error,   setError]   = useState('');
 
   const handle = async (e) => {
     e.preventDefault();
@@ -117,7 +117,7 @@ function AdjustModal({ medicine, onClose, onSaved }) {
     });
     setLoading(false);
     if (res.ok) { onSaved(); }
-    else { const d = await res.json().catch(()=>({}))); setError(d.error || 'Adjustment failed.'); }
+    else { const d = await res.json().catch(() => ({})); setError(d.error || 'Adjustment failed.'); }
   };
 
   const numDelta = Number(delta);
@@ -144,7 +144,8 @@ function AdjustModal({ medicine, onClose, onSaved }) {
               Adjustment Amount <span className="text-gray-400">(use − for dispense/removal)</span>
             </label>
             <div className="flex gap-2">
-              <button type="button" onClick={() => setDelta(v => v === '' ? '-1' : String(Number(v) - 1))}
+              <button type="button"
+                onClick={() => setDelta(v => v === '' ? '-1' : String(Number(v) - 1))}
                 className="px-3 py-2 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition">
                 −
               </button>
@@ -152,16 +153,17 @@ function AdjustModal({ medicine, onClose, onSaved }) {
                 placeholder="e.g. 10 or -5"
                 className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm text-center font-mono focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
-              <button type="button" onClick={() => setDelta(v => v === '' ? '1' : String(Number(v) + 1))}
+              <button type="button"
+                onClick={() => setDelta(v => v === '' ? '1' : String(Number(v) + 1))}
                 className="px-3 py-2 bg-green-50 text-green-600 rounded-xl font-bold hover:bg-green-100 transition">
                 +
               </button>
             </div>
             {preview !== null && preview >= 0 && (
               <p className="text-xs mt-1.5 text-center">
-                New stock: <span className={`font-bold ${preview <= medicine.reorder_level ? 'text-orange-600' : 'text-green-600'}`}>
-                  {preview} {medicine.unit}
-                </span>
+                New stock: <span className={`font-bold ${
+                  preview <= medicine.reorder_level ? 'text-orange-600' : 'text-green-600'
+                }`}>{preview} {medicine.unit}</span>
               </p>
             )}
             {preview !== null && preview < 0 && (
@@ -191,7 +193,8 @@ function AdjustModal({ medicine, onClose, onSaved }) {
           {error && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
 
           <div className="flex justify-end gap-2 pt-1">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-800">Cancel</button>
+            <button type="button" onClick={onClose}
+              className="px-4 py-2 text-sm text-gray-500 hover:text-gray-800">Cancel</button>
             <button type="submit" disabled={loading || (preview !== null && preview < 0)}
               className="px-5 py-2 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-50">
               {loading ? 'Saving...' : 'Confirm'}
@@ -203,9 +206,9 @@ function AdjustModal({ medicine, onClose, onSaved }) {
   );
 }
 
-// ─── Transaction History Drawer ───────────────────────────────────────────────
+// ─── Transaction History Drawer ─────────────────────────────────────────────────────────────────────
 function HistoryDrawer({ medicine, onClose }) {
-  const [txns, setTxns]     = useState([]);
+  const [txns,    setTxns]    = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -258,7 +261,9 @@ function HistoryDrawer({ medicine, onClose }) {
                     </div>
                     <p className="text-xs text-gray-600 truncate">{t.reason}</p>
                     <p className="text-[10px] text-gray-400">
-                      {t.user_name || 'System'} · {new Date(t.created_at).toLocaleString('en-PH', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' })}
+                      {t.user_name || 'System'} · {new Date(t.created_at).toLocaleString('en-PH', {
+                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                      })}
                     </p>
                   </div>
                 </div>
@@ -271,16 +276,15 @@ function HistoryDrawer({ medicine, onClose }) {
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+// ─── Main Page ──────────────────────────────────────────────────────────────────────────────────────────
 const MedicineList = () => {
-  const [medicines, setMedicines] = useState([]);
-  const [loading,   setLoading]   = useState(true);
-  const [filter,    setFilter]    = useState('all');
-  const [q,         setQ]         = useState('');
-
+  const [medicines,    setMedicines]    = useState([]);
+  const [loading,      setLoading]      = useState(true);
+  const [filter,       setFilter]       = useState('all');
+  const [q,            setQ]            = useState('');
   const [addModal,     setAddModal]     = useState(false);
-  const [adjustModal,  setAdjustModal]  = useState(null); // medicine object
-  const [historyModal, setHistoryModal] = useState(null); // medicine object
+  const [adjustModal,  setAdjustModal]  = useState(null);
+  const [historyModal, setHistoryModal] = useState(null);
 
   const fetchMeds = useCallback(async () => {
     setLoading(true);
@@ -367,7 +371,6 @@ const MedicineList = () => {
           <motion.div key={med.id} variants={staggeredItem}
             className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col">
             <div className="p-5 flex-1">
-              {/* Top row */}
               <div className="flex justify-between items-start mb-3">
                 <div className="p-2.5 bg-primary-soft text-primary rounded-xl">
                   <Package size={18}/>
@@ -411,7 +414,6 @@ const MedicineList = () => {
                 </div>
               </div>
 
-              {/* Reorder level bar */}
               <div className="mt-3">
                 <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <div
@@ -425,7 +427,6 @@ const MedicineList = () => {
               </div>
             </div>
 
-            {/* Action buttons */}
             <div className="px-4 pb-4 flex gap-2">
               <button
                 onClick={() => setAdjustModal(med)}
@@ -445,7 +446,6 @@ const MedicineList = () => {
         ))}
       </motion.div>
 
-      {/* Modals */}
       {addModal     && <MedicineModal onClose={() => setAddModal(false)}    onSaved={() => { setAddModal(false);    fetchMeds(); }} />}
       {adjustModal  && <AdjustModal   medicine={adjustModal}  onClose={() => setAdjustModal(null)}  onSaved={() => { setAdjustModal(null);  fetchMeds(); }} />}
       {historyModal && <HistoryDrawer medicine={historyModal} onClose={() => setHistoryModal(null)} />}
