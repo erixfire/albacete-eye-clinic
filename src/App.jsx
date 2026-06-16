@@ -9,6 +9,7 @@ import PatientDetail from './pages/Patients/PatientDetail';
 import PatientForm from './pages/Patients/PatientForm';
 import VisitForm from './pages/Visits/VisitForm';
 import MedicineList from './pages/Inventory/MedicineList';
+import Home from './pages/Home';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children, roles }) => {
@@ -35,9 +36,14 @@ const App = () => {
   return (
     <AuthProvider>
       <Routes>
+        {/* ── Public site ── */}
+        <Route path="/" element={<Home />} />
+
+        {/* ── Auth ── */}
         <Route path="/login" element={<Login />} />
-        
-        <Route path="/" element={
+
+        {/* ── Protected admin/clinic routes ── */}
+        <Route path="/dashboard" element={
           <ProtectedRoute>
             <Dashboard />
           </ProtectedRoute>
@@ -67,7 +73,6 @@ const App = () => {
           </ProtectedRoute>
         } />
 
-        {/* Placeholders for other routes */}
         <Route path="/appointments" element={
           <ProtectedRoute roles={['admin', 'doctor', 'nurse']}>
             <div className="py-20 text-center text-gray-500">Appointments Module Coming Soon</div>
