@@ -11,6 +11,7 @@ import VisitForm from './pages/Visits/VisitForm';
 import VisitDetail from './pages/Visits/VisitDetail';
 import MedicineList from './pages/Inventory/MedicineList';
 import AppointmentList from './pages/Appointments/AppointmentList';
+import RxPrint from './pages/Prescriptions/RxPrint';
 import Home from './pages/Home';
 
 const GuestRoute = ({ children }) => {
@@ -30,6 +31,15 @@ const ProtectedRoute = ({ children, roles }) => {
   if (!user) return <Navigate to="/login" replace />;
   if (roles && !roles.includes(user.role)) return <Navigate to="/dashboard" replace />;
   return <AppLayout>{children}</AppLayout>;
+};
+
+// Bare layout wrapper for print pages (no sidebar)
+const PrintRoute = ({ children, roles }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" replace />;
+  if (roles && !roles.includes(user.role)) return <Navigate to="/dashboard" replace />;
+  return children;
 };
 
 const CLINIC_ROLES  = ['admin', 'doctor', 'nurse', 'frontdesk'];
@@ -69,9 +79,14 @@ const App = () => (
         <ProtectedRoute roles={CLINIC_ROLES}><VisitDetail /></ProtectedRoute>
       } />
 
-      {/* Appointments — open to all clinic staff including frontdesk */}
+      {/* Appointments */}
       <Route path="/appointments" element={
         <ProtectedRoute roles={CLINIC_ROLES}><AppointmentList /></ProtectedRoute>
+      } />
+
+      {/* Prescription print — bare layout, no sidebar */}
+      <Route path="/prescriptions/:id/print" element={
+        <PrintRoute roles={CLINIC_ROLES}><RxPrint /></PrintRoute>
       } />
 
       {/* Inventory */}
