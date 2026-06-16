@@ -1,169 +1,158 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  Search, 
-  UserPlus, 
-  ChevronRight, 
-  Filter,
-  Mail,
-  Phone,
-  User
-} from 'lucide-react';
-import { AnimatedPage } from '../../components/AnimatedPage';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { Search, UserPlus, ChevronRight, Eye, Phone, Calendar, Building2 } from 'lucide-react';
 
-const PatientList = () => {
+export default function PatientList() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [total, setTotal]       = useState(0);
+  const [loading, setLoading]   = useState(true);
+  const [q, setQ]               = useState('');
+  const [branch, setBranch]     = useState('');
+  const [page, setPage]         = useState(1);
+  const limit = 20;
 
-  useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        const res = await fetch(`/api/patients${searchTerm ? `?q=${searchTerm}` : ''}`);
-        if (res.ok) {
-          const data = await res.json();
-          setPatients(data);
-        }
-      } catch (e) {
-        console.error('Failed to fetch patients', e);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchPatients = useCallback(async () => {
+    setLoading(true);
+    const params = new URLSearchParams({ q, branch, page, limit });
+    const res = await fetch(`/api/patients?${params}`, { credentials: 'include' });
+    if (res.ok) {
+      const data = await res.json();
+      setPatients(data.patients);
+      setTotal(data.total);
+    }
+    setLoading(false);
+  }, [q, branch, page]);
 
-    const delayDebounceFn = setTimeout(() => {
-      fetchPatients();
-    }, 300);
+  useEffect(() => { fetchPatients(); }, [fetchPatients]);
 
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchTerm]);
+  const handleSearch = (e) => { setQ(e.target.value); setPage(1); };
+
+  const sexBadge = (sex) => {
+    const map = { Male: 'bg-blue-100 text-blue-700', Female: 'bg-pink-100 text-pink-700', Other: 'bg-gray-100 text-gray-600' };
+    return map[sex] || 'bg-gray-100 text-gray-600';
+  };
 
   return (
-    <AnimatedPage className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Patients Directory</h1>
-          <p className="text-slate-500 text-sm mt-1">Manage and view patient medical records.</p>
+          <h1 className="text-2xl font-bold text-foreground">Patients</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{total} total records</p>
         </div>
-        <Link to="/patients/new" className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-lg font-semibold text-sm shadow-sm hover:bg-primary-h transition-colors">
-          <UserPlus size={18} />
-          Add New Patient
-        </Link>
+        {['admin','doctor','nurse','frontdesk'].includes(user?.role) && (
+          <Link to="/patients/new"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary/90 transition">
+            <UserPlus size={16} /> New Patient
+          </Link>
+        )}
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-4 bg-slate-50/50">
-          <div className="relative flex-1">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-              <Search size={16} />
-            </div>
-            <input
-              type="text"
-              placeholder="Search by name, code, or phone..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary sm:text-sm transition-all shadow-sm"
-            />
-          </div>
-          <button className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors bg-white shadow-sm">
-            <Filter size={16} />
-            Filters
-          </button>
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-5">
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text" value={q} onChange={handleSearch}
+            placeholder="Search by name, ID, or phone..."
+            className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+          />
         </div>
+        <select value={branch} onChange={e => { setBranch(e.target.value); setPage(1); }}
+          className="px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+          <option value="">All Branches</option>
+          <option value="jaro">Jaro</option>
+          <option value="cabatuan">Cabatuan</option>
+        </select>
+      </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-slate-100">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Patient</th>
-                <th className="px-6 py-3 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Contact</th>
-                <th className="px-6 py-3 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Gender/Age</th>
-                <th className="px-6 py-3 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Added On</th>
-                <th className="relative px-6 py-3">
-                  <span className="sr-only">Actions</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-slate-100">
-              {loading ? (
-                [1,2,3,4,5].map(i => (
-                  <tr key={i} className="animate-pulse">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-slate-200 rounded-full" />
-                        <div className="space-y-2">
-                          <div className="h-4 w-32 bg-slate-200 rounded" />
-                          <div className="h-3 w-20 bg-slate-200 rounded" />
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4"><div className="h-4 w-24 bg-slate-200 rounded" /></td>
-                    <td className="px-6 py-4"><div className="h-4 w-16 bg-slate-200 rounded" /></td>
-                    <td className="px-6 py-4"><div className="h-4 w-20 bg-slate-200 rounded" /></td>
-                    <td className="px-6 py-4"></td>
-                  </tr>
-                ))
-              ) : patients.length > 0 ? (
-                patients.map((patient) => (
-                  <tr key={patient.id} className="hover:bg-slate-50 transition-colors group">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-primary-soft text-primary flex items-center justify-center font-bold text-sm">
-                          {patient.full_name.charAt(0)}
+      {/* Table */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        {loading ? (
+          <div className="flex items-center justify-center h-48">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+          </div>
+        ) : patients.length === 0 ? (
+          <div className="text-center py-16 text-gray-400">
+            <Eye size={40} className="mx-auto mb-3 opacity-30" />
+            <p className="font-medium">No patients found</p>
+            <p className="text-sm">Try a different search term</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-100 bg-gray-50/50">
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Patient</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">ID</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">Contact</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Last Visit</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Branch</th>
+                  <th className="w-8" />
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {patients.map(p => (
+                  <tr key={p.id}
+                    onClick={() => navigate(`/patients/${p.id}`)}
+                    className="hover:bg-gray-50 cursor-pointer transition">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm flex-shrink-0">
+                          {p.first_name?.[0]}{p.last_name?.[0]}
                         </div>
                         <div>
-                          <Link to={`/patients/${patient.id}`} className="text-sm font-semibold text-slate-900 hover:text-primary transition-colors">
-                            {patient.full_name}
-                          </Link>
-                          <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider mt-0.5">{patient.patient_code}</p>
+                          <div className="font-medium text-foreground text-sm">{p.last_name}, {p.first_name} {p.middle_name || ''}</div>
+                          {p.dob && <div className="text-xs text-gray-400">DOB: {p.dob}</div>}
                         </div>
+                        {p.sex && (
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sexBadge(p.sex)}`}>{p.sex}</span>
+                        )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2 text-sm text-slate-600">
-                          <Phone size={14} className="text-slate-400" />
-                          {patient.contact_number || 'N/A'}
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-slate-600">
-                          <Mail size={14} className="text-slate-400" />
-                          {patient.email || 'N/A'}
-                        </div>
+                    <td className="px-4 py-3 hidden sm:table-cell">
+                      <span className="text-xs font-mono text-gray-500 bg-gray-100 px-2 py-0.5 rounded">{p.patient_no}</span>
+                    </td>
+                    <td className="px-4 py-3 hidden md:table-cell">
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <Phone size={12} /> {p.phone || '—'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-slate-900 font-medium capitalize">{patient.gender || 'N/A'}</span>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        {patient.date_of_birth ? `${new Date().getFullYear() - new Date(patient.date_of_birth).getFullYear()} yrs` : 'N/A'}
-                      </p>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                      {new Date(patient.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Link to={`/patients/${patient.id}`} className="p-2 text-slate-400 hover:text-primary hover:bg-primary-soft rounded-lg transition-colors">
-                          <ChevronRight size={18} />
-                        </Link>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <Calendar size={12} />
+                        {p.last_visit ? new Date(p.last_visit).toLocaleDateString() : <span className="text-gray-300">No visits</span>}
                       </div>
+                    </td>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      <span className="text-xs capitalize text-gray-500">{p.branch}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <ChevronRight size={16} className="text-gray-300" />
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="px-6 py-12 text-center">
-                    <User className="mx-auto h-12 w-12 text-slate-300" />
-                    <h3 className="mt-2 text-sm font-medium text-slate-900">No patients found</h3>
-                    <p className="mt-1 text-sm text-slate-500">Try adjusting your search or add a new patient.</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </AnimatedPage>
-  );
-};
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-export default PatientList;
+        {/* Pagination */}
+        {total > limit && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
+            <span className="text-xs text-gray-500">Showing {((page-1)*limit)+1}–{Math.min(page*limit,total)} of {total}</span>
+            <div className="flex gap-2">
+              <button disabled={page===1} onClick={() => setPage(p=>p-1)}
+                className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Previous</button>
+              <button disabled={page*limit>=total} onClick={() => setPage(p=>p+1)}
+                className="px-3 py-1.5 text-xs rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50">Next</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

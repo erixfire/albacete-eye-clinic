@@ -1,65 +1,93 @@
-export async function onRequestGet(context) {
-  const { env, request } = context;
-  const url = new URL(request.url);
-  const search = url.searchParams.get('q') || '';
+import { requireAuth, logAudit, generatePatientNo, corsHeaders, errorResponse, successResponse } from '../../_utils.js';
 
-  let query = 'SELECT * FROM patients';
-  let params = [];
+export async function onRequestGet(ctx) {
+  const user = await requireAuth(ctx);
+  if (!user) return errorResponse('Unauthorized', 401);
 
-  if (search) {
-    query += ' WHERE full_name LIKE ? OR patient_code LIKE ? OR contact_number LIKE ?';
-    params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+  const url = new URL(ctx.request.url);
+  const q      = (url.searchParams.get('q') || '').trim();
+  const branch = url.searchParams.get('branch') || '';
+  const page   = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
+  const limit  = Math.min(50, parseInt(url.searchParams.get('limit') || '20'));
+  const offset = (page - 1) * limit;
+
+  let where = 'WHERE p.is_active = 1';
+  const params = [];
+
+  if (q) {
+    where += ` AND (p.first_name LIKE ? OR p.last_name LIKE ? OR p.patient_no LIKE ? OR p.phone LIKE ?)`;
+    const like = `%${q}%`;
+    params.push(like, like, like, like);
+  }
+  if (branch) {
+    where += ' AND p.branch = ?';
+    params.push(branch);
   }
 
-  query += ' ORDER BY created_at DESC';
+  const { results: patients } = await ctx.env.DB.prepare(
+    `SELECT p.id, p.patient_no, p.first_name, p.last_name, p.middle_name,
+            p.dob, p.sex, p.phone, p.email, p.branch, p.photo_url,
+            p.created_at,
+            (SELECT COUNT(*) FROM visits v WHERE v.patient_id = p.id) AS visit_count,
+            (SELECT v.visit_date FROM visits v WHERE v.patient_id = p.id ORDER BY v.visit_date DESC LIMIT 1) AS last_visit
+     FROM patients p ${where}
+     ORDER BY p.last_name ASC, p.first_name ASC
+     LIMIT ? OFFSET ?`
+  ).bind(...params, limit, offset).all();
 
-  const { results } = await env.DB.prepare(query).bind(...params).all();
+  const { results: [{ total }] } = await ctx.env.DB.prepare(
+    `SELECT COUNT(*) AS total FROM patients p ${where}`
+  ).bind(...params).all();
 
-  return new Response(JSON.stringify(results), {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  await logAudit(ctx, user.id, 'view', 'patient_list', 0, `q=${q}`);
+
+  return successResponse({ patients, total, page, limit });
 }
 
-export async function onRequestPost(context) {
-  const { env, request, data } = context;
-  const body = await request.json();
+export async function onRequestPost(ctx) {
+  const user = await requireAuth(ctx);
+  if (!user) return errorResponse('Unauthorized', 401);
+  if (!['admin','doctor','nurse','frontdesk'].includes(user.role))
+    return errorResponse('Forbidden', 403);
 
-  // Basic validation
-  if (!body.full_name) {
-    return new Response(JSON.stringify({ error: 'Full name is required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+  const body = await ctx.request.json();
+  const { first_name, last_name } = body;
+  if (!first_name?.trim() || !last_name?.trim())
+    return errorResponse('first_name and last_name are required', 400);
 
-  // Generate patient code PAT-XXXXX
-  const { results: countResult } = await env.DB.prepare('SELECT COUNT(*) as count FROM patients').all();
-  const count = countResult[0].count + 1;
-  const patient_code = `PAT-${count.toString().padStart(5, '0')}`;
+  const patient_no = await generatePatientNo(ctx);
 
-  const { results } = await env.DB.prepare(
-    `INSERT INTO patients (
-      patient_code, full_name, date_of_birth, gender, contact_number, 
-      email, address, emergency_contact_name, emergency_contact_number, 
-      blood_type, known_allergies, medical_history_notes
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`
+  const { meta } = await ctx.env.DB.prepare(
+    `INSERT INTO patients
+       (patient_no, first_name, last_name, middle_name, dob, sex, civil_status,
+        phone, email, address, city, emergency_name, emergency_phone,
+        emergency_relation, blood_type, allergies, medical_history,
+        philhealth_no, branch)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
   ).bind(
-    patient_code,
-    body.full_name,
-    body.date_of_birth || null,
-    body.gender || null,
-    body.contact_number || null,
+    patient_no,
+    first_name.trim(),
+    last_name.trim(),
+    body.middle_name || '',
+    body.dob || null,
+    body.sex || null,
+    body.civil_status || null,
+    body.phone || null,
     body.email || null,
     body.address || null,
-    body.emergency_contact_name || null,
-    body.emergency_contact_number || null,
+    body.city || null,
+    body.emergency_name || null,
+    body.emergency_phone || null,
+    body.emergency_relation || null,
     body.blood_type || null,
-    body.known_allergies || null,
-    body.medical_history_notes || null
-  ).all();
+    body.allergies || null,
+    body.medical_history || null,
+    body.philhealth_no || null,
+    body.branch || 'jaro'
+  ).run();
 
-  return new Response(JSON.stringify(results[0]), {
-    status: 201,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const id = meta.last_row_id;
+  await logAudit(ctx, user.id, 'create', 'patient', id, `${first_name} ${last_name}`);
+
+  return successResponse({ id, patient_no }, 201);
 }

@@ -1,37 +1,58 @@
-export async function onRequestGet(context) {
-  const { env, params } = context;
-  const id = params.id;
+import { requireAuth, logAudit, errorResponse, successResponse } from '../../_utils.js';
 
-  const visit = await env.DB.prepare(`
-    SELECT v.*, u.full_name as doctor_name, s.name as specialization_name, p.full_name as patient_name, p.patient_code
-    FROM visits v
-    JOIN users u ON v.doctor_id = u.id
-    JOIN specializations s ON v.specialization_id = s.id
-    JOIN patients p ON v.patient_id = p.id
-    WHERE v.id = ?
-  `).bind(id).first();
+export async function onRequestGet(ctx) {
+  const user = await requireAuth(ctx);
+  if (!user) return errorResponse('Unauthorized', 401);
 
-  if (!visit) {
-    return new Response(JSON.stringify({ error: 'Visit not found' }), {
-      status: 404,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+  const id = ctx.params.id;
 
-  // Get eye exam if exists
-  const eyeExam = await env.DB.prepare('SELECT * FROM eye_exams WHERE visit_id = ?').bind(id).first();
-  visit.eye_exam = eyeExam;
+  const visit = await ctx.env.DB.prepare(
+    `SELECT v.*, u.name AS doctor_name, p.first_name, p.last_name, p.patient_no, p.dob, p.sex
+     FROM visits v
+     LEFT JOIN users u ON u.id = v.doctor_id
+     LEFT JOIN patients p ON p.id = v.patient_id
+     WHERE v.id = ?`
+  ).bind(id).first();
 
-  // Get prescriptions
-  const prescriptions = await env.DB.prepare(`
-    SELECT pr.*, m.name as medicine_name, m.generic_name
-    FROM prescriptions pr
-    JOIN medicines m ON pr.medicine_id = m.id
-    WHERE pr.visit_id = ?
-  `).bind(id).all();
-  visit.prescriptions = prescriptions.results;
+  if (!visit) return errorResponse('Visit not found', 404);
 
-  return new Response(JSON.stringify(visit), {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const eye_exam = await ctx.env.DB.prepare(
+    `SELECT * FROM eye_exams WHERE visit_id = ? LIMIT 1`
+  ).bind(id).first();
+
+  const { results: prescriptions } = await ctx.env.DB.prepare(
+    `SELECT * FROM prescriptions WHERE visit_id = ?`
+  ).bind(id).all();
+
+  await logAudit(ctx, user.id, 'view', 'visit', id);
+  return successResponse({ visit, eye_exam, prescriptions });
+}
+
+export async function onRequestPut(ctx) {
+  const user = await requireAuth(ctx);
+  if (!user) return errorResponse('Unauthorized', 401);
+  if (!['admin','doctor','nurse'].includes(user.role))
+    return errorResponse('Forbidden', 403);
+
+  const id   = ctx.params.id;
+  const body = await ctx.request.json();
+
+  await ctx.env.DB.prepare(
+    `UPDATE visits SET
+       visit_type=?, chief_complaint=?, diagnosis=?,
+       treatment=?, notes=?, status=?, follow_up_date=?
+     WHERE id=?`
+  ).bind(
+    body.visit_type || 'consult',
+    body.chief_complaint || null,
+    body.diagnosis || null,
+    body.treatment || null,
+    body.notes || null,
+    body.status || 'seen',
+    body.follow_up_date || null,
+    id
+  ).run();
+
+  await logAudit(ctx, user.id, 'update', 'visit', id);
+  return successResponse({ updated: true });
 }
