@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Edit, Printer, User, Eye, FileText, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Printer, FileText, Eye, AlertCircle } from 'lucide-react';
 
 function Badge({ children, color = 'gray' }) {
   const colors = {
@@ -68,11 +68,14 @@ export default function VisitDetail() {
   );
 
   const { visit, eye_exam, prescriptions = [] } = data;
+  // Support both patients schema styles
+  const patientName = visit.full_name || `${visit.first_name || ''} ${visit.last_name || ''}`.trim();
+  const patientCode = visit.patient_code || visit.patient_no || '';
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 print:px-0 print:py-0">
+    <div className="max-w-4xl mx-auto px-4 py-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6 print:hidden">
+      <div className="flex items-center gap-3 mb-6">
         <button onClick={() => navigate(-1)} className="p-2 hover:bg-gray-100 rounded-xl transition">
           <ArrowLeft size={18} />
         </button>
@@ -80,51 +83,35 @@ export default function VisitDetail() {
           <h1 className="text-xl font-bold text-foreground">Visit Record</h1>
           <p className="text-sm text-gray-400">
             <Link to={`/patients/${visit.patient_id}`} className="hover:text-primary transition">
-              {visit.first_name} {visit.last_name}
+              {patientName}
             </Link>
-            {' · '}{visit.patient_no}
+            {patientCode && ` · ${patientCode}`}
           </p>
         </div>
-        <button onClick={() => window.print()}
-          className="p-2 hover:bg-gray-100 rounded-xl transition text-gray-500" title="Print">
+        <button
+          onClick={() => window.print()}
+          className="p-2 hover:bg-gray-100 rounded-xl transition text-gray-500"
+          title="Print full record"
+        >
           <Printer size={17} />
         </button>
-      </div>
-
-      {/* Print header */}
-      <div className="hidden print:block mb-6">
-        <h1 className="text-2xl font-bold">Albacete Eye Center & Medical Clinics</h1>
-        <p className="text-sm text-gray-500">JEA Bldg, E. Lopez St., Jaro, Iloilo City · 0963 862 9414</p>
-        <hr className="my-3" />
-        <div className="flex justify-between">
-          <div>
-            <p className="font-semibold">{visit.first_name} {visit.last_name}</p>
-            <p className="text-sm text-gray-500">{visit.patient_no} · {visit.dob} · {visit.sex}</p>
-          </div>
-          <div className="text-right">
-            <p className="font-semibold">{visit.visit_date}</p>
-            <p className="text-sm text-gray-500">Dr. {visit.doctor_name}</p>
-          </div>
-        </div>
       </div>
 
       <div className="space-y-5">
         {/* Visit summary */}
         <Section title="Visit Summary" icon={FileText}>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            <Row label="Date"       value={visit.visit_date} />
-            <Row label="Type"       value={visit.visit_type} />
-            <Row label="Doctor"     value={visit.doctor_name} />
-            <Row label="Status"     value={
-              <Badge color={statusColor(visit.status)}>{visit.status}</Badge>
-            } />
+            <Row label="Date"   value={visit.visit_date} />
+            <Row label="Type"   value={visit.visit_type} />
+            <Row label="Doctor" value={visit.doctor_name} />
+            <Row label="Status" value={<Badge color={statusColor(visit.status)}>{visit.status}</Badge>} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Row label="Chief Complaint" value={visit.chief_complaint} />
             <Row label="Follow-up Date"  value={visit.follow_up_date} />
-            <div className="md:col-span-2"><Row label="Diagnosis"    value={visit.diagnosis} /></div>
-            <div className="md:col-span-2"><Row label="Treatment"    value={visit.treatment} /></div>
-            <div className="md:col-span-2"><Row label="Notes"        value={visit.notes} /></div>
+            <div className="md:col-span-2"><Row label="Diagnosis"  value={visit.diagnosis} /></div>
+            <div className="md:col-span-2"><Row label="Treatment"  value={visit.treatment} /></div>
+            <div className="md:col-span-2"><Row label="Notes"      value={visit.notes} /></div>
           </div>
         </Section>
 
@@ -146,26 +133,26 @@ export default function VisitDetail() {
                 <div className="bg-blue-50 rounded-xl p-3 text-xs">
                   <p className="font-bold text-blue-700 mb-1">Refraction OD</p>
                   <p className="font-mono">
-                    {eye_exam.ref_od_sphere > 0 ? '+' : ''}{eye_exam.ref_od_sphere} DS &nbsp;
+                    {eye_exam.ref_od_sphere > 0 ? '+' : ''}{eye_exam.ref_od_sphere} DS&nbsp;
                     {eye_exam.ref_od_cylinder} DC × {eye_exam.ref_od_axis}°
                   </p>
                 </div>
                 <div className="bg-blue-50 rounded-xl p-3 text-xs">
                   <p className="font-bold text-blue-700 mb-1">Refraction OS</p>
                   <p className="font-mono">
-                    {eye_exam.ref_os_sphere > 0 ? '+' : ''}{eye_exam.ref_os_sphere} DS &nbsp;
+                    {eye_exam.ref_os_sphere > 0 ? '+' : ''}{eye_exam.ref_os_sphere} DS&nbsp;
                     {eye_exam.ref_os_cylinder} DC × {eye_exam.ref_os_axis}°
                   </p>
                 </div>
               </div>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <Row label="Slit Lamp OD"  value={eye_exam.slit_lamp_od} />
-              <Row label="Slit Lamp OS"  value={eye_exam.slit_lamp_os} />
-              <Row label="Fundus OD"     value={eye_exam.fundus_od} />
-              <Row label="Fundus OS"     value={eye_exam.fundus_os} />
-              <Row label="Color Vision"  value={eye_exam.color_vision} />
-              <Row label="OCT Notes"     value={eye_exam.oct_notes} />
+              <Row label="Slit Lamp OD" value={eye_exam.slit_lamp_od} />
+              <Row label="Slit Lamp OS" value={eye_exam.slit_lamp_os} />
+              <Row label="Fundus OD"   value={eye_exam.fundus_od} />
+              <Row label="Fundus OS"   value={eye_exam.fundus_os} />
+              <Row label="Color Vision" value={eye_exam.color_vision} />
+              <Row label="OCT Notes"   value={eye_exam.oct_notes} />
             </div>
             {eye_exam.extra_notes && (
               <p className="mt-3 text-xs text-gray-500 bg-gray-50 rounded-xl p-3">{eye_exam.extra_notes}</p>
@@ -178,16 +165,37 @@ export default function VisitDetail() {
           <Section title="Prescriptions" icon={FileText}>
             {prescriptions.map((rx, i) => (
               <div key={rx.id} className={i > 0 ? 'mt-5 pt-5 border-t border-gray-100' : ''}>
+                {/* Print Rx button */}
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs text-gray-400 uppercase tracking-widest font-bold">
+                    Prescription #{i + 1} &nbsp;·&nbsp; {rx.rx_date || visit.visit_date}
+                  </p>
+                  <Link
+                    to={`/prescriptions/${rx.id}/print`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-primary border border-primary/30 bg-primary-soft rounded-lg hover:bg-primary hover:text-white transition"
+                  >
+                    <Printer size={13} /> Print Rx Slip
+                  </Link>
+                </div>
+
                 {(rx.glasses_od_sphere !== null || rx.glasses_os_sphere !== null) && (
                   <div className="grid grid-cols-2 gap-3 mb-3">
                     <div className="bg-gray-50 rounded-xl p-3 text-xs">
                       <p className="font-bold text-gray-600 mb-1">OD (Right)</p>
-                      <p className="font-mono">{rx.glasses_od_sphere > 0 ? '+' : ''}{rx.glasses_od_sphere} {rx.glasses_od_cylinder} × {rx.glasses_od_axis}°</p>
+                      <p className="font-mono">
+                        {rx.glasses_od_sphere > 0 ? '+' : ''}{rx.glasses_od_sphere} &nbsp;
+                        {rx.glasses_od_cylinder} × {rx.glasses_od_axis}°
+                      </p>
                       {rx.glasses_add && <p className="mt-1">Add: +{rx.glasses_add}</p>}
                     </div>
                     <div className="bg-gray-50 rounded-xl p-3 text-xs">
                       <p className="font-bold text-gray-600 mb-1">OS (Left)</p>
-                      <p className="font-mono">{rx.glasses_os_sphere > 0 ? '+' : ''}{rx.glasses_os_sphere} {rx.glasses_os_cylinder} × {rx.glasses_os_axis}°</p>
+                      <p className="font-mono">
+                        {rx.glasses_os_sphere > 0 ? '+' : ''}{rx.glasses_os_sphere} &nbsp;
+                        {rx.glasses_os_cylinder} × {rx.glasses_os_axis}°
+                      </p>
                     </div>
                   </div>
                 )}
