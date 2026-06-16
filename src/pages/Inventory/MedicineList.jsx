@@ -6,7 +6,36 @@ import {
 import { AnimatedPage, staggeredContainer, staggeredItem } from '../../components/AnimatedPage';
 import { motion } from 'framer-motion';
 
-// ─── Add/Edit Medicine Modal ───────────────────────────────────────────────────────────────────────
+const C = {
+  primary:     '#0891b2',
+  primaryDark: '#0e7490',
+  primaryBg:   '#e0f2fe',
+  border:      '#f1f5f9',
+  borderMid:   '#e2e8f0',
+  bg:          '#f8fafc',
+  white:       '#fff',
+  text:        '#0f172a',
+  textMid:     '#475569',
+  textSoft:    '#94a3b8',
+  danger:      '#dc2626',
+  dangerBg:    '#fef2f2',
+  warn:        '#d97706',
+  warnBg:      '#fef3c7',
+  amber:       '#b45309',
+  amberBg:     '#fef9c3',
+};
+
+const inputStyle = {
+  width: '100%', padding: '9px 12px',
+  border: `1.5px solid ${C.borderMid}`, borderRadius: '10px',
+  fontSize: '13px', outline: 'none', fontFamily: 'inherit',
+  background: '#fafafa', color: C.text, boxSizing: 'border-box',
+  transition: 'border-color 0.15s, box-shadow 0.15s',
+};
+const focusIn  = e => { e.target.style.borderColor = C.primary; e.target.style.boxShadow = `0 0 0 3px rgba(8,145,178,0.12)`; e.target.style.background = '#fff'; };
+const focusOut = e => { e.target.style.borderColor = C.borderMid; e.target.style.boxShadow = 'none'; e.target.style.background = '#fafafa'; };
+
+// ─── Add/Edit Modal ─────────────────────────────────────────────────────────
 function MedicineModal({ medicine, onClose, onSaved }) {
   const isEdit = !!medicine?.id;
   const [form, setForm] = useState({
@@ -23,7 +52,6 @@ function MedicineModal({ medicine, onClose, onSaved }) {
   });
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
-
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const handleSubmit = async (e) => {
@@ -32,12 +60,9 @@ function MedicineModal({ medicine, onClose, onSaved }) {
     setLoading(true); setError('');
     const res = await fetch(
       isEdit ? `/api/medicines/${medicine.id}` : '/api/medicines',
-      {
-        method: isEdit ? 'PUT' : 'POST',
-        credentials: 'include',
+      { method: isEdit ? 'PUT' : 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...form,
+        body: JSON.stringify({ ...form,
           unit_price:     form.unit_price     !== '' ? Number(form.unit_price)     : 0,
           stock_quantity: form.stock_quantity !== '' ? Number(form.stock_quantity) : 0,
           reorder_level:  form.reorder_level  !== '' ? Number(form.reorder_level)  : 10,
@@ -45,51 +70,46 @@ function MedicineModal({ medicine, onClose, onSaved }) {
       }
     );
     setLoading(false);
-    if (res.ok) { onSaved(); }
-    else { const d = await res.json().catch(() => ({})); setError(d.error || 'Save failed.'); }
+    if (res.ok) onSaved();
+    else { const d = await res.json().catch(()=>({})); setError(d.error || 'Save failed.'); }
   };
 
   const fields = [
-    { key:'name',           label:'Medicine Name *',  type:'text',   full:true },
-    { key:'generic_name',   label:'Generic Name',      type:'text' },
-    { key:'category',       label:'Category',          type:'text' },
-    { key:'manufacturer',   label:'Manufacturer',      type:'text' },
-    { key:'unit',           label:'Unit (tab/mL/etc)', type:'text' },
-    { key:'unit_price',     label:'Unit Price (₱)',    type:'number' },
-    { key:'stock_quantity', label:'Initial Stock',     type:'number' },
-    { key:'reorder_level',  label:'Reorder Level',     type:'number' },
-    { key:'batch_number',   label:'Batch No.',         type:'text' },
-    { key:'expiry_date',    label:'Expiry Date',       type:'date' },
+    { key:'name',           label:'Medicine Name *', type:'text',   full:true },
+    { key:'generic_name',   label:'Generic Name',    type:'text' },
+    { key:'category',       label:'Category',        type:'text' },
+    { key:'manufacturer',   label:'Manufacturer',    type:'text' },
+    { key:'unit',           label:'Unit (tab/mL)',   type:'text' },
+    { key:'unit_price',     label:'Unit Price (₱)',  type:'number' },
+    { key:'stock_quantity', label:'Initial Stock',   type:'number' },
+    { key:'reorder_level',  label:'Reorder Level',   type:'number' },
+    { key:'batch_number',   label:'Batch No.',       type:'text' },
+    { key:'expiry_date',    label:'Expiry Date',     type:'date' },
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-lg font-bold">{isEdit ? 'Edit Medicine' : 'Add Medicine'}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700"><X size={20}/></button>
+    <div style={{ position:'fixed', inset:0, zIndex:50, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.45)', padding:'16px' }}>
+      <div style={{ background:C.white, borderRadius:'20px', boxShadow:'0 25px 60px rgba(0,0,0,0.2)', width:'100%', maxWidth:'520px', maxHeight:'90vh', display:'flex', flexDirection:'column' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'18px 24px', borderBottom:`1px solid ${C.border}` }}>
+          <h2 style={{ fontSize:'16px', fontWeight:800, color:C.text, margin:0 }}>{isEdit?'Edit Medicine':'Add Medicine'}</h2>
+          <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:C.textSoft, display:'flex' }}><X size={20}/></button>
         </div>
-        <form onSubmit={handleSubmit} className="overflow-y-auto flex-1 px-6 py-5">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} style={{ overflowY:'auto', flex:1, padding:'20px 24px' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'14px' }}>
             {fields.map(f => (
-              <div key={f.key} className={f.full ? 'col-span-2' : ''}>
-                <label className="block text-xs font-semibold text-gray-600 mb-1">{f.label}</label>
-                <input
-                  type={f.type}
-                  value={form[f.key]}
-                  onChange={e => set(f.key, e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                />
+              <div key={f.key} style={{ gridColumn: f.full ? '1/-1' : undefined }}>
+                <label style={{ display:'block', fontSize:'11px', fontWeight:700, color:C.textMid, marginBottom:'5px', letterSpacing:'0.04em' }}>{f.label}</label>
+                <input type={f.type} value={form[f.key]} onChange={e=>set(f.key, e.target.value)}
+                  style={inputStyle} onFocus={focusIn} onBlur={focusOut}/>
               </div>
             ))}
           </div>
-          {error && <p className="mt-3 text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
+          {error && <p style={{ marginTop:'12px', fontSize:'13px', color:C.danger, background:C.dangerBg, padding:'10px 14px', borderRadius:'10px' }}>{error}</p>}
         </form>
-        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-800">Cancel</button>
-          <button onClick={handleSubmit} disabled={loading}
-            className="px-5 py-2 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-50">
-            {loading ? 'Saving...' : isEdit ? 'Save Changes' : 'Add Medicine'}
+        <div style={{ display:'flex', justifyContent:'flex-end', gap:'10px', padding:'14px 24px', borderTop:`1px solid ${C.border}` }}>
+          <button type="button" onClick={onClose} style={{ padding:'8px 16px', fontSize:'13px', color:C.textMid, background:'none', border:'none', cursor:'pointer', fontFamily:'inherit' }}>Cancel</button>
+          <button onClick={handleSubmit} disabled={loading} style={{ padding:'9px 20px', background:`linear-gradient(135deg,${C.primary},${C.primaryDark})`, color:'white', border:'none', borderRadius:'10px', fontSize:'13px', fontWeight:700, cursor:loading?'not-allowed':'pointer', opacity:loading?0.6:1, fontFamily:'inherit', boxShadow:'0 3px 10px rgba(8,145,178,0.3)' }}>
+            {loading?'Saving…':isEdit?'Save Changes':'Add Medicine'}
           </button>
         </div>
       </div>
@@ -97,7 +117,7 @@ function MedicineModal({ medicine, onClose, onSaved }) {
   );
 }
 
-// ─── Adjust Stock Modal ─────────────────────────────────────────────────────────────────────────────
+// ─── Adjust Stock Modal ─────────────────────────────────────────────────────
 function AdjustModal({ medicine, onClose, onSaved }) {
   const [delta,   setDelta]   = useState('');
   const [reason,  setReason]  = useState('');
@@ -110,71 +130,60 @@ function AdjustModal({ medicine, onClose, onSaved }) {
     if (!reason.trim()) { setError('Reason is required.'); return; }
     setLoading(true); setError('');
     const res = await fetch(`/api/medicines/${medicine.id}/adjust`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ delta: Number(delta), reason }),
     });
     setLoading(false);
-    if (res.ok) { onSaved(); }
-    else { const d = await res.json().catch(() => ({})); setError(d.error || 'Adjustment failed.'); }
+    if (res.ok) onSaved();
+    else { const d = await res.json().catch(()=>({})); setError(d.error || 'Adjustment failed.'); }
   };
 
   const numDelta = Number(delta);
   const preview  = delta && medicine ? medicine.stock_quantity + numDelta : null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-base font-bold">Adjust Stock</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700"><X size={18}/></button>
+    <div style={{ position:'fixed', inset:0, zIndex:50, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.45)', padding:'16px' }}>
+      <div style={{ background:C.white, borderRadius:'20px', boxShadow:'0 25px 60px rgba(0,0,0,0.2)', width:'100%', maxWidth:'380px' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 22px', borderBottom:`1px solid ${C.border}` }}>
+          <h2 style={{ fontSize:'15px', fontWeight:800, color:C.text, margin:0 }}>Adjust Stock</h2>
+          <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:C.textSoft, display:'flex' }}><X size={18}/></button>
         </div>
-        <form onSubmit={handle} className="px-6 py-5 space-y-4">
-          <div className="bg-gray-50 rounded-xl px-4 py-3">
-            <p className="font-semibold text-gray-900 text-sm">{medicine.name}</p>
-            <p className="text-xs text-gray-400">{medicine.generic_name}</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">
-              {medicine.stock_quantity} <span className="text-sm font-normal text-gray-400">{medicine.unit}</span>
+        <form onSubmit={handle} style={{ padding:'18px 22px', display:'flex', flexDirection:'column', gap:'14px' }}>
+          <div style={{ background:C.bg, borderRadius:'12px', padding:'14px 16px' }}>
+            <p style={{ fontWeight:700, color:C.text, margin:'0 0 2px', fontSize:'14px' }}>{medicine.name}</p>
+            <p style={{ fontSize:'12px', color:C.textSoft, margin:0 }}>{medicine.generic_name}</p>
+            <p style={{ fontSize:'26px', fontWeight:800, color:C.text, margin:'8px 0 0' }}>
+              {medicine.stock_quantity} <span style={{ fontSize:'13px', fontWeight:500, color:C.textSoft }}>{medicine.unit}</span>
             </p>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">
-              Adjustment Amount <span className="text-gray-400">(use − for dispense/removal)</span>
-            </label>
-            <div className="flex gap-2">
-              <button type="button"
-                onClick={() => setDelta(v => v === '' ? '-1' : String(Number(v) - 1))}
-                className="px-3 py-2 bg-red-50 text-red-600 rounded-xl font-bold hover:bg-red-100 transition">
-                −
-              </button>
-              <input type="number" value={delta} onChange={e => setDelta(e.target.value)}
+            <label style={{ display:'block', fontSize:'11px', fontWeight:700, color:C.textMid, marginBottom:'8px', letterSpacing:'0.04em' }}>ADJUSTMENT AMOUNT</label>
+            <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
+              <button type="button" onClick={()=>setDelta(v=>v===''?'-1':String(Number(v)-1))}
+                style={{ padding:'9px 14px', background:'#fef2f2', color:C.danger, border:'none', borderRadius:'10px', fontWeight:800, fontSize:'16px', cursor:'pointer', fontFamily:'inherit' }}>−</button>
+              <input type="number" value={delta} onChange={e=>setDelta(e.target.value)}
                 placeholder="e.g. 10 or -5"
-                className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm text-center font-mono focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
-              <button type="button"
-                onClick={() => setDelta(v => v === '' ? '1' : String(Number(v) + 1))}
-                className="px-3 py-2 bg-green-50 text-green-600 rounded-xl font-bold hover:bg-green-100 transition">
-                +
-              </button>
+                style={{ ...inputStyle, textAlign:'center', fontFamily:'monospace', flex:1 }}
+                onFocus={focusIn} onBlur={focusOut}/>
+              <button type="button" onClick={()=>setDelta(v=>v===''?'1':String(Number(v)+1))}
+                style={{ padding:'9px 14px', background:'#f0fdf4', color:'#16a34a', border:'none', borderRadius:'10px', fontWeight:800, fontSize:'16px', cursor:'pointer', fontFamily:'inherit' }}>+</button>
             </div>
             {preview !== null && preview >= 0 && (
-              <p className="text-xs mt-1.5 text-center">
-                New stock: <span className={`font-bold ${
-                  preview <= medicine.reorder_level ? 'text-orange-600' : 'text-green-600'
-                }`}>{preview} {medicine.unit}</span>
+              <p style={{ fontSize:'12px', textAlign:'center', marginTop:'6px', color: preview <= medicine.reorder_level ? C.warn : '#16a34a', fontWeight:600 }}>
+                New stock: {preview} {medicine.unit}
               </p>
             )}
             {preview !== null && preview < 0 && (
-              <p className="text-xs mt-1.5 text-center text-red-500 font-medium">Cannot go below 0</p>
+              <p style={{ fontSize:'12px', textAlign:'center', marginTop:'6px', color:C.danger, fontWeight:600 }}>Cannot go below 0</p>
             )}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Reason *</label>
-            <select value={reason} onChange={e => setReason(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 mb-2">
+            <label style={{ display:'block', fontSize:'11px', fontWeight:700, color:C.textMid, marginBottom:'6px', letterSpacing:'0.04em' }}>REASON *</label>
+            <select value={reason} onChange={e=>setReason(e.target.value)}
+              style={{ ...inputStyle, marginBottom:'8px' }} onFocus={focusIn} onBlur={focusOut}>
               <option value="">— select reason —</option>
               <option>Stock replenishment</option>
               <option>Dispensed to patient</option>
@@ -183,21 +192,17 @@ function AdjustModal({ medicine, onClose, onSaved }) {
               <option>Damaged / lost</option>
               <option>Transfer between branches</option>
             </select>
-            <input type="text" value={reason.startsWith('—') ? '' : reason}
-              onChange={e => setReason(e.target.value)}
-              placeholder="Or type custom reason..."
-              className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
+            <input type="text" value={reason.startsWith('—')?'':reason} onChange={e=>setReason(e.target.value)}
+              placeholder="Or type custom reason…" style={inputStyle} onFocus={focusIn} onBlur={focusOut}/>
           </div>
 
-          {error && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
+          {error && <p style={{ fontSize:'13px', color:C.danger, background:C.dangerBg, padding:'10px 14px', borderRadius:'10px', margin:0 }}>{error}</p>}
 
-          <div className="flex justify-end gap-2 pt-1">
-            <button type="button" onClick={onClose}
-              className="px-4 py-2 text-sm text-gray-500 hover:text-gray-800">Cancel</button>
-            <button type="submit" disabled={loading || (preview !== null && preview < 0)}
-              className="px-5 py-2 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-50">
-              {loading ? 'Saving...' : 'Confirm'}
+          <div style={{ display:'flex', justifyContent:'flex-end', gap:'10px', paddingTop:'4px' }}>
+            <button type="button" onClick={onClose} style={{ padding:'8px 16px', fontSize:'13px', color:C.textMid, background:'none', border:'none', cursor:'pointer', fontFamily:'inherit' }}>Cancel</button>
+            <button type="submit" disabled={loading||(preview!==null&&preview<0)}
+              style={{ padding:'9px 20px', background:`linear-gradient(135deg,${C.primary},${C.primaryDark})`, color:'white', border:'none', borderRadius:'10px', fontSize:'13px', fontWeight:700, cursor:(loading||(preview!==null&&preview<0))?'not-allowed':'pointer', opacity:(loading||(preview!==null&&preview<0))?0.5:1, fontFamily:'inherit', boxShadow:'0 3px 10px rgba(8,145,178,0.3)' }}>
+              {loading?'Saving…':'Confirm'}
             </button>
           </div>
         </form>
@@ -206,78 +211,60 @@ function AdjustModal({ medicine, onClose, onSaved }) {
   );
 }
 
-// ─── Transaction History Drawer ─────────────────────────────────────────────────────────────────────
+// ─── History Drawer ─────────────────────────────────────────────────────────
 function HistoryDrawer({ medicine, onClose }) {
   const [txns,    setTxns]    = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/medicines/${medicine.id}/history`, { credentials: 'include' })
-      .then(r => r.json())
-      .then(d => setTxns(d.transactions || []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    fetch(`/api/medicines/${medicine.id}/history`, { credentials:'include' })
+      .then(r=>r.json()).then(d=>setTxns(d.transactions||[])).catch(()=>{})
+      .finally(()=>setLoading(false));
   }, [medicine.id]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+    <div style={{ position:'fixed', inset:0, zIndex:50, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.45)', padding:'16px' }}>
+      <div style={{ background:C.white, borderRadius:'20px', boxShadow:'0 25px 60px rgba(0,0,0,0.2)', width:'100%', maxWidth:'440px', maxHeight:'80vh', display:'flex', flexDirection:'column' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'16px 22px', borderBottom:`1px solid ${C.border}` }}>
           <div>
-            <h2 className="text-base font-bold">Stock History</h2>
-            <p className="text-xs text-gray-400">{medicine.name}</p>
+            <h2 style={{ fontSize:'15px', fontWeight:800, color:C.text, margin:0 }}>Stock History</h2>
+            <p style={{ fontSize:'12px', color:C.textSoft, margin:'3px 0 0' }}>{medicine.name}</p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700"><X size={18}/></button>
+          <button onClick={onClose} style={{ background:'none', border:'none', cursor:'pointer', color:C.textSoft, display:'flex' }}><X size={18}/></button>
         </div>
-        <div className="overflow-y-auto flex-1 px-4 py-3">
+        <div style={{ overflowY:'auto', flex:1, padding:'12px 16px' }}>
           {loading ? (
-            <div className="flex justify-center py-10">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"/>
+            <div style={{ display:'flex', justifyContent:'center', padding:'40px 0' }}>
+              <div style={{ width:'32px', height:'32px', border:`3px solid ${C.primaryBg}`, borderTopColor:C.primary, borderRadius:'50%', animation:'spin 0.8s linear infinite' }}/>
             </div>
           ) : txns.length === 0 ? (
-            <div className="text-center py-10 text-gray-400">
-              <History size={32} className="mx-auto mb-2 opacity-30"/>
-              <p className="text-sm">No transactions yet</p>
+            <div style={{ textAlign:'center', padding:'40px 0', color:C.textSoft }}>
+              <History size={32} style={{ margin:'0 auto 8px', opacity:0.3 }}/>
+              <p style={{ fontSize:'13px', margin:0 }}>No transactions yet</p>
             </div>
-          ) : (
-            <div className="space-y-2">
-              {txns.map(t => (
-                <div key={t.id} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50">
-                  <div className={`p-1.5 rounded-lg flex-shrink-0 ${
-                    t.delta > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'
-                  }`}>
-                    {t.delta > 0 ? <TrendingUp size={14}/> : <TrendingDown size={14}/>}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className={`text-sm font-bold ${
-                        t.delta > 0 ? 'text-green-700' : 'text-red-600'
-                      }`}>
-                        {t.delta > 0 ? '+' : ''}{t.delta}
-                      </span>
-                      <span className="text-xs text-gray-400 flex-shrink-0">
-                        {t.stock_before} → {t.stock_after}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-600 truncate">{t.reason}</p>
-                    <p className="text-[10px] text-gray-400">
-                      {t.user_name || 'System'} · {new Date(t.created_at).toLocaleString('en-PH', {
-                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-                      })}
-                    </p>
-                  </div>
+          ) : txns.map(t => (
+            <div key={t.id} style={{ display:'flex', alignItems:'center', gap:'12px', padding:'12px', borderRadius:'12px', background:C.bg, marginBottom:'8px' }}>
+              <div style={{ padding:'7px', borderRadius:'9px', background: t.delta>0?'#dcfce7':'#fee2e2', color: t.delta>0?'#16a34a':C.danger, display:'flex', flexShrink:0 }}>
+                {t.delta>0 ? <TrendingUp size={14}/> : <TrendingDown size={14}/>}
+              </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:'8px' }}>
+                  <span style={{ fontSize:'14px', fontWeight:800, color: t.delta>0?'#16a34a':C.danger }}>{t.delta>0?'+':''}{t.delta}</span>
+                  <span style={{ fontSize:'11px', color:C.textSoft, flexShrink:0 }}>{t.stock_before} → {t.stock_after}</span>
                 </div>
-              ))}
+                <p style={{ fontSize:'12px', color:C.textMid, margin:'2px 0 0', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{t.reason}</p>
+                <p style={{ fontSize:'10px', color:C.textSoft, margin:'2px 0 0' }}>{t.user_name||'System'} · {new Date(t.created_at).toLocaleString('en-PH',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</p>
+              </div>
             </div>
-          )}
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Main Page ──────────────────────────────────────────────────────────────────────────────────────────
-const MedicineList = () => {
+// ─── Main Page ───────────────────────────────────────────────────────────────
+export default function MedicineList() {
   const [medicines,    setMedicines]    = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [filter,       setFilter]       = useState('all');
@@ -289,14 +276,13 @@ const MedicineList = () => {
   const fetchMeds = useCallback(async () => {
     setLoading(true);
     let url = '/api/medicines';
-    if (filter === 'low')      url += '?lowStock=true';
-    if (filter === 'expiring') url += '?expiring=true';
-    const res = await fetch(url, { credentials: 'include' });
+    if (filter==='low')      url += '?lowStock=true';
+    if (filter==='expiring') url += '?expiring=true';
+    const res = await fetch(url, { credentials:'include' });
     if (res.ok) setMedicines(await res.json());
     setLoading(false);
   }, [filter]);
-
-  useEffect(() => { fetchMeds(); }, [fetchMeds]);
+  useEffect(()=>{ fetchMeds(); }, [fetchMeds]);
 
   const filtered = medicines.filter(m =>
     !q ||
@@ -304,141 +290,136 @@ const MedicineList = () => {
     m.generic_name?.toLowerCase().includes(q.toLowerCase()) ||
     m.category?.toLowerCase().includes(q.toLowerCase())
   );
-
   const isLow      = m => m.stock_quantity <= m.reorder_level;
-  const isExpiring = m => m.expiry_date && new Date(m.expiry_date) <= new Date(Date.now() + 30*24*60*60*1000);
   const isExpired  = m => m.expiry_date && new Date(m.expiry_date) < new Date();
+  const isExpiring = m => m.expiry_date && !isExpired(m) && new Date(m.expiry_date) <= new Date(Date.now()+30*24*60*60*1000);
 
   return (
-    <AnimatedPage className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <AnimatedPage>
+      {/* Header */}
+      <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:'24px', flexWrap:'wrap', gap:'12px' }}>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
-          <p className="text-gray-500 text-sm mt-1">Medicines, stock levels &amp; expiry tracking.</p>
+          <h1 style={{ fontSize:'26px', fontWeight:800, color:C.text, margin:'0 0 4px', letterSpacing:'-0.02em' }}>Inventory</h1>
+          <p style={{ fontSize:'13px', color:C.textSoft, margin:0 }}>Medicines, stock levels &amp; expiry tracking.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={fetchMeds}
-            className="p-2 text-gray-400 hover:text-gray-700 rounded-xl hover:bg-gray-100 transition" title="Refresh">
-            <RefreshCw size={16}/>
+        <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+          <button onClick={fetchMeds} title="Refresh"
+            style={{ padding:'9px', background:C.white, border:`1px solid ${C.borderMid}`, borderRadius:'10px', cursor:'pointer', display:'flex', color:C.textSoft, transition:'all 0.15s' }}
+            onMouseEnter={e=>{ e.currentTarget.style.borderColor=C.primary; e.currentTarget.style.color=C.primary; }}
+            onMouseLeave={e=>{ e.currentTarget.style.borderColor=C.borderMid; e.currentTarget.style.color=C.textSoft; }}>
+            <RefreshCw size={15}/>
           </button>
-          <button onClick={() => setAddModal(true)}
-            className="flex items-center gap-2 bg-primary text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-sm hover:bg-primary/90 transition">
-            <Plus size={16}/> Add Medicine
+          <button onClick={()=>setAddModal(true)}
+            style={{ display:'flex', alignItems:'center', gap:'7px', padding:'9px 18px', background:`linear-gradient(135deg,${C.primary},${C.primaryDark})`, color:'white', border:'none', borderRadius:'11px', fontWeight:700, fontSize:'13px', cursor:'pointer', boxShadow:'0 3px 12px rgba(8,145,178,0.35)', fontFamily:'inherit', transition:'opacity 0.15s' }}
+            onMouseEnter={e=>e.currentTarget.style.opacity='0.9'}
+            onMouseLeave={e=>e.currentTarget.style.opacity='1'}>
+            <Plus size={15}/> Add Medicine
           </button>
         </div>
       </div>
 
       {/* Filters + Search */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex gap-2 overflow-x-auto pb-1">
+      <div style={{ display:'flex', gap:'12px', marginBottom:'20px', flexWrap:'wrap' }}>
+        <div style={{ display:'flex', gap:'6px' }}>
           {[
-            { id: 'all',      name: 'All',          icon: Package },
-            { id: 'low',      name: 'Low Stock',     icon: TrendingDown },
-            { id: 'expiring', name: 'Expiring Soon', icon: Clock },
+            { id:'all',      label:'All',          icon:Package },
+            { id:'low',      label:'Low Stock',     icon:TrendingDown },
+            { id:'expiring', label:'Expiring Soon', icon:Clock },
           ].map(f => (
-            <button key={f.id} onClick={() => setFilter(f.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition border ${
-                filter === f.id
-                  ? 'bg-primary text-white border-primary shadow-sm'
-                  : 'bg-white text-gray-600 border-gray-100 hover:bg-gray-50'
-              }`}>
-              <f.icon size={15}/>{f.name}
+            <button key={f.id} onClick={()=>setFilter(f.id)}
+              style={{
+                display:'flex', alignItems:'center', gap:'6px',
+                padding:'8px 14px', borderRadius:'10px', fontSize:'13px', fontWeight:700,
+                border: filter===f.id ? `1.5px solid ${C.primary}` : `1.5px solid ${C.borderMid}`,
+                background: filter===f.id ? C.primary : C.white,
+                color: filter===f.id ? 'white' : C.textMid,
+                cursor:'pointer', whiteSpace:'nowrap', fontFamily:'inherit',
+                boxShadow: filter===f.id ? '0 2px 8px rgba(8,145,178,0.25)' : 'none',
+                transition:'all 0.15s',
+              }}>
+              <f.icon size={13}/>{f.label}
             </button>
           ))}
         </div>
-        <div className="relative flex-1 min-w-0">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
-          <input type="text" value={q} onChange={e => setQ(e.target.value)}
-            placeholder="Search name, generic, category..."
-            className="w-full pl-8 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
+        <div style={{ position:'relative', flex:1, minWidth:'200px' }}>
+          <Search size={14} style={{ position:'absolute', left:'12px', top:'50%', transform:'translateY(-50%)', color:C.textSoft, pointerEvents:'none' }}/>
+          <input type="text" value={q} onChange={e=>setQ(e.target.value)}
+            placeholder="Search name, generic, category…"
+            style={{ ...inputStyle, paddingLeft:'36px' }}
+            onFocus={focusIn} onBlur={focusOut}/>
         </div>
       </div>
 
       {/* Grid */}
-      <motion.div
-        variants={staggeredContainer} initial="initial" animate="animate"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
-      >
+      <motion.div variants={staggeredContainer} initial="initial" animate="animate"
+        style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))', gap:'16px' }}>
         {loading ? (
-          [1,2,3,4,5,6].map(i => <div key={i} className="h-52 bg-gray-100 animate-pulse rounded-2xl"/>)
+          [1,2,3,4,5,6].map(i=>(
+            <div key={i} style={{ height:'220px', borderRadius:'18px', background:C.border, animation:'pulse 1.5s ease-in-out infinite' }}/>
+          ))
         ) : filtered.length === 0 ? (
-          <div className="col-span-full py-20 text-center text-gray-400">
-            <Package className="mx-auto mb-2 opacity-10" size={64}/>
-            <p>No medicines found.</p>
+          <div style={{ gridColumn:'1/-1', padding:'80px 20px', textAlign:'center', color:C.textSoft }}>
+            <Package size={56} style={{ margin:'0 auto 12px', opacity:0.15 }}/>
+            <p style={{ fontSize:'14px', margin:0 }}>No medicines found.</p>
           </div>
         ) : filtered.map(med => (
           <motion.div key={med.id} variants={staggeredItem}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col">
-            <div className="p-5 flex-1">
-              <div className="flex justify-between items-start mb-3">
-                <div className="p-2.5 bg-primary-soft text-primary rounded-xl">
+            style={{ background:C.white, borderRadius:'18px', border:`1px solid ${C.border}`, boxShadow:'0 1px 4px rgba(0,0,0,0.05)', display:'flex', flexDirection:'column', transition:'box-shadow 0.2s, transform 0.2s', overflow:'hidden' }}
+            onMouseEnter={e=>{ e.currentTarget.style.boxShadow='0 8px 24px rgba(0,0,0,0.1)'; e.currentTarget.style.transform='translateY(-2px)'; }}
+            onMouseLeave={e=>{ e.currentTarget.style.boxShadow='0 1px 4px rgba(0,0,0,0.05)'; e.currentTarget.style.transform='translateY(0)'; }}>
+
+            <div style={{ padding:'18px 18px 14px', flex:1 }}>
+              {/* Icon + badges */}
+              <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:'14px' }}>
+                <div style={{ background:C.primaryBg, color:C.primary, padding:'9px', borderRadius:'11px', display:'flex' }}>
                   <Package size={18}/>
                 </div>
-                <div className="flex gap-1.5">
-                  {isExpired(med) && (
-                    <span className="text-[10px] font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full">EXPIRED</span>
-                  )}
-                  {!isExpired(med) && isExpiring(med) && (
-                    <span className="text-[10px] font-bold bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">EXP SOON</span>
-                  )}
-                  {isLow(med) && (
-                    <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full flex items-center gap-0.5">
-                      <AlertTriangle size={9}/> LOW
-                    </span>
-                  )}
+                <div style={{ display:'flex', gap:'4px', flexWrap:'wrap', justifyContent:'flex-end' }}>
+                  {isExpired(med) && <span style={{ fontSize:'9px', fontWeight:800, background:'#fee2e2', color:C.danger, padding:'2px 7px', borderRadius:'999px', letterSpacing:'0.04em' }}>EXPIRED</span>}
+                  {isExpiring(med) && <span style={{ fontSize:'9px', fontWeight:800, background:'#ffedd5', color:'#c2410c', padding:'2px 7px', borderRadius:'999px', letterSpacing:'0.04em' }}>EXP SOON</span>}
+                  {isLow(med) && <span style={{ fontSize:'9px', fontWeight:800, background:C.warnBg, color:C.warn, padding:'2px 7px', borderRadius:'999px', display:'flex', alignItems:'center', gap:'3px', letterSpacing:'0.04em' }}><AlertTriangle size={8}/>LOW</span>}
                 </div>
               </div>
 
-              <h3 className="font-bold text-gray-900 line-clamp-1">{med.name}</h3>
-              <p className="text-xs text-gray-400 font-medium">{med.generic_name || '—'}</p>
-              {med.category && <p className="text-xs text-gray-400 mt-0.5">{med.category}</p>}
+              <h3 style={{ fontWeight:700, color:C.text, margin:'0 0 2px', fontSize:'15px', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{med.name}</h3>
+              <p style={{ fontSize:'12px', color:C.textSoft, fontWeight:500, margin:0 }}>{med.generic_name||'—'}</p>
+              {med.category && <p style={{ fontSize:'11px', color:C.textSoft, margin:'2px 0 0' }}>{med.category}</p>}
 
-              <div className="mt-4 flex items-end justify-between">
+              <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginTop:'16px' }}>
                 <div>
-                  <p className={`text-2xl font-bold ${
-                    isLow(med) ? 'text-amber-600' : 'text-gray-900'
-                  }`}>{med.stock_quantity}</p>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{med.unit || 'Units'}</p>
+                  <p style={{ fontSize:'30px', fontWeight:800, color: isLow(med)?C.warn:C.text, margin:0, lineHeight:1, letterSpacing:'-0.02em' }}>{med.stock_quantity}</p>
+                  <p style={{ fontSize:'9px', fontWeight:800, color:C.textSoft, textTransform:'uppercase', letterSpacing:'0.1em', margin:'4px 0 0' }}>{med.unit||'Units'}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Expiry</p>
-                  <p className={`text-sm font-bold ${
-                    isExpired(med) ? 'text-red-500' :
-                    isExpiring(med) ? 'text-orange-500' : 'text-gray-700'
-                  }`}>
-                    {med.expiry_date
-                      ? new Date(med.expiry_date).toLocaleDateString('en-PH', { month:'short', day:'numeric', year:'numeric' })
-                      : 'N/A'}
+                <div style={{ textAlign:'right' }}>
+                  <p style={{ fontSize:'9px', fontWeight:800, color:C.textSoft, textTransform:'uppercase', letterSpacing:'0.08em', margin:'0 0 3px' }}>Expiry</p>
+                  <p style={{ fontSize:'12px', fontWeight:700, color: isExpired(med)?C.danger:isExpiring(med)?'#ea580c':C.textMid, margin:0 }}>
+                    {med.expiry_date ? new Date(med.expiry_date).toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'}) : 'N/A'}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-3">
-                <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all ${
-                      isLow(med) ? 'bg-amber-400' : 'bg-primary'
-                    }`}
-                    style={{ width: `${Math.min(100, (med.stock_quantity / Math.max(med.reorder_level * 2, 1)) * 100)}%` }}
-                  />
+              {/* Progress bar */}
+              <div style={{ marginTop:'12px' }}>
+                <div style={{ height:'5px', background:C.border, borderRadius:'999px', overflow:'hidden' }}>
+                  <div style={{ height:'100%', background: isLow(med)?'#f59e0b':C.primary, borderRadius:'999px', width:`${Math.min(100,(med.stock_quantity/Math.max(med.reorder_level*2,1))*100)}%`, transition:'width 0.4s' }}/>
                 </div>
-                <p className="text-[9px] text-gray-400 mt-0.5">Reorder at {med.reorder_level}</p>
+                <p style={{ fontSize:'9px', color:C.textSoft, margin:'3px 0 0' }}>Reorder at {med.reorder_level}</p>
               </div>
             </div>
 
-            <div className="px-4 pb-4 flex gap-2">
-              <button
-                onClick={() => setAdjustModal(med)}
-                className="flex-1 py-2 border border-gray-200 rounded-xl text-xs font-bold text-gray-600 hover:bg-primary hover:text-white hover:border-primary transition flex items-center justify-center gap-1.5"
-              >
+            {/* Actions */}
+            <div style={{ padding:'0 14px 14px', display:'flex', gap:'8px' }}>
+              <button onClick={()=>setAdjustModal(med)}
+                style={{ flex:1, padding:'9px', background:C.bg, border:`1px solid ${C.borderMid}`, borderRadius:'10px', fontSize:'12px', fontWeight:700, color:C.textMid, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:'6px', fontFamily:'inherit', transition:'all 0.15s' }}
+                onMouseEnter={e=>{ e.currentTarget.style.background=C.primary; e.currentTarget.style.color='white'; e.currentTarget.style.borderColor=C.primary; }}
+                onMouseLeave={e=>{ e.currentTarget.style.background=C.bg; e.currentTarget.style.color=C.textMid; e.currentTarget.style.borderColor=C.borderMid; }}>
                 <TrendingUp size={13}/> Adjust Stock
               </button>
-              <button
-                onClick={() => setHistoryModal(med)}
-                className="px-3 py-2 border border-gray-200 rounded-xl text-xs text-gray-400 hover:bg-gray-50 transition"
+              <button onClick={()=>setHistoryModal(med)}
+                style={{ padding:'9px 12px', background:C.bg, border:`1px solid ${C.borderMid}`, borderRadius:'10px', cursor:'pointer', display:'flex', color:C.textSoft, transition:'all 0.15s', fontFamily:'inherit' }}
                 title="Transaction History"
-              >
+                onMouseEnter={e=>{ e.currentTarget.style.background=C.primaryBg; e.currentTarget.style.color=C.primary; e.currentTarget.style.borderColor=C.primary; }}
+                onMouseLeave={e=>{ e.currentTarget.style.background=C.bg; e.currentTarget.style.color=C.textSoft; e.currentTarget.style.borderColor=C.borderMid; }}>
                 <History size={14}/>
               </button>
             </div>
@@ -446,11 +427,9 @@ const MedicineList = () => {
         ))}
       </motion.div>
 
-      {addModal     && <MedicineModal onClose={() => setAddModal(false)}    onSaved={() => { setAddModal(false);    fetchMeds(); }} />}
-      {adjustModal  && <AdjustModal   medicine={adjustModal}  onClose={() => setAdjustModal(null)}  onSaved={() => { setAdjustModal(null);  fetchMeds(); }} />}
-      {historyModal && <HistoryDrawer medicine={historyModal} onClose={() => setHistoryModal(null)} />}
+      {addModal     && <MedicineModal onClose={()=>setAddModal(false)}    onSaved={()=>{ setAddModal(false);    fetchMeds(); }}/>}
+      {adjustModal  && <AdjustModal   medicine={adjustModal}  onClose={()=>setAdjustModal(null)}  onSaved={()=>{ setAdjustModal(null);  fetchMeds(); }}/>}
+      {historyModal && <HistoryDrawer medicine={historyModal} onClose={()=>setHistoryModal(null)}/>}
     </AnimatedPage>
   );
-};
-
-export default MedicineList;
+}
