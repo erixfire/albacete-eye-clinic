@@ -11,6 +11,9 @@ const NAV = [
   { name:'Admin',        path:'/admin',        icon:Settings,        roles:['admin'] },
 ];
 
+// Mobile header height in px — keep in sync with the fixed bar below
+const MOBILE_HEADER_H = 56;
+
 function Sidebar({ user, onNav, onLogout }) {
   const items = NAV.filter(i => i.roles.includes(user?.role));
   return (
@@ -78,37 +81,51 @@ export default function AppLayout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
+  // Detect mobile so we can apply the correct top-padding to <main>
+  const [isMobile, setIsMobile] = React.useState(() => window.innerWidth < 768);
+  React.useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const handler = e => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
   const handleLogout = async () => { await logout(); navigate('/login'); };
 
   return (
     <div style={{ display:'flex', minHeight:'100vh', background:'#f8fafc', fontFamily:"'Noto Sans',system-ui,sans-serif" }}>
 
-      {/* Desktop sidebar */}
-      <div style={{ position:'sticky', top:0, height:'100vh', flexShrink:0 }} className="hidden md:block">
-        <Sidebar user={user} onNav={()=>{}} onLogout={handleLogout}/>
-      </div>
-
-      {/* Mobile header */}
-      <div className="md:hidden" style={{
-        position:'fixed', top:0, left:0, right:0, zIndex:50,
-        background:'#fff', borderBottom:'1px solid #f1f5f9',
-        display:'flex', alignItems:'center', justifyContent:'space-between',
-        padding:'12px 16px', boxShadow:'0 1px 8px rgba(0,0,0,0.06)',
-      }}>
-        <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-          <div style={{ background:'linear-gradient(135deg,#0891b2,#0c4a6e)', padding:'7px', borderRadius:'10px', display:'flex' }}>
-            <Eye size={17} color="white"/>
-          </div>
-          <span style={{ fontWeight:800, fontSize:'15px', color:'#0f172a', letterSpacing:'-0.01em' }}>Albacete</span>
+      {/* Desktop sidebar — sticky so it doesn't scroll away */}
+      {!isMobile && (
+        <div style={{ position:'sticky', top:0, height:'100vh', flexShrink:0 }}>
+          <Sidebar user={user} onNav={()=>{}} onLogout={handleLogout}/>
         </div>
-        <button onClick={()=>setOpen(!open)} style={{ background:'none', border:'none', cursor:'pointer', color:'#64748b', display:'flex' }}>
-          {open ? <X size={22}/> : <Menu size={22}/>}
-        </button>
-      </div>
+      )}
+
+      {/* Mobile top bar */}
+      {isMobile && (
+        <div style={{
+          position:'fixed', top:0, left:0, right:0, zIndex:50,
+          height:`${MOBILE_HEADER_H}px`,
+          background:'#fff', borderBottom:'1px solid #f1f5f9',
+          display:'flex', alignItems:'center', justifyContent:'space-between',
+          padding:'0 16px', boxShadow:'0 1px 8px rgba(0,0,0,0.06)',
+        }}>
+          <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+            <div style={{ background:'linear-gradient(135deg,#0891b2,#0c4a6e)', padding:'7px', borderRadius:'10px', display:'flex' }}>
+              <Eye size={17} color="white"/>
+            </div>
+            <span style={{ fontWeight:800, fontSize:'15px', color:'#0f172a', letterSpacing:'-0.01em' }}>Albacete</span>
+          </div>
+          <button onClick={()=>setOpen(!open)} style={{ background:'none', border:'none', cursor:'pointer', color:'#64748b', display:'flex' }}>
+            {open ? <X size={22}/> : <Menu size={22}/>}
+          </button>
+        </div>
+      )}
 
       {/* Mobile drawer */}
-      {open && (
-        <div style={{ position:'fixed', inset:0, zIndex:40 }} className="md:hidden">
+      {isMobile && open && (
+        <div style={{ position:'fixed', inset:0, zIndex:40 }}>
           <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.35)', backdropFilter:'blur(2px)' }} onClick={()=>setOpen(false)}/>
           <div style={{ position:'absolute', top:0, left:0, bottom:0, zIndex:50 }}>
             <Sidebar user={user} onNav={()=>setOpen(false)} onLogout={handleLogout}/>
@@ -116,8 +133,11 @@ export default function AppLayout({ children }) {
         </div>
       )}
 
-      {/* Main content */}
-      <main style={{ flex:1, minWidth:0, overflowY:'auto', paddingTop:'0' }} className="md:pt-0 pt-14">
+      {/* Main content — push down by header height on mobile */}
+      <main style={{
+        flex:1, minWidth:0, overflowY:'auto',
+        paddingTop: isMobile ? `${MOBILE_HEADER_H}px` : '0',
+      }}>
         <div style={{ maxWidth:'1100px', margin:'0 auto', padding:'32px 24px' }}>
           {children}
         </div>
