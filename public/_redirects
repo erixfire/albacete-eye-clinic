@@ -1,5 +1,8 @@
 # Cloudflare Pages redirect rules
-# Clean URL: /admin → /admin.html
-/admin    /admin.html    200
-# Clean URL: /privacy → /privacy.html
-/privacy  /privacy.html  200
+
+# Static admin panel (must come BEFORE the SPA catch-all)
+/admin     /admin.html    200
+/privacy   /privacy.html  200
+
+# SPA fallback — send all unmatched routes to index.html for React Router
+/*    /index.html    200

@@ -1,5 +1,5 @@
 {
   "version": 1,
   "include": ["/api/*"],
-  "exclude": []
+  "exclude": ["/admin", "/admin.html", "/admin.js", "/admin.css", "/privacy", "/privacy.html"]
 }
