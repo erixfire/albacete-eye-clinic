@@ -1,0 +1,43 @@
+/*
+  Brand color overrides — loaded AFTER Tailwind, outside any @layer.
+  These rules are NOT subject to Tailwind v4 purging or @theme resolution.
+  They will always be present in the final CSS bundle.
+*/
+
+/* ---- Backgrounds ---- */
+.bg-primary       { background-color: #0891B2 !important; }
+.bg-primary-dark  { background-color: #0E7490 !important; }
+.bg-primary-soft  { background-color: #ECFEFF !important; }
+.bg-accent        { background-color: #16A34A !important; }
+.bg-accent-soft   { background-color: #F0FDF4 !important; }
+
+/* ---- Text ---- */
+.text-primary      { color: #0891B2 !important; }
+.text-primary-dark { color: #0E7490 !important; }
+.text-accent       { color: #16A34A !important; }
+
+/* ---- Borders ---- */
+.border-primary { border-color: #0891B2 !important; }
+
+/* ---- Hover states ---- */
+.hover\:bg-primary:hover      { background-color: #0891B2 !important; }
+.hover\:bg-primary-dark:hover { background-color: #0E7490 !important; }
+.hover\:bg-primary-soft:hover { background-color: #ECFEFF !important; }
+.hover\:text-primary:hover    { color: #0891B2 !important; }
+.hover\:border-primary:hover  { border-color: #0891B2 !important; }
+
+/* ---- Opacity variants ---- */
+.bg-primary\/90  { background-color: rgba(8,145,178,0.90) !important; }
+.bg-primary\/20  { background-color: rgba(8,145,178,0.20) !important; }
+.bg-primary\/10  { background-color: rgba(8,145,178,0.10) !important; }
+
+.text-primary\/50 { color: rgba(8,145,178,0.50) !important; }
+.text-primary\/30 { color: rgba(8,145,178,0.30) !important; }
+
+.bg-primary-soft\/50 { background-color: rgba(236,254,255,0.50) !important; }
+
+.hover\:bg-primary\/90:hover { background-color: rgba(8,145,178,0.90) !important; }
+.hover\:bg-primary\/10:hover { background-color: rgba(8,145,178,0.10) !important; }
+
+/* ---- Focus ring ---- */
+.focus\:ring-primary\/30:focus { --tw-ring-color: rgba(8,145,178,0.30); }
