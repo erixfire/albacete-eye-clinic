@@ -1,9 +1,13 @@
 -- ============================================================
--- Albacete Eye Center -- Migration v3
--- Run with: wrangler d1 execute albacete-clinic-db-v2 --remote --file=migrate.sql
+-- Albacete Eye Center -- Migration v4
+-- Based on confirmed live tables:
+--   _cf_KV, appointments, attachments, eye_exams,
+--   inventory_transactions, medicines, patients, prescriptions,
+--   specializations, suppliers, users, visit_custom_fields, visits
+-- Run: wrangler d1 execute albacete-clinic-db-v2 --remote --file=migrate.sql
 -- ============================================================
 
--- ── 1. New columns on patients ───────────────────────────────
+-- ── 1. Patch patients table ─────────────────────────────────
 ALTER TABLE patients ADD COLUMN patient_no         TEXT NOT NULL DEFAULT '';
 ALTER TABLE patients ADD COLUMN middle_name        TEXT NOT NULL DEFAULT '';
 ALTER TABLE patients ADD COLUMN sex                TEXT;
@@ -22,42 +26,7 @@ UPDATE patients
    SET patient_no = 'AEC-2026-' || printf('%05d', id)
  WHERE patient_no = '';
 
--- ── 2. New columns on appointment_requests ───────────────────
-ALTER TABLE appointment_requests ADD COLUMN branch     TEXT NOT NULL DEFAULT 'jaro';
-ALTER TABLE appointment_requests ADD COLUMN patient_id INTEGER REFERENCES patients(id);
-
--- ── 3. Brand new tables ────────────────────────────────────
-CREATE TABLE IF NOT EXISTS eye_exams (
-  id              INTEGER PRIMARY KEY AUTOINCREMENT,
-  visit_id        INTEGER NOT NULL REFERENCES visits(id) ON DELETE CASCADE,
-  patient_id      INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
-  exam_date       TEXT    NOT NULL DEFAULT (date('now')),
-  va_od_distance  TEXT, va_os_distance TEXT,
-  va_od_near      TEXT, va_os_near     TEXT,
-  ref_od_sphere   REAL,  ref_od_cylinder REAL, ref_od_axis INTEGER,
-  ref_os_sphere   REAL,  ref_os_cylinder REAL, ref_os_axis INTEGER,
-  ref_add         REAL,
-  iop_od          REAL,  iop_os REAL,  iop_method TEXT DEFAULT 'non-contact',
-  slit_lamp_od    TEXT,  slit_lamp_os  TEXT,
-  fundus_od       TEXT,  fundus_os     TEXT,
-  oct_notes       TEXT,  color_vision  TEXT,
-  confrontation   TEXT,  extra_notes   TEXT,
-  created_at      TEXT   NOT NULL DEFAULT (datetime('now'))
-);
-
-CREATE TABLE IF NOT EXISTS prescriptions (
-  id                  INTEGER PRIMARY KEY AUTOINCREMENT,
-  visit_id            INTEGER NOT NULL REFERENCES visits(id) ON DELETE CASCADE,
-  patient_id          INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
-  doctor_id           INTEGER NOT NULL REFERENCES users(id),
-  rx_date             TEXT    NOT NULL DEFAULT (date('now')),
-  glasses_od_sphere   REAL,  glasses_od_cylinder REAL, glasses_od_axis INTEGER,
-  glasses_os_sphere   REAL,  glasses_os_cylinder REAL, glasses_os_axis INTEGER,
-  glasses_add         REAL,  glasses_pd TEXT,          glasses_notes TEXT,
-  medications         TEXT,
-  instructions        TEXT,
-  created_at          TEXT   NOT NULL DEFAULT (datetime('now'))
-);
+-- ── 2. New tables not yet in live DB ──────────────────────────
 
 CREATE TABLE IF NOT EXISTS procedures (
   id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -99,15 +68,31 @@ CREATE TABLE IF NOT EXISTS audit_log (
   created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
--- ── 4. Indexes ────────────────────────────────────────────
+-- appointment_requests is the public booking table (different from appointments)
+CREATE TABLE IF NOT EXISTS appointment_requests (
+  id              INTEGER PRIMARY KEY AUTOINCREMENT,
+  nombre          TEXT    NOT NULL,
+  apellidos       TEXT    NOT NULL DEFAULT '',
+  telefono        TEXT    NOT NULL,
+  email           TEXT    NOT NULL DEFAULT '',
+  servicio        TEXT    NOT NULL,
+  branch          TEXT    NOT NULL DEFAULT 'jaro',
+  fecha_preferida TEXT,
+  turno           TEXT,
+  notas           TEXT    NOT NULL DEFAULT '',
+  status          TEXT    NOT NULL DEFAULT 'pending',
+  patient_id      INTEGER REFERENCES patients(id),
+  created_at      TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ── 3. Indexes ─────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_patients_name    ON patients(last_name, first_name);
 CREATE INDEX IF NOT EXISTS idx_patients_no      ON patients(patient_no);
 CREATE INDEX IF NOT EXISTS idx_patients_phone   ON patients(phone);
 CREATE INDEX IF NOT EXISTS idx_patients_branch  ON patients(branch);
-CREATE INDEX IF NOT EXISTS idx_visits_patient   ON visits(patient_id);
-CREATE INDEX IF NOT EXISTS idx_visits_date      ON visits(visit_date DESC);
-CREATE INDEX IF NOT EXISTS idx_eye_exams_visit  ON eye_exams(visit_id);
-CREATE INDEX IF NOT EXISTS idx_rx_patient       ON prescriptions(patient_id);
+CREATE INDEX IF NOT EXISTS idx_procedures_patient ON procedures(patient_id);
 CREATE INDEX IF NOT EXISTS idx_docs_patient     ON documents(patient_id);
 CREATE INDEX IF NOT EXISTS idx_audit_entity     ON audit_log(entity, entity_id);
 CREATE INDEX IF NOT EXISTS idx_audit_created    ON audit_log(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_appt_req_status  ON appointment_requests(status);
+CREATE INDEX IF NOT EXISTS idx_appt_req_created ON appointment_requests(created_at DESC);
