@@ -1,39 +1,41 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;700&display=swap');
 
-/* ============================================================
-   Tailwind v4 Theme — Albacete Eye Clinic
-   All tokens mapped from tailwind.config.js → @theme
-============================================================ */
-@theme {
-  /* ── Fonts ── */
-  --font-family-heading: 'Figtree', system-ui, sans-serif;
-  --font-family-sans:    'Noto Sans', system-ui, sans-serif;
+/*
+  Tailwind v4 — @theme inline
+  "inline" tells v4 to emit CSS variables AND allow opacity modifiers
+  like bg-primary/90, text-primary/50 to work via color-mix().
+*/
+@theme inline {
+  /* Fonts */
+  --font-sans:    'Noto Sans', system-ui, sans-serif;
+  --font-heading: 'Figtree', system-ui, sans-serif;
 
-  /* ── Colors ── */
-  --color-primary:        #0891B2;
-  --color-primary-dark:   #0E7490;
-  --color-primary-soft:   #ECFEFF;
+  /* Brand colors */
+  --color-primary:      #0891B2;
+  --color-primary-dark: #0E7490;
+  --color-primary-soft: #ECFEFF;
 
-  --color-accent:         #16A34A;
-  --color-accent-dark:    #15803D;
-  --color-accent-soft:    #F0FDF4;
+  --color-accent:       #16A34A;
+  --color-accent-dark:  #15803D;
+  --color-accent-soft:  #F0FDF4;
 
-  --color-surface:        #FFFFFF;
-  --color-surface2:       #F0FDFA;
-  --color-background:     #F0FDFA;
-  --color-foreground:     #134E4A;
-  --color-border:         #CCFBF1;
+  /* Surface / neutral */
+  --color-surface:      #FFFFFF;
+  --color-surface2:     #F0FDFA;
+  --color-background:   #F0FDFA;
+  --color-foreground:   #134E4A;
+  --color-border-brand: #CCFBF1;
 
-  /* ── Box Shadows ── */
+  /* Shadows */
   --shadow-sm:      0 1px 2px 0 rgba(19,78,74,0.05);
   --shadow-DEFAULT: 0 1px 3px rgba(19,78,74,0.05), 0 4px 12px rgba(19,78,74,0.05);
   --shadow-md:      0 10px 25px -5px rgba(19,78,74,0.1);
 }
 
-/* ============================================================
-   Albacete Eye Clinic — Base Styles
-============================================================ */
+/* ================================================================
+   CSS Custom Properties (kept for legacy var() references in JSX)
+================================================================ */
 :root {
   --bg:          #F0FDFA;
   --surface:     #FFFFFF;
@@ -63,7 +65,7 @@ body { min-height: 100dvh; background: var(--bg); }
 a { color: var(--primary); text-decoration: none; transition: color 0.15s; }
 a:hover { color: var(--primary-h); }
 
-/* ── Utility classes ── */
+/* Card utility */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -71,6 +73,7 @@ a:hover { color: var(--primary-h); }
   box-shadow: 0 1px 3px rgba(19,78,74,0.05), 0 4px 12px rgba(19,78,74,0.05);
 }
 
+/* Input utility */
 .input-field {
   width: 100%;
   padding: 0.75rem 1rem;
