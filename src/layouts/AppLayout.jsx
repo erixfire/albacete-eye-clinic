@@ -1,118 +1,130 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Calendar, 
-  ClipboardList, 
-  Pill, 
-  Settings, 
-  LogOut,
-  Menu,
-  X,
-  Eye
-} from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, Pill, Settings, LogOut, Menu, X, Eye } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-function cn(...inputs) {
-  return twMerge(clsx(inputs));
-}
 
 const AppLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
 
   const navItems = [
-    { name: 'Dashboard',    path: '/dashboard',    icon: LayoutDashboard, roles: ['admin', 'doctor', 'nurse', 'pharmacist', 'frontdesk'] },
-    { name: 'Patients',     path: '/patients',     icon: Users,           roles: ['admin', 'doctor', 'nurse', 'frontdesk'] },
-    { name: 'Appointments', path: '/appointments', icon: Calendar,        roles: ['admin', 'doctor', 'nurse', 'frontdesk'] },
-    { name: 'Inventory',    path: '/inventory',    icon: Pill,            roles: ['admin', 'pharmacist'] },
+    { name: 'Dashboard',    path: '/dashboard',    icon: LayoutDashboard, roles: ['admin','doctor','nurse','pharmacist','frontdesk'] },
+    { name: 'Patients',     path: '/patients',     icon: Users,           roles: ['admin','doctor','nurse','frontdesk'] },
+    { name: 'Appointments', path: '/appointments', icon: Calendar,        roles: ['admin','doctor','nurse','frontdesk'] },
+    { name: 'Inventory',    path: '/inventory',    icon: Pill,            roles: ['admin','pharmacist'] },
     { name: 'Admin',        path: '/admin',        icon: Settings,        roles: ['admin'] },
-  ];
+  ].filter(i => i.roles.includes(user?.role));
 
-  const filteredNav = navItems.filter(item => item.roles.includes(user?.role));
+  const handleLogout = async () => { await logout(); navigate('/login'); };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
+  const Sidebar = () => (
+    <div style={{
+      width: '220px', minHeight: '100vh', background: '#fff',
+      borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column',
+      flexShrink: 0,
+    }}>
+      {/* Logo */}
+      <div style={{ padding: '24px 20px 20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ background: 'linear-gradient(135deg,#0891b2,#0e7490)', padding: '9px', borderRadius: '12px', display: 'flex' }}>
+          <Eye size={22} color="white" />
+        </div>
+        <div>
+          <p style={{ fontWeight: 800, fontSize: '15px', color: '#0f172a', margin: 0, lineHeight: 1 }}>Albacete</p>
+          <p style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>Eye Clinic</p>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav style={{ flex: 1, padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+        {navItems.map(item => (
+          <NavLink key={item.path} to={item.path} onClick={() => setOpen(false)}
+            style={({ isActive }) => ({
+              display: 'flex', alignItems: 'center', gap: '10px',
+              padding: '9px 12px', borderRadius: '10px', textDecoration: 'none',
+              fontSize: '13px', fontWeight: 600, transition: 'all 0.15s',
+              background: isActive ? '#e0f2fe' : 'transparent',
+              color: isActive ? '#0891b2' : '#475569',
+            })}
+          >
+            {({ isActive }) => (
+              <>
+                <item.icon size={17} color={isActive ? '#0891b2' : '#94a3b8'} />
+                {item.name}
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* User */}
+      <div style={{ margin: '12px', background: '#f8fafc', borderRadius: '14px', padding: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+          <div style={{
+            width: '34px', height: '34px', borderRadius: '50%',
+            background: 'linear-gradient(135deg,#0891b2,#0e7490)',
+            color: 'white', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', fontWeight: 700, fontSize: '13px', flexShrink: 0,
+          }}>
+            {user?.full_name?.charAt(0)}
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <p style={{ fontWeight: 700, fontSize: '13px', color: '#0f172a', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.full_name}</p>
+            <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0, textTransform: 'capitalize' }}>{user?.role}</p>
+          </div>
+        </div>
+        <button onClick={handleLogout} style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          gap: '6px', padding: '7px', background: 'none', border: '1px solid #e2e8f0',
+          borderRadius: '8px', fontSize: '12px', fontWeight: 600, color: '#64748b',
+          cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit',
+        }}
+          onMouseEnter={e => { e.currentTarget.style.background='#fef2f2'; e.currentTarget.style.color='#dc2626'; e.currentTarget.style.borderColor='#fecaca'; }}
+          onMouseLeave={e => { e.currentTarget.style.background='none'; e.currentTarget.style.color='#64748b'; e.currentTarget.style.borderColor='#e2e8f0'; }}
+        >
+          <LogOut size={14} /> Logout
+        </button>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-slate-50">
-      {/* Mobile Header */}
-      <div className="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-2">
-          <div className="bg-primary text-white p-1.5 rounded-lg shadow-sm">
-            <Eye size={20} />
+    <div style={{ minHeight: '100vh', display: 'flex', background: '#f8fafc', fontFamily: 'inherit' }}>
+      {/* Desktop sidebar */}
+      <div className="hidden md:flex" style={{ position: 'sticky', top: 0, height: '100vh' }}>
+        <Sidebar />
+      </div>
+
+      {/* Mobile header */}
+      <div className="md:hidden" style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
+        background: '#fff', borderBottom: '1px solid #e2e8f0',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '12px 16px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ background: 'linear-gradient(135deg,#0891b2,#0e7490)', padding: '7px', borderRadius: '10px', display: 'flex' }}>
+            <Eye size={18} color="white" />
           </div>
-          <span className="font-bold text-slate-900 text-lg tracking-tight">Albacete</span>
+          <span style={{ fontWeight: 800, fontSize: '15px', color: '#0f172a' }}>Albacete</span>
         </div>
-        <button className="text-slate-500 hover:text-slate-900 transition-colors" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-          {isMobileMenuOpen ? <X /> : <Menu />}
+        <button onClick={() => setOpen(!open)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+          {open ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
-      {/* Sidebar */}
-      <aside className={cn(
-        "fixed inset-0 z-40 bg-white border-r border-slate-200 md:relative md:translate-x-0 transition-transform duration-300 ease-in-out w-64 flex flex-col",
-        isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        <div className="p-6 hidden md:flex items-center gap-3">
-          <div className="bg-primary text-white p-2 rounded-xl shadow-sm">
-            <Eye size={24} />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-bold text-slate-900 leading-tight text-lg tracking-tight">Albacete</span>
-            <span className="text-[10px] text-slate-500 font-bold tracking-widest uppercase">Eye Clinic</span>
-          </div>
+      {/* Mobile drawer */}
+      {open && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 40 }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} onClick={() => setOpen(false)} />
+          <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, zIndex: 50 }}><Sidebar /></div>
         </div>
+      )}
 
-        <nav className="flex-1 px-4 py-4 space-y-1">
-          {filteredNav.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={({ isActive }) => cn(
-                "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
-                isActive 
-                  ? "bg-primary-soft text-primary" 
-                  : "text-slate-600 hover:bg-primary-soft hover:text-slate-900"
-              )}
-            >
-              <item.icon size={18} />
-              {item.name}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="p-4 border-t border-slate-200 m-4 rounded-xl bg-primary-soft/50">
-          <div className="flex items-center gap-3 px-2 py-2">
-            <div className="w-9 h-9 rounded-full bg-primary-soft text-primary flex items-center justify-center font-bold text-sm">
-              {user?.full_name?.charAt(0)}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-slate-900 truncate">{user?.full_name}</p>
-              <p className="text-[11px] font-medium text-slate-500 capitalize">{user?.role}</p>
-            </div>
-          </div>
-          <button 
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 mt-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors"
-          >
-            <LogOut size={16} />
-            Logout
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-          <div className="max-w-6xl mx-auto">
+      {/* Main */}
+      <main style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>
+        <div className="md:p-0" style={{ paddingTop: '60px' }}>
+          <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px' }}>
             {children}
           </div>
         </div>
