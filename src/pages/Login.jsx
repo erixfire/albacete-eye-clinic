@@ -18,7 +18,7 @@ const Login = () => {
 
     const result = await login(email, password);
     if (result.success) {
-      navigate('/');
+      navigate('/dashboard');
     } else {
       setError(result.error || 'Login failed. Please check your credentials.');
     }
@@ -35,7 +35,7 @@ const Login = () => {
         </div>
         <h2 className="mt-6 text-3xl font-extrabold text-foreground">Albacete Clinic</h2>
         <p className="mt-2 text-sm text-slate-600 font-medium">
-          Multi-Specialty & Eye Care Management
+          Multi-Specialty &amp; Eye Care Management
         </p>
       </div>
 
@@ -103,7 +103,7 @@ const Login = () => {
           <div className="mt-8 pt-6 border-t border-gray-100">
             <p className="text-center text-xs text-gray-400 leading-relaxed">
               Authorized personnel only. Access is monitored.<br />
-              © 2026 Albacete Eye Center & Medical Clinics
+              &copy; 2026 Albacete Eye Center &amp; Medical Clinics
             </p>
           </div>
         </div>

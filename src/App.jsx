@@ -11,7 +11,15 @@ import VisitForm from './pages/Visits/VisitForm';
 import MedicineList from './pages/Inventory/MedicineList';
 import Home from './pages/Home';
 
-// Protected Route Wrapper
+// Redirect already-authenticated users away from /login
+const GuestRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (user) return <Navigate to="/dashboard" replace />;
+  return children;
+};
+
+// Require authentication; redirect to /login if not authed
 const ProtectedRoute = ({ children, roles }) => {
   const { user, loading } = useAuth();
 
@@ -21,12 +29,10 @@ const ProtectedRoute = ({ children, roles }) => {
     </div>
   );
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
+  if (!user) return <Navigate to="/login" replace />;
 
   if (roles && !roles.includes(user.role)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <AppLayout>{children}</AppLayout>;
@@ -40,7 +46,11 @@ const App = () => {
         <Route path="/" element={<Home />} />
 
         {/* ── Auth ── */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={
+          <GuestRoute>
+            <Login />
+          </GuestRoute>
+        } />
 
         {/* ── Protected admin/clinic routes ── */}
         <Route path="/dashboard" element={
@@ -91,6 +101,7 @@ const App = () => {
           </ProtectedRoute>
         } />
 
+        {/* Unknown routes → public home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AuthProvider>
