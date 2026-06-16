@@ -10,6 +10,7 @@ import PatientForm from './pages/Patients/PatientForm';
 import VisitForm from './pages/Visits/VisitForm';
 import VisitDetail from './pages/Visits/VisitDetail';
 import MedicineList from './pages/Inventory/MedicineList';
+import AppointmentList from './pages/Appointments/AppointmentList';
 import Home from './pages/Home';
 
 const GuestRoute = ({ children }) => {
@@ -31,7 +32,7 @@ const ProtectedRoute = ({ children, roles }) => {
   return <AppLayout>{children}</AppLayout>;
 };
 
-const CLINIC_ROLES = ['admin', 'doctor', 'nurse', 'frontdesk'];
+const CLINIC_ROLES  = ['admin', 'doctor', 'nurse', 'frontdesk'];
 const MEDICAL_ROLES = ['admin', 'doctor', 'nurse'];
 
 const App = () => (
@@ -68,11 +69,9 @@ const App = () => (
         <ProtectedRoute roles={CLINIC_ROLES}><VisitDetail /></ProtectedRoute>
       } />
 
-      {/* Appointments placeholder */}
+      {/* Appointments — open to all clinic staff including frontdesk */}
       <Route path="/appointments" element={
-        <ProtectedRoute roles={MEDICAL_ROLES}>
-          <div className="py-20 text-center text-gray-500">Appointments Module Coming Soon</div>
-        </ProtectedRoute>
+        <ProtectedRoute roles={CLINIC_ROLES}><AppointmentList /></ProtectedRoute>
       } />
 
       {/* Inventory */}
