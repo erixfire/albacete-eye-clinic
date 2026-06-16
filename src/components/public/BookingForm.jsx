@@ -1,18 +1,18 @@
 import { useState } from 'react';
 import './BookingForm.css';
 
-const SERVICIOS = [
-  { value: 'revision',   label: 'Revisión Visual Completa' },
-  { value: 'laser',      label: 'Cirugía Láser (LASIK/PRK)' },
-  { value: 'cataratas',  label: 'Cataratas' },
-  { value: 'glaucoma',   label: 'Glaucoma' },
-  { value: 'retina',     label: 'Retina y Mácula' },
-  { value: 'pediatrica', label: 'Oftalmología Pediátrica' },
-  { value: 'otra',       label: 'Otra consulta' },
+const SERVICES = [
+  { value: 'checkup',   label: 'Comprehensive Eye Exam' },
+  { value: 'laser',     label: 'Laser Surgery (LASIK / PRK)' },
+  { value: 'cataracts', label: 'Cataract Surgery' },
+  { value: 'glaucoma',  label: 'Glaucoma' },
+  { value: 'retina',    label: 'Retina & Macula' },
+  { value: 'paediatric',label: 'Paediatric Ophthalmology' },
+  { value: 'other',     label: 'Other enquiry' },
 ];
 
 export default function BookingForm() {
-  const [form, setForm] = useState({ nombre:'', apellidos:'', telefono:'', email:'', servicio:'', fecha:'', turno:'', notas:'' });
+  const [form, setForm] = useState({ firstName:'', lastName:'', phone:'', email:'', service:'', date:'', slot:'', notes:'' });
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -21,9 +21,9 @@ export default function BookingForm() {
 
   const validate = () => {
     const errs = {};
-    if (!form.nombre.trim())   errs.nombre   = 'El nombre es obligatorio';
-    if (!form.telefono.trim()) errs.telefono = 'El teléfono es obligatorio';
-    if (!form.servicio)        errs.servicio = 'Selecciona un servicio';
+    if (!form.firstName.trim()) errs.firstName = 'First name is required';
+    if (!form.phone.trim())     errs.phone     = 'Phone number is required';
+    if (!form.service)          errs.service   = 'Please select a service';
     return errs;
   };
 
@@ -38,12 +38,21 @@ export default function BookingForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          nombre: form.firstName,
+          apellidos: form.lastName,
+          telefono: form.phone,
+          email: form.email,
+          servicio: form.service,
+          fecha: form.date,
+          turno: form.slot,
+          notas: form.notes,
+        }),
       });
       if (res.ok) setSubmitted(true);
-      else setErrors({ general: 'Error al enviar. Inténtalo de nuevo o llámanos.' });
+      else setErrors({ general: 'Submission failed. Please try again or call us directly.' });
     } catch {
-      setErrors({ general: 'Error de conexión. Por favor llámanos directamente.' });
+      setErrors({ general: 'Connection error. Please call us directly.' });
     } finally {
       setLoading(false);
     }
@@ -61,82 +70,82 @@ export default function BookingForm() {
           <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/>
         </svg>
         <div>
-          <div className="booking-success__title">¡Cita solicitada correctamente!</div>
-          <div className="booking-success__sub">Te contactaremos en menos de 24 horas para confirmar.</div>
+          <div className="booking-success__title">Appointment requested!</div>
+          <div className="booking-success__sub">We will contact you within 24 hours to confirm.</div>
         </div>
       </div>
     );
   }
 
   return (
-    <form className="booking-form" onSubmit={handleSubmit} noValidate aria-label="Formulario de cita">
+    <form className="booking-form" onSubmit={handleSubmit} noValidate aria-label="Appointment booking form">
       {errors.general && (
         <div className="booking-form__error" role="alert">{errors.general}</div>
       )}
       <div className="booking-form__grid">
         <div className="form-group">
-          <label className="form-label" htmlFor="nombre">Nombre *</label>
-          <input className={`form-input${errors.nombre ? ' form-input--error' : ''}`}
-            type="text" id="nombre" value={form.nombre} onChange={set('nombre')}
-            placeholder="Tu nombre" autoComplete="given-name" required/>
-          {errors.nombre && <span className="form-error">{errors.nombre}</span>}
+          <label className="form-label" htmlFor="firstName">First name *</label>
+          <input className={`form-input${errors.firstName ? ' form-input--error' : ''}`}
+            type="text" id="firstName" value={form.firstName} onChange={set('firstName')}
+            placeholder="Your first name" autoComplete="given-name" required/>
+          {errors.firstName && <span className="form-error">{errors.firstName}</span>}
         </div>
         <div className="form-group">
-          <label className="form-label" htmlFor="apellidos">Apellidos</label>
-          <input className="form-input" type="text" id="apellidos" value={form.apellidos}
-            onChange={set('apellidos')} placeholder="Tus apellidos" autoComplete="family-name"/>
+          <label className="form-label" htmlFor="lastName">Last name</label>
+          <input className="form-input" type="text" id="lastName" value={form.lastName}
+            onChange={set('lastName')} placeholder="Your last name" autoComplete="family-name"/>
         </div>
         <div className="form-group">
-          <label className="form-label" htmlFor="telefono">Teléfono *</label>
-          <input className={`form-input${errors.telefono ? ' form-input--error' : ''}`}
-            type="tel" id="telefono" value={form.telefono} onChange={set('telefono')}
-            placeholder="600 000 000" autoComplete="tel" required/>
-          {errors.telefono && <span className="form-error">{errors.telefono}</span>}
+          <label className="form-label" htmlFor="phone">Phone *</label>
+          <input className={`form-input${errors.phone ? ' form-input--error' : ''}`}
+            type="tel" id="phone" value={form.phone} onChange={set('phone')}
+            placeholder="07700 000000" autoComplete="tel" required/>
+          {errors.phone && <span className="form-error">{errors.phone}</span>}
         </div>
         <div className="form-group">
           <label className="form-label" htmlFor="email">Email</label>
           <input className="form-input" type="email" id="email" value={form.email}
-            onChange={set('email')} placeholder="tu@email.com" autoComplete="email"/>
+            onChange={set('email')} placeholder="you@email.com" autoComplete="email"/>
         </div>
         <div className="form-group form-group--full">
-          <label className="form-label" htmlFor="servicio">Servicio *</label>
-          <select className={`form-input form-select${errors.servicio ? ' form-input--error' : ''}`}
-            id="servicio" value={form.servicio} onChange={set('servicio')} required>
-            <option value="" disabled>Selecciona un servicio</option>
-            {SERVICIOS.map(({ value, label }) => (
+          <label className="form-label" htmlFor="service">Service *</label>
+          <select className={`form-input form-select${errors.service ? ' form-input--error' : ''}`}
+            id="service" value={form.service} onChange={set('service')} required>
+            <option value="" disabled>Select a service</option>
+            {SERVICES.map(({ value, label }) => (
               <option key={value} value={value}>{label}</option>
             ))}
           </select>
-          {errors.servicio && <span className="form-error">{errors.servicio}</span>}
+          {errors.service && <span className="form-error">{errors.service}</span>}
         </div>
         <div className="form-group">
-          <label className="form-label" htmlFor="fecha">Fecha preferida</label>
-          <input className="form-input" type="date" id="fecha" value={form.fecha}
-            onChange={set('fecha')} min={minDate}/>
+          <label className="form-label" htmlFor="date">Preferred date</label>
+          <input className="form-input" type="date" id="date" value={form.date}
+            onChange={set('date')} min={minDate}/>
         </div>
         <div className="form-group">
-          <label className="form-label" htmlFor="turno">Turno preferido</label>
-          <select className="form-input form-select" id="turno" value={form.turno} onChange={set('turno')}>
-            <option value="">Sin preferencia</option>
-            <option value="manana">Mañana (9:00–13:00)</option>
-            <option value="tarde">Tarde (15:00–20:00)</option>
+          <label className="form-label" htmlFor="slot">Preferred time slot</label>
+          <select className="form-input form-select" id="slot" value={form.slot} onChange={set('slot')}>
+            <option value="">No preference</option>
+            <option value="morning">Morning (9:00–13:00)</option>
+            <option value="afternoon">Afternoon (15:00–20:00)</option>
           </select>
         </div>
         <div className="form-group form-group--full">
-          <label className="form-label" htmlFor="notas">Motivo o notas adicionales</label>
-          <textarea className="form-input form-textarea" id="notas" value={form.notas}
-            onChange={set('notas')} placeholder="Describe brevemente el motivo de tu visita..."/>
+          <label className="form-label" htmlFor="notes">Reason or additional notes</label>
+          <textarea className="form-input form-textarea" id="notes" value={form.notes}
+            onChange={set('notes')} placeholder="Briefly describe the reason for your visit..."/>
         </div>
       </div>
       <button type="submit" className="booking-form__submit" disabled={loading}>
-        {loading ? 'Enviando...' : 'Solicitar cita →'}
+        {loading ? 'Sending...' : 'Request appointment →'}
       </button>
       <p className="booking-form__note">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
           <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
         </svg>
-        Tus datos están protegidos conforme al RGPD
+        Your data is protected in accordance with GDPR
       </p>
     </form>
   );

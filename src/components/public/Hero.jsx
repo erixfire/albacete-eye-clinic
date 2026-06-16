@@ -8,53 +8,51 @@ export default function Hero() {
         <div className="hero__bg-circle hero__bg-circle--2" />
       </div>
       <div className="hero__inner container">
-        {/* Content */}
         <div className="hero__content">
           <div className="hero__label">
             <span className="hero__label-dot" aria-hidden="true" />
-            Clínica certificada · Albacete
+            Certified Clinic &middot; Albacete
           </div>
           <h1 className="hero__title" id="hero-title">
-            Tu visión merece<br />el mejor <em>cuidado</em>
+            Your vision deserves<br />the best <em>care</em>
           </h1>
           <p className="hero__subtitle">
-            Especialistas en oftalmología con más de 20 años de experiencia. Diagnóstico avanzado,
-            cirugía láser y atención personalizada para toda la familia.
+            Eye care specialists with over 20 years of experience. Advanced diagnostics,
+            laser surgery and personalised treatment for the whole family.
           </p>
           <div className="hero__actions">
-            <a href="#cita" className="btn-primary">
+            <a href="#appointment" className="btn-primary">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <rect x="3" y="4" width="18" height="18" rx="2"/>
                 <line x1="16" y1="2" x2="16" y2="6"/>
                 <line x1="8" y1="2" x2="8" y2="6"/>
                 <line x1="3" y1="10" x2="21" y2="10"/>
               </svg>
-              Reservar Cita
+              Book Appointment
             </a>
-            <a href="#servicios" className="btn-ghost">
-              Ver Servicios
+            <a href="#services" className="btn-ghost">
+              Our Services
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path d="m9 18 6-6-6-6"/>
               </svg>
             </a>
           </div>
-          <div className="hero__stats" aria-label="Estadísticas de la clínica">
+          <div className="hero__stats" aria-label="Clinic statistics">
             <div className="hero__stat">
               <div className="hero__stat-num">20+</div>
-              <div className="hero__stat-label">Años de experiencia</div>
+              <div className="hero__stat-label">Years of experience</div>
             </div>
             <div className="hero__stat">
-              <div className="hero__stat-num">8.500+</div>
-              <div className="hero__stat-label">Pacientes atendidos</div>
+              <div className="hero__stat-num">8,500+</div>
+              <div className="hero__stat-label">Patients treated</div>
             </div>
             <div className="hero__stat">
-              <div className="hero__stat-num">4.9★</div>
-              <div className="hero__stat-label">Valoración media</div>
+              <div className="hero__stat-num">4.9&#9733;</div>
+              <div className="hero__stat-label">Average rating</div>
             </div>
           </div>
         </div>
 
-        {/* Visual */}
         <div className="hero__visual" aria-hidden="true">
           <div className="hero__eye-graphic">
             <svg width="220" height="220" viewBox="0 0 220 220" fill="none">
@@ -78,7 +76,6 @@ export default function Hero() {
               <line x1="20" y1="110" x2="55" y2="110" stroke="var(--color-accent)" strokeWidth="1" opacity="0.4" strokeDasharray="3 2"/>
               <line x1="165" y1="110" x2="200" y2="110" stroke="var(--color-accent)" strokeWidth="1" opacity="0.4" strokeDasharray="3 2"/>
             </svg>
-            {/* Floating cards */}
             <div className="hero__float-card hero__float-card--1">
               <div className="hero__float-icon hero__float-icon--accent" aria-hidden="true">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -86,8 +83,8 @@ export default function Hero() {
                 </svg>
               </div>
               <div>
-                <div className="hero__float-title">Diagnóstico OCT</div>
-                <div className="hero__float-sub">Alta resolución</div>
+                <div className="hero__float-title">OCT Diagnostics</div>
+                <div className="hero__float-sub">High resolution</div>
               </div>
             </div>
             <div className="hero__float-card hero__float-card--2">
@@ -98,8 +95,8 @@ export default function Hero() {
                 </svg>
               </div>
               <div>
-                <div className="hero__float-title">Cirugía Láser</div>
-                <div className="hero__float-sub">LASIK · PRK · SMILE</div>
+                <div className="hero__float-title">Laser Surgery</div>
+                <div className="hero__float-sub">LASIK &middot; PRK &middot; SMILE</div>
               </div>
             </div>
           </div>

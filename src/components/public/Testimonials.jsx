@@ -1,29 +1,29 @@
 import './Testimonials.css';
 
 const TESTIMONIALS = [
-  { initials: 'ML', color: 'var(--color-primary)', name: 'María L.', service: 'Cirugía LASIK',
-    text: 'Me operé de miopía hace un año y el resultado fue espectacular. El equipo me explicó todo con detalle y la recuperación fue muy rápida.' },
-  { initials: 'JR', color: 'var(--color-accent)', name: 'Javier R.', service: 'Oftalmología Pediátrica',
-    text: 'Mi hija tiene estrabismo y el trato con la pediatra fue excelente. Muy profesionales y con mucha paciencia para explicarlo todo.' },
-  { initials: 'AG', color: '#5a6472', name: 'Antonio G.', service: 'Cirugía de Cataratas',
-    text: 'Operado de cataratas en ambos ojos. A los 3 días ya veía de maravilla. No me lo podía creer. Totalmente recomendable.' },
+  { initials: 'ML', color: 'var(--color-primary)', name: 'Maria L.', service: 'LASIK Surgery',
+    text: 'I had my myopia corrected a year ago and the result was spectacular. The team explained everything clearly and my recovery was very quick.' },
+  { initials: 'JR', color: 'var(--color-accent)', name: 'James R.', service: 'Paediatric Ophthalmology',
+    text: 'My daughter has strabismus and the specialist was excellent — very professional and incredibly patient in explaining everything to us.' },
+  { initials: 'AG', color: '#5a6472', name: 'Anthony G.', service: 'Cataract Surgery',
+    text: 'Had cataracts removed from both eyes. Three days later my vision was incredible. I could not believe it. Highly recommended.' },
 ];
 
 export default function Testimonials() {
   return (
-    <section className="testimonials" id="testimonios" aria-labelledby="testimonials-title">
+    <section className="testimonials" id="testimonials" aria-labelledby="testimonials-title">
       <div className="container">
         <div className="section-header section-header--center reveal">
-          <div className="section-tag">Opiniones de pacientes</div>
+          <div className="section-tag">Patient reviews</div>
           <h2 className="section-title" id="testimonials-title">
-            Lo que dicen nuestros <em>pacientes</em>
+            What our <em>patients</em> say
           </h2>
         </div>
         <div className="testimonials__grid">
           {TESTIMONIALS.map(({ initials, color, name, service, text }, i) => (
             <div key={name} className={`testimonial-card reveal reveal-d${i + 1}`}>
-              <div className="testimonial-stars" aria-label="5 estrellas">★★★★★</div>
-              <p className="testimonial-text">"{text}"</p>
+              <div className="testimonial-stars" aria-label="5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+              <p className="testimonial-text">&ldquo;{text}&rdquo;</p>
               <div className="testimonial-author">
                 <div className="testimonial-avatar" style={{ background: color }} aria-hidden="true">{initials}</div>
                 <div>

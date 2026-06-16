@@ -4,10 +4,10 @@ import './Navbar.css';
 
 const NavLinks = ({ mobile = false, onClose }) => {
   const links = [
-    { href: '#servicios', label: 'Servicios' },
-    { href: '#nosotros',  label: 'Nosotros'  },
-    { href: '#testimonios', label: 'Opiniones' },
-    { href: '#cita',     label: 'Cita'      },
+    { href: '#services',     label: 'Services'   },
+    { href: '#about',        label: 'About'      },
+    { href: '#testimonials', label: 'Reviews'    },
+    { href: '#appointment',  label: 'Appointment'},
   ];
   return links.map(({ href, label }) => (
     <a
@@ -36,11 +36,10 @@ export default function Navbar() {
 
   return (
     <>
-      <a href="#main" className="skip-link">Saltar al contenido</a>
-      <nav className={`nav${scrolled ? ' nav--scrolled' : ''}`} aria-label="Navegación principal">
+      <a href="#main" className="skip-link">Skip to content</a>
+      <nav className={`nav${scrolled ? ' nav--scrolled' : ''}`} aria-label="Main navigation">
         <div className="nav__inner">
-          {/* Logo */}
-          <a href="/" className="nav__logo" aria-label="Clínica Oftalmológica Albacete">
+          <a href="/" className="nav__logo" aria-label="Albacete Eye Clinic">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
               <ellipse cx="16" cy="16" rx="15" ry="15" stroke="var(--color-primary)" strokeWidth="1.5"/>
               <ellipse cx="16" cy="16" rx="8" ry="8" fill="var(--color-primary)" opacity="0.12"/>
@@ -48,20 +47,18 @@ export default function Navbar() {
               <circle cx="18.5" cy="13.5" r="1.5" fill="white" opacity="0.8"/>
               <path d="M4 16 C8 9, 24 9, 28 16 C24 23, 8 23, 4 16Z" stroke="var(--color-primary)" strokeWidth="1.2" fill="none" opacity="0.4"/>
             </svg>
-            <span>Clínica Oftalmológica<br/><strong>Albacete</strong></span>
+            <span>Albacete<br/><strong>Eye Clinic</strong></span>
           </a>
 
-          {/* Desktop links */}
           <div className="nav__links" role="list">
             <NavLinks />
           </div>
 
-          {/* Actions */}
           <div className="nav__actions">
             <button
               className="nav__theme-toggle"
               onClick={toggle}
-              aria-label={`Cambiar a modo ${theme === 'dark' ? 'claro' : 'oscuro'}`}
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             >
               {theme === 'dark' ? (
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -74,11 +71,11 @@ export default function Navbar() {
                 </svg>
               )}
             </button>
-            <a href="#cita" className="nav__cta">Pedir Cita</a>
+            <a href="#appointment" className="nav__cta">Book Appointment</a>
             <button
               className="nav__hamburger"
               onClick={() => setMenuOpen((o) => !o)}
-              aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={menuOpen}
             >
               {menuOpen ? (
@@ -97,11 +94,10 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
       {menuOpen && (
-        <div className="nav__mobile" role="dialog" aria-label="Menú móvil">
+        <div className="nav__mobile" role="dialog" aria-label="Mobile menu">
           <NavLinks mobile onClose={closeMenu} />
-          <a href="#cita" className="nav__mobile-cta" onClick={closeMenu}>Pedir Cita →</a>
+          <a href="#appointment" className="nav__mobile-cta" onClick={closeMenu}>Book Appointment &rarr;</a>
         </div>
       )}
     </>
