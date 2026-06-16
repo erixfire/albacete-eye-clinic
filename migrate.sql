@@ -1,10 +1,9 @@
 -- ============================================================
--- Albacete Eye Center -- Migration for existing databases
--- Run with: wrangler d1 execute DB --remote --file=migrate.sql
--- Safe to run multiple times (uses IF NOT EXISTS / IGNORE)
+-- Albacete Eye Center -- Migration v2 (safe, missing columns only)
+-- Run with: wrangler d1 execute albacete-clinic-db-v2 --remote --file=migrate.sql
 -- ============================================================
 
--- ── 1. Patch existing patients table ────────────────────────────
+-- ── 1. New columns on patients (only ones not yet present) ───────
 ALTER TABLE patients ADD COLUMN patient_no      TEXT NOT NULL DEFAULT '';
 ALTER TABLE patients ADD COLUMN middle_name     TEXT NOT NULL DEFAULT '';
 ALTER TABLE patients ADD COLUMN sex             TEXT;
@@ -13,9 +12,6 @@ ALTER TABLE patients ADD COLUMN city            TEXT;
 ALTER TABLE patients ADD COLUMN emergency_name  TEXT;
 ALTER TABLE patients ADD COLUMN emergency_phone TEXT;
 ALTER TABLE patients ADD COLUMN emergency_relation TEXT;
-ALTER TABLE patients ADD COLUMN blood_type      TEXT;
-ALTER TABLE patients ADD COLUMN allergies       TEXT;
-ALTER TABLE patients ADD COLUMN medical_history TEXT;
 ALTER TABLE patients ADD COLUMN philhealth_no   TEXT;
 ALTER TABLE patients ADD COLUMN photo_url       TEXT;
 ALTER TABLE patients ADD COLUMN branch          TEXT NOT NULL DEFAULT 'jaro';
@@ -26,12 +22,16 @@ UPDATE patients
    SET patient_no = 'AEC-2026-' || printf('%05d', id)
  WHERE patient_no = '';
 
--- ── 2. Patch existing visits table ─────────────────────────────
-ALTER TABLE visits ADD COLUMN visit_type   TEXT NOT NULL DEFAULT 'consult';
-ALTER TABLE visits ADD COLUMN status       TEXT NOT NULL DEFAULT 'seen';
+-- ── 2. New columns on visits ────────────────────────────────
+ALTER TABLE visits ADD COLUMN visit_type    TEXT NOT NULL DEFAULT 'consult';
+ALTER TABLE visits ADD COLUMN status        TEXT NOT NULL DEFAULT 'seen';
 ALTER TABLE visits ADD COLUMN follow_up_date TEXT;
 
--- ── 3. New tables ─────────────────────────────────────────────
+-- ── 3. New columns on appointment_requests ───────────────────
+ALTER TABLE appointment_requests ADD COLUMN branch     TEXT NOT NULL DEFAULT 'jaro';
+ALTER TABLE appointment_requests ADD COLUMN patient_id INTEGER REFERENCES patients(id);
+
+-- ── 4. Brand new tables ────────────────────────────────────
 CREATE TABLE IF NOT EXISTS eye_exams (
   id                INTEGER PRIMARY KEY AUTOINCREMENT,
   visit_id          INTEGER NOT NULL REFERENCES visits(id) ON DELETE CASCADE,
@@ -104,11 +104,7 @@ CREATE TABLE IF NOT EXISTS audit_log (
   created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
--- Patch appointment_requests if branch column missing
-ALTER TABLE appointment_requests ADD COLUMN branch TEXT NOT NULL DEFAULT 'jaro';
-ALTER TABLE appointment_requests ADD COLUMN patient_id INTEGER REFERENCES patients(id);
-
--- ── 4. Indexes ───────────────────────────────────────────────
+-- ── 5. Indexes ────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_patients_name    ON patients(last_name, first_name);
 CREATE INDEX IF NOT EXISTS idx_patients_no      ON patients(patient_no);
 CREATE INDEX IF NOT EXISTS idx_patients_phone   ON patients(phone);
