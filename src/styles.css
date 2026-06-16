@@ -1,59 +1,52 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;700&display=swap');
 
-/*
-  Tailwind v4 — @theme inline
-  "inline" tells v4 to emit CSS variables AND allow opacity modifiers
-  like bg-primary/90, text-primary/50 to work via color-mix().
-*/
+/* ================================================================
+   Tailwind v4 theme — using @theme inline for full class generation
+   including opacity modifiers (bg-primary/90, text-primary/50)
+================================================================ */
 @theme inline {
-  /* Fonts */
-  --font-sans:    'Noto Sans', system-ui, sans-serif;
-  --font-heading: 'Figtree', system-ui, sans-serif;
+  --font-family-sans:    'Noto Sans', system-ui, sans-serif;
+  --font-family-heading: 'Figtree', system-ui, sans-serif;
 
-  /* Brand colors */
-  --color-primary:      #0891B2;
-  --color-primary-dark: #0E7490;
-  --color-primary-soft: #ECFEFF;
+  --color-primary:        oklch(55% 0.15 210);   /* #0891B2 teal */
+  --color-primary-dark:   oklch(48% 0.15 210);   /* #0E7490 */
+  --color-primary-soft:   oklch(97% 0.03 210);   /* #ECFEFF cyan-50 */
 
-  --color-accent:       #16A34A;
-  --color-accent-dark:  #15803D;
-  --color-accent-soft:  #F0FDF4;
+  --color-accent:         oklch(52% 0.16 145);   /* #16A34A green */
+  --color-accent-dark:    oklch(47% 0.16 145);   /* #15803D */
+  --color-accent-soft:    oklch(97% 0.04 145);   /* #F0FDF4 */
 
-  /* Surface / neutral */
-  --color-surface:      #FFFFFF;
-  --color-surface2:     #F0FDFA;
-  --color-background:   #F0FDFA;
-  --color-foreground:   #134E4A;
-  --color-border-brand: #CCFBF1;
+  --color-surface:        #ffffff;
+  --color-surface2:       #F0FDFA;
+  --color-background:     #F0FDFA;
+  --color-foreground:     #134E4A;
 
-  /* Shadows */
   --shadow-sm:      0 1px 2px 0 rgba(19,78,74,0.05);
   --shadow-DEFAULT: 0 1px 3px rgba(19,78,74,0.05), 0 4px 12px rgba(19,78,74,0.05);
   --shadow-md:      0 10px 25px -5px rgba(19,78,74,0.1);
 }
 
 /* ================================================================
-   CSS Custom Properties (kept for legacy var() references in JSX)
+   CSS custom properties for legacy var() usage
 ================================================================ */
 :root {
-  --bg:          #F0FDFA;
-  --surface:     #FFFFFF;
-  --surface2:    #CCFBF1;
-  --border:      #99F6E4;
-  --primary:     #0891B2;
-  --primary-h:   #0E7490;
-  --primary-soft:#E0F2FE;
-  --accent:      #16A34A;
-  --text:        #134E4A;
-  --text-2:      #334155;
-  --text-3:      #64748b;
-  --success:     #16A34A;
-  --success-bg:  #DCFCE7;
-  --warning:     #D97706;
-  --warning-bg:  #FEF3C7;
-  --danger:      #DC2626;
-  --danger-bg:   #FEE2E2;
+  --bg:           #F0FDFA;
+  --surface:      #FFFFFF;
+  --border:       #99F6E4;
+  --primary:      #0891B2;
+  --primary-h:    #0E7490;
+  --primary-soft: #E0F2FE;
+  --accent:       #16A34A;
+  --text:         #134E4A;
+  --text-2:       #334155;
+  --text-3:       #64748b;
+  --danger:       #DC2626;
+  --danger-bg:    #FEE2E2;
+  --warning:      #D97706;
+  --warning-bg:   #FEF3C7;
+  --success:      #16A34A;
+  --success-bg:   #DCFCE7;
   font-family: 'Noto Sans', system-ui, -apple-system, sans-serif;
   color: var(--text);
   background: var(--bg);
@@ -65,7 +58,52 @@ body { min-height: 100dvh; background: var(--bg); }
 a { color: var(--primary); text-decoration: none; transition: color 0.15s; }
 a:hover { color: var(--primary-h); }
 
-/* Card utility */
+/* ================================================================
+   Custom utilities — ensures bg-primary, text-primary etc. work
+   even if @theme inline doesn’t resolve on this CF Pages node
+================================================================ */
+@layer utilities {
+  .bg-primary       { background-color: #0891B2; }
+  .bg-primary-dark  { background-color: #0E7490; }
+  .bg-primary-soft  { background-color: #ECFEFF; }
+  .text-primary     { color: #0891B2; }
+  .text-primary-dark { color: #0E7490; }
+  .border-primary   { border-color: #0891B2; }
+
+  .bg-accent        { background-color: #16A34A; }
+  .bg-accent-soft   { background-color: #F0FDF4; }
+  .text-accent      { color: #16A34A; }
+
+  .bg-surface       { background-color: #FFFFFF; }
+  .bg-surface2      { background-color: #F0FDFA; }
+  .bg-background    { background-color: #F0FDFA; }
+
+  /* Hover variants */
+  .hover\:bg-primary:hover       { background-color: #0891B2; }
+  .hover\:bg-primary-dark:hover  { background-color: #0E7490; }
+  .hover\:bg-primary-soft:hover  { background-color: #ECFEFF; }
+  .hover\:text-primary:hover     { color: #0891B2; }
+  .hover\:border-primary:hover   { border-color: #0891B2; }
+
+  /* Opacity variants used in codebase */
+  .bg-primary\/90   { background-color: rgba(8, 145, 178, 0.9); }
+  .bg-primary\/20   { background-color: rgba(8, 145, 178, 0.2); }
+  .bg-primary\/10   { background-color: rgba(8, 145, 178, 0.1); }
+  .text-primary\/30 { color: rgba(8, 145, 178, 0.3); }
+  .text-primary\/50 { color: rgba(8, 145, 178, 0.5); }
+
+  .focus\:ring-primary\/30:focus { --tw-ring-color: rgba(8,145,178,0.3); }
+
+  .hover\:bg-primary\/90:hover { background-color: rgba(8, 145, 178, 0.9); }
+  .hover\:bg-primary\/10:hover { background-color: rgba(8, 145, 178, 0.1); }
+
+  /* Primary-soft/50 used in sidebar user avatar */
+  .bg-primary-soft\/50 { background-color: rgba(236, 254, 255, 0.5); }
+}
+
+/* ================================================================
+   Component utilities
+================================================================ */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -73,7 +111,6 @@ a:hover { color: var(--primary-h); }
   box-shadow: 0 1px 3px rgba(19,78,74,0.05), 0 4px 12px rgba(19,78,74,0.05);
 }
 
-/* Input utility */
 .input-field {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -90,7 +127,6 @@ a:hover { color: var(--primary-h); }
   box-shadow: 0 0 0 4px rgba(8,145,178,0.15);
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #99F6E4; border-radius: 4px; }
