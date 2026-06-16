@@ -1,33 +1,22 @@
 -- ============================================================
--- Albacete Eye Center -- Migration v4
--- Based on confirmed live tables:
---   _cf_KV, appointments, attachments, eye_exams,
---   inventory_transactions, medicines, patients, prescriptions,
---   specializations, suppliers, users, visit_custom_fields, visits
+-- Albacete Eye Center -- Migration v5 (matches real column names)
 -- Run: wrangler d1 execute albacete-clinic-db-v2 --remote --file=migrate.sql
 -- ============================================================
 
--- ── 1. Patch patients table ─────────────────────────────────
-ALTER TABLE patients ADD COLUMN patient_no         TEXT NOT NULL DEFAULT '';
-ALTER TABLE patients ADD COLUMN middle_name        TEXT NOT NULL DEFAULT '';
-ALTER TABLE patients ADD COLUMN sex                TEXT;
+-- ── 1. Add missing columns to patients ─────────────────────────
+-- Existing: id, patient_code, full_name, date_of_birth, gender,
+--           contact_number, email, address, emergency_contact_name,
+--           emergency_contact_number, blood_type, known_allergies,
+--           medical_history_notes, created_at, updated_at
 ALTER TABLE patients ADD COLUMN civil_status       TEXT;
 ALTER TABLE patients ADD COLUMN city               TEXT;
-ALTER TABLE patients ADD COLUMN emergency_name     TEXT;
-ALTER TABLE patients ADD COLUMN emergency_phone    TEXT;
 ALTER TABLE patients ADD COLUMN emergency_relation TEXT;
 ALTER TABLE patients ADD COLUMN philhealth_no      TEXT;
 ALTER TABLE patients ADD COLUMN photo_url          TEXT;
 ALTER TABLE patients ADD COLUMN branch             TEXT NOT NULL DEFAULT 'jaro';
 ALTER TABLE patients ADD COLUMN is_active          INTEGER NOT NULL DEFAULT 1;
 
--- Back-fill patient_no for existing rows
-UPDATE patients
-   SET patient_no = 'AEC-2026-' || printf('%05d', id)
- WHERE patient_no = '';
-
--- ── 2. New tables not yet in live DB ──────────────────────────
-
+-- ── 2. New tables ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS procedures (
   id              INTEGER PRIMARY KEY AUTOINCREMENT,
   patient_id      INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
@@ -68,7 +57,6 @@ CREATE TABLE IF NOT EXISTS audit_log (
   created_at  TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
--- appointment_requests is the public booking table (different from appointments)
 CREATE TABLE IF NOT EXISTS appointment_requests (
   id              INTEGER PRIMARY KEY AUTOINCREMENT,
   nombre          TEXT    NOT NULL,
@@ -85,12 +73,12 @@ CREATE TABLE IF NOT EXISTS appointment_requests (
   created_at      TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 
--- ── 3. Indexes ─────────────────────────────────────────────
-CREATE INDEX IF NOT EXISTS idx_patients_name    ON patients(last_name, first_name);
-CREATE INDEX IF NOT EXISTS idx_patients_no      ON patients(patient_no);
-CREATE INDEX IF NOT EXISTS idx_patients_phone   ON patients(phone);
+-- ── 3. Indexes ────────────────────────────────────────────
+CREATE INDEX IF NOT EXISTS idx_patients_code    ON patients(patient_code);
+CREATE INDEX IF NOT EXISTS idx_patients_name    ON patients(full_name);
+CREATE INDEX IF NOT EXISTS idx_patients_phone   ON patients(contact_number);
 CREATE INDEX IF NOT EXISTS idx_patients_branch  ON patients(branch);
-CREATE INDEX IF NOT EXISTS idx_procedures_patient ON procedures(patient_id);
+CREATE INDEX IF NOT EXISTS idx_procedures_pt    ON procedures(patient_id);
 CREATE INDEX IF NOT EXISTS idx_docs_patient     ON documents(patient_id);
 CREATE INDEX IF NOT EXISTS idx_audit_entity     ON audit_log(entity, entity_id);
 CREATE INDEX IF NOT EXISTS idx_audit_created    ON audit_log(created_at DESC);
