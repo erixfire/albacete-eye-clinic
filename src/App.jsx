@@ -8,10 +8,10 @@ import PatientList from './pages/Patients/PatientList';
 import PatientDetail from './pages/Patients/PatientDetail';
 import PatientForm from './pages/Patients/PatientForm';
 import VisitForm from './pages/Visits/VisitForm';
+import VisitDetail from './pages/Visits/VisitDetail';
 import MedicineList from './pages/Inventory/MedicineList';
 import Home from './pages/Home';
 
-// Redirect already-authenticated users away from /login
 const GuestRoute = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) return null;
@@ -19,93 +19,77 @@ const GuestRoute = ({ children }) => {
   return children;
 };
 
-// Require authentication; redirect to /login if not authed
 const ProtectedRoute = ({ children, roles }) => {
   const { user, loading } = useAuth();
-
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
     </div>
   );
-
   if (!user) return <Navigate to="/login" replace />;
-
-  if (roles && !roles.includes(user.role)) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
+  if (roles && !roles.includes(user.role)) return <Navigate to="/dashboard" replace />;
   return <AppLayout>{children}</AppLayout>;
 };
 
-const App = () => {
-  return (
-    <AuthProvider>
-      <Routes>
-        {/* ── Public site ── */}
-        <Route path="/" element={<Home />} />
+const CLINIC_ROLES = ['admin', 'doctor', 'nurse', 'frontdesk'];
+const MEDICAL_ROLES = ['admin', 'doctor', 'nurse'];
 
-        {/* ── Auth ── */}
-        <Route path="/login" element={
-          <GuestRoute>
-            <Login />
-          </GuestRoute>
-        } />
+const App = () => (
+  <AuthProvider>
+    <Routes>
+      {/* Public */}
+      <Route path="/" element={<Home />} />
 
-        {/* ── Protected admin/clinic routes ── */}
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        } />
+      {/* Auth */}
+      <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
 
-        <Route path="/patients" element={
-          <ProtectedRoute roles={['admin', 'doctor', 'nurse']}>
-            <PatientList />
-          </ProtectedRoute>
-        } />
+      {/* Dashboard */}
+      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
-        <Route path="/patients/new" element={
-          <ProtectedRoute roles={['admin', 'doctor', 'nurse']}>
-            <PatientForm />
-          </ProtectedRoute>
-        } />
+      {/* Patients */}
+      <Route path="/patients" element={
+        <ProtectedRoute roles={CLINIC_ROLES}><PatientList /></ProtectedRoute>
+      } />
+      <Route path="/patients/new" element={
+        <ProtectedRoute roles={CLINIC_ROLES}><PatientForm /></ProtectedRoute>
+      } />
+      <Route path="/patients/:id" element={
+        <ProtectedRoute roles={CLINIC_ROLES}><PatientDetail /></ProtectedRoute>
+      } />
+      <Route path="/patients/:id/edit" element={
+        <ProtectedRoute roles={CLINIC_ROLES}><PatientForm /></ProtectedRoute>
+      } />
 
-        <Route path="/patients/:id" element={
-          <ProtectedRoute roles={['admin', 'doctor', 'nurse']}>
-            <PatientDetail />
-          </ProtectedRoute>
-        } />
+      {/* Visits */}
+      <Route path="/visits/new" element={
+        <ProtectedRoute roles={MEDICAL_ROLES}><VisitForm /></ProtectedRoute>
+      } />
+      <Route path="/visits/:id" element={
+        <ProtectedRoute roles={CLINIC_ROLES}><VisitDetail /></ProtectedRoute>
+      } />
 
-        <Route path="/visits/new" element={
-          <ProtectedRoute roles={['admin', 'doctor', 'nurse']}>
-            <VisitForm />
-          </ProtectedRoute>
-        } />
+      {/* Appointments placeholder */}
+      <Route path="/appointments" element={
+        <ProtectedRoute roles={MEDICAL_ROLES}>
+          <div className="py-20 text-center text-gray-500">Appointments Module Coming Soon</div>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/appointments" element={
-          <ProtectedRoute roles={['admin', 'doctor', 'nurse']}>
-            <div className="py-20 text-center text-gray-500">Appointments Module Coming Soon</div>
-          </ProtectedRoute>
-        } />
+      {/* Inventory */}
+      <Route path="/inventory" element={
+        <ProtectedRoute roles={['admin', 'pharmacist']}><MedicineList /></ProtectedRoute>
+      } />
 
-        <Route path="/inventory" element={
-          <ProtectedRoute roles={['admin', 'pharmacist']}>
-            <MedicineList />
-          </ProtectedRoute>
-        } />
+      {/* Admin */}
+      <Route path="/admin" element={
+        <ProtectedRoute roles={['admin']}>
+          <div className="py-20 text-center text-gray-500">Admin Settings Coming Soon</div>
+        </ProtectedRoute>
+      } />
 
-        <Route path="/admin" element={
-          <ProtectedRoute roles={['admin']}>
-            <div className="py-20 text-center text-gray-500">Admin Settings Coming Soon</div>
-          </ProtectedRoute>
-        } />
-
-        {/* Unknown routes → public home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </AuthProvider>
-  );
-};
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  </AuthProvider>
+);
 
 export default App;
