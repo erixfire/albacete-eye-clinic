@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Search, UserPlus, ChevronRight, Eye, Phone, Calendar } from 'lucide-react';
+import { Search, UserPlus, ChevronRight, Eye, Phone, Calendar, Download } from 'lucide-react';
 
 const C = {
   primary:'#0891b2', primaryDark:'#0e7490', primaryBg:'#e0f2fe',
@@ -28,6 +28,7 @@ export default function PatientList() {
   const [q, setQ]               = useState('');
   const [branch, setBranch]     = useState('');
   const [page, setPage]         = useState(1);
+  const [exporting, setExporting] = useState(false);
   const limit = 20;
 
   const fetchPatients = useCallback(async () => {
@@ -38,6 +39,22 @@ export default function PatientList() {
     setLoading(false);
   }, [q, branch, page]);
   useEffect(()=>{ fetchPatients(); }, [fetchPatients]);
+
+  const exportCsv = async () => {
+    setExporting(true);
+    try {
+      const params = new URLSearchParams({ q, branch, limit: 5000, export: 'csv' });
+      const res = await fetch(`/api/patients?${params}`, { credentials: 'include' });
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url;
+      a.download = `patients-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally { setExporting(false); }
+  };
 
   const selectStyle = {
     padding:'9px 12px', border:`1.5px solid ${C.borderMid}`, borderRadius:'10px',
@@ -55,13 +72,23 @@ export default function PatientList() {
           <h1 style={{ fontSize:'26px', fontWeight:800, color:C.text, margin:'0 0 4px', letterSpacing:'-0.02em' }}>Patients</h1>
           <p style={{ fontSize:'13px', color:C.textSoft, margin:0 }}>{total} total records</p>
         </div>
-        {['admin','doctor','nurse','frontdesk'].includes(user?.role) && (
-          <Link to="/patients/new" style={{ textDecoration:'none' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:'7px', padding:'9px 18px', background:`linear-gradient(135deg,${C.primary},${C.primaryDark})`, color:'white', border:'none', borderRadius:'11px', fontWeight:700, fontSize:'13px', cursor:'pointer', boxShadow:'0 3px 12px rgba(8,145,178,0.35)', userSelect:'none' }}>
-              <UserPlus size={15}/> New Patient
-            </div>
-          </Link>
-        )}
+        <div style={{ display:'flex', gap:'8px', alignItems:'center' }}>
+          {['admin','doctor','nurse','frontdesk'].includes(user?.role) && (
+            <button onClick={exportCsv} disabled={exporting}
+              style={{ display:'flex', alignItems:'center', gap:'6px', padding:'9px 14px', background:C.white, color:C.textMid, border:`1px solid ${C.borderMid}`, borderRadius:'11px', fontWeight:600, fontSize:'13px', cursor:exporting?'not-allowed':'pointer', opacity:exporting?0.6:1, fontFamily:'inherit', transition:'all 0.15s' }}
+              onMouseEnter={e=>{ if(!exporting){ e.currentTarget.style.borderColor=C.primary; e.currentTarget.style.color=C.primary; }}}
+              onMouseLeave={e=>{ e.currentTarget.style.borderColor=C.borderMid; e.currentTarget.style.color=C.textMid; }}>
+              <Download size={14}/> {exporting ? 'Exporting…' : 'Export CSV'}
+            </button>
+          )}
+          {['admin','doctor','nurse','frontdesk'].includes(user?.role) && (
+            <Link to="/patients/new" style={{ textDecoration:'none' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:'7px', padding:'9px 18px', background:`linear-gradient(135deg,${C.primary},${C.primaryDark})`, color:'white', border:'none', borderRadius:'11px', fontWeight:700, fontSize:'13px', cursor:'pointer', boxShadow:'0 3px 12px rgba(8,145,178,0.35)', userSelect:'none' }}>
+                <UserPlus size={15}/> New Patient
+              </div>
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Search + filter */}

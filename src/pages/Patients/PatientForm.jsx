@@ -93,7 +93,7 @@ export default function PatientForm() {
         const { patients } = await res.json();
         const others = (patients || []).filter(p => String(p.id) !== String(id));
         if (others.length > 0) setDupWarning(`Similar record found: ${others.map(p => p.full_name).join(', ')}`);
-      } catch {}
+      } catch { /* ignore duplicate check errors */ }
     }, 600);
   }, [id]);
 

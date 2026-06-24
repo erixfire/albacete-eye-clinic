@@ -12,6 +12,7 @@ import VisitDetail from './pages/Visits/VisitDetail';
 import MedicineList from './pages/Inventory/MedicineList';
 import AppointmentList from './pages/Appointments/AppointmentList';
 import RxPrint from './pages/Prescriptions/RxPrint';
+import AdminPanel from './pages/Admin/AdminPanel';
 import Home from './pages/Home';
 
 const GuestRoute = ({ children }) => {
@@ -96,9 +97,7 @@ const App = () => (
 
       {/* Admin */}
       <Route path="/admin" element={
-        <ProtectedRoute roles={['admin']}>
-          <div className="py-20 text-center text-gray-500">Admin Settings Coming Soon</div>
-        </ProtectedRoute>
+        <ProtectedRoute roles={['admin']}><AdminPanel /></ProtectedRoute>
       } />
 
       <Route path="*" element={<Navigate to="/" replace />} />
