@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import PatientList from './pages/Patients/PatientList';
 import PatientDetail from './pages/Patients/PatientDetail';
 import PatientForm from './pages/Patients/PatientForm';
+import VisitList from './pages/Visits/VisitList';
 import VisitForm from './pages/Visits/VisitForm';
 import VisitDetail from './pages/Visits/VisitDetail';
 import MedicineList from './pages/Inventory/MedicineList';
@@ -73,6 +74,9 @@ const App = () => (
       } />
 
       {/* Visits */}
+      <Route path="/visits" element={
+        <ProtectedRoute roles={CLINIC_ROLES}><VisitList /></ProtectedRoute>
+      } />
       <Route path="/visits/new" element={
         <ProtectedRoute roles={MEDICAL_ROLES}><VisitForm /></ProtectedRoute>
       } />

@@ -4,8 +4,11 @@ export async function onRequestGet(ctx) {
   const user = await requireAuth(ctx);
   if (!user) return errorResponse('Unauthorized', 401);
 
-  const url       = new URL(ctx.request.url);
+  const url        = new URL(ctx.request.url);
   const patient_id = url.searchParams.get('patient_id');
+  const q          = (url.searchParams.get('q') || '').trim();
+  const date_from  = url.searchParams.get('date_from');
+  const date_to    = url.searchParams.get('date_to');
   const date       = url.searchParams.get('date');
   const status     = url.searchParams.get('status');
   const page       = Math.max(1, parseInt(url.searchParams.get('page')  || '1'));
@@ -15,9 +18,12 @@ export async function onRequestGet(ctx) {
   let where = 'WHERE 1=1';
   const params = [];
 
-  if (patient_id) { where += ' AND v.patient_id = ?'; params.push(patient_id); }
-  if (date)       { where += ' AND v.visit_date = ?';  params.push(date); }
-  if (status)     { where += ' AND v.status = ?';      params.push(status); }
+  if (patient_id) { where += ' AND v.patient_id = ?';                        params.push(patient_id); }
+  if (date)       { where += ' AND v.visit_date = ?';                         params.push(date); }
+  if (date_from)  { where += ' AND v.visit_date >= ?';                        params.push(date_from); }
+  if (date_to)    { where += ' AND v.visit_date <= ?';                        params.push(date_to); }
+  if (status)     { where += ' AND v.status = ?';                             params.push(status); }
+  if (q)          { where += ' AND (p.full_name LIKE ? OR p.patient_code LIKE ?)'; const like = `%${q}%`; params.push(like, like); }
 
   const { results } = await ctx.env.DB.prepare(
     `SELECT v.*, u.full_name AS doctor_name,
@@ -31,7 +37,9 @@ export async function onRequestGet(ctx) {
   ).bind(...params, limit, offset).all();
 
   const { results: [{ total }] } = await ctx.env.DB.prepare(
-    `SELECT COUNT(*) AS total FROM visits v ${where}`
+    `SELECT COUNT(*) AS total FROM visits v
+     LEFT JOIN patients p ON p.id = v.patient_id
+     ${where}`
   ).bind(...params).all();
 
   return successResponse({ visits: results, total, page, limit });
