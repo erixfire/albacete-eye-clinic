@@ -37,6 +37,30 @@ export async function onRequestGet(ctx) {
   ).bind(...params).all();
 
   await logAudit(ctx, user.id, 'view', 'patient_list', 0, `q=${q}`);
+
+  const exportCsv = url.searchParams.get('export') === 'csv';
+  if (exportCsv) {
+    const header = 'ID,Patient Code,Full Name,Date of Birth,Gender,Contact,Email,Branch,Last Visit,Visit Count';
+    const rows = patients.map(p => [
+      p.id, p.patient_code,
+      `"${(p.full_name || '').replace(/"/g, '""')}"`,
+      p.date_of_birth || '',
+      p.gender || '',
+      p.contact_number || '',
+      p.email || '',
+      p.branch || '',
+      p.last_visit || '',
+      p.visit_count,
+    ].join(','));
+    const csv = [header, ...rows].join('\r\n');
+    return new Response(csv, {
+      headers: {
+        'Content-Type': 'text/csv',
+        'Content-Disposition': `attachment; filename="patients-${new Date().toISOString().slice(0,10)}.csv"`,
+      },
+    });
+  }
+
   return successResponse({ patients, total, page, limit });
 }
 

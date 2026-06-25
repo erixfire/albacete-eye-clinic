@@ -1,67 +1,60 @@
+import { requireAuth, errorResponse, successResponse } from '../../_utils.js';
+
 export async function onRequestGet(context) {
   const { env, request } = context;
+  const user = await requireAuth(context);
+  if (!user) return errorResponse('Unauthorized', 401);
+
   const url = new URL(request.url);
-  const date = url.searchParams.get('date');
+  const date      = url.searchParams.get('date');
   const doctor_id = url.searchParams.get('doctor_id');
+  const status    = url.searchParams.get('status');
 
-  let query = `
-    SELECT a.*, p.full_name as patient_name, p.patient_code, u.full_name as doctor_name, s.name as specialization_name
+  let where = 'WHERE a.patient_id IS NOT NULL';
+  const params = [];
+
+  if (date)      { where += ' AND date(a.appointment_date) = date(?)'; params.push(date); }
+  if (doctor_id) { where += ' AND a.doctor_id = ?';                    params.push(doctor_id); }
+  if (status)    { where += ' AND a.status = ?';                       params.push(status); }
+
+  const query = `
+    SELECT a.*, p.full_name as patient_name, p.patient_code,
+           u.full_name as doctor_name
     FROM appointments a
-    JOIN patients p ON a.patient_id = p.id
-    JOIN users u ON a.doctor_id = u.id
-    JOIN specializations s ON a.specialization_id = s.id
+    LEFT JOIN patients p ON a.patient_id = p.id
+    LEFT JOIN users u    ON a.doctor_id  = u.id
+    ${where}
+    ORDER BY a.appointment_date ASC
   `;
-  let params = [];
-
-  if (date || doctor_id) {
-    query += ' WHERE ';
-    const conditions = [];
-    if (date) {
-      conditions.push('date(a.appointment_date) = date(?)');
-      params.push(date);
-    }
-    if (doctor_id) {
-      conditions.push('a.doctor_id = ?');
-      params.push(doctor_id);
-    }
-    query += conditions.join(' AND ');
-  }
-
-  query += ' ORDER BY a.appointment_date ASC';
 
   const { results } = await env.DB.prepare(query).bind(...params).all();
-
-  return new Response(JSON.stringify(results), {
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return successResponse(results);
 }
 
 export async function onRequestPost(context) {
   const { env, request } = context;
+  const user = await requireAuth(context);
+  if (!user) return errorResponse('Unauthorized', 401);
+  if (!['admin', 'frontdesk', 'nurse', 'doctor'].includes(user.role))
+    return errorResponse('Forbidden', 403);
+
   const body = await request.json();
 
-  if (!body.patient_id || !body.doctor_id || !body.appointment_date || !body.specialization_id) {
-    return new Response(JSON.stringify({ error: 'Missing required fields' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+  if (!body.patient_id || !body.doctor_id || !body.appointment_date)
+    return errorResponse('patient_id, doctor_id, and appointment_date are required', 400);
 
-  const { results } = await env.DB.prepare(
-    `INSERT INTO appointments (
-      patient_id, doctor_id, specialization_id, appointment_date, notes, status
-    ) VALUES (?, ?, ?, ?, ?, ?) RETURNING *`
+  const { meta } = await env.DB.prepare(
+    `INSERT INTO appointments
+       (patient_id, doctor_id, specialization_id, appointment_date, notes, status)
+     VALUES (?, ?, ?, ?, ?, ?)`
   ).bind(
     body.patient_id,
     body.doctor_id,
-    body.specialization_id,
+    body.specialization_id || null,
     body.appointment_date,
     body.notes || null,
     body.status || 'scheduled'
-  ).all();
+  ).run();
 
-  return new Response(JSON.stringify(results[0]), {
-    status: 201,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return successResponse({ id: meta.last_row_id }, 201);
 }

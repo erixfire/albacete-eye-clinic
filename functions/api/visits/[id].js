@@ -7,7 +7,9 @@ export async function onRequestGet(ctx) {
   const id = ctx.params.id;
 
   const visit = await ctx.env.DB.prepare(
-    `SELECT v.*, u.name AS doctor_name, p.first_name, p.last_name, p.patient_no, p.dob, p.sex
+    `SELECT v.*, u.full_name AS doctor_name,
+            p.full_name AS patient_name, p.patient_code,
+            p.date_of_birth, p.gender
      FROM visits v
      LEFT JOIN users u ON u.id = v.doctor_id
      LEFT JOIN patients p ON p.id = v.patient_id

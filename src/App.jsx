@@ -7,11 +7,13 @@ import Dashboard from './pages/Dashboard';
 import PatientList from './pages/Patients/PatientList';
 import PatientDetail from './pages/Patients/PatientDetail';
 import PatientForm from './pages/Patients/PatientForm';
+import VisitList from './pages/Visits/VisitList';
 import VisitForm from './pages/Visits/VisitForm';
 import VisitDetail from './pages/Visits/VisitDetail';
 import MedicineList from './pages/Inventory/MedicineList';
 import AppointmentList from './pages/Appointments/AppointmentList';
 import RxPrint from './pages/Prescriptions/RxPrint';
+import AdminPanel from './pages/Admin/AdminPanel';
 import Home from './pages/Home';
 
 const GuestRoute = ({ children }) => {
@@ -72,6 +74,9 @@ const App = () => (
       } />
 
       {/* Visits */}
+      <Route path="/visits" element={
+        <ProtectedRoute roles={CLINIC_ROLES}><VisitList /></ProtectedRoute>
+      } />
       <Route path="/visits/new" element={
         <ProtectedRoute roles={MEDICAL_ROLES}><VisitForm /></ProtectedRoute>
       } />
@@ -96,9 +101,7 @@ const App = () => (
 
       {/* Admin */}
       <Route path="/admin" element={
-        <ProtectedRoute roles={['admin']}>
-          <div className="py-20 text-center text-gray-500">Admin Settings Coming Soon</div>
-        </ProtectedRoute>
+        <ProtectedRoute roles={['admin']}><AdminPanel /></ProtectedRoute>
       } />
 
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -4,30 +4,45 @@ export async function onRequestGet(ctx) {
   const user = await requireAuth(ctx);
   if (!user) return errorResponse('Unauthorized', 401);
 
-  const url = new URL(ctx.request.url);
+  const url        = new URL(ctx.request.url);
   const patient_id = url.searchParams.get('patient_id');
+  const q          = (url.searchParams.get('q') || '').trim();
+  const date_from  = url.searchParams.get('date_from');
+  const date_to    = url.searchParams.get('date_to');
   const date       = url.searchParams.get('date');
   const status     = url.searchParams.get('status');
+  const page       = Math.max(1, parseInt(url.searchParams.get('page')  || '1'));
+  const limit      = Math.min(50, parseInt(url.searchParams.get('limit') || '20'));
+  const offset     = (page - 1) * limit;
 
   let where = 'WHERE 1=1';
   const params = [];
 
-  if (patient_id) { where += ' AND v.patient_id = ?'; params.push(patient_id); }
-  if (date)       { where += ' AND v.visit_date = ?';  params.push(date); }
-  if (status)     { where += ' AND v.status = ?';      params.push(status); }
+  if (patient_id) { where += ' AND v.patient_id = ?';                        params.push(patient_id); }
+  if (date)       { where += ' AND v.visit_date = ?';                         params.push(date); }
+  if (date_from)  { where += ' AND v.visit_date >= ?';                        params.push(date_from); }
+  if (date_to)    { where += ' AND v.visit_date <= ?';                        params.push(date_to); }
+  if (status)     { where += ' AND v.status = ?';                             params.push(status); }
+  if (q)          { where += ' AND (p.full_name LIKE ? OR p.patient_code LIKE ?)'; const like = `%${q}%`; params.push(like, like); }
 
   const { results } = await ctx.env.DB.prepare(
-    `SELECT v.*, u.name AS doctor_name,
-            p.first_name, p.last_name, p.patient_no
+    `SELECT v.*, u.full_name AS doctor_name,
+            p.full_name AS patient_name, p.patient_code
      FROM visits v
      LEFT JOIN users u    ON u.id = v.doctor_id
      LEFT JOIN patients p ON p.id = v.patient_id
      ${where}
      ORDER BY v.visit_date DESC, v.id DESC
-     LIMIT 100`
+     LIMIT ? OFFSET ?`
+  ).bind(...params, limit, offset).all();
+
+  const { results: [{ total }] } = await ctx.env.DB.prepare(
+    `SELECT COUNT(*) AS total FROM visits v
+     LEFT JOIN patients p ON p.id = v.patient_id
+     ${where}`
   ).bind(...params).all();
 
-  return successResponse({ visits: results });
+  return successResponse({ visits: results, total, page, limit });
 }
 
 export async function onRequestPost(ctx) {

@@ -1,0 +1,59 @@
+.hiw__inner {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6); position: relative;
+  padding-top: var(--space-8);
+}
+.hiw__connector {
+  position: absolute; top: calc(var(--space-8) + 32px);
+  left: calc(33.33% - 10px); right: calc(33.33% - 10px);
+  height: 1px;
+  background: var(--glass-border);
+  pointer-events: none;
+}
+.hiw__step {
+  background: var(--glass-card);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8) var(--space-6);
+  border: 1px solid var(--glass-border);
+  text-align: center; position: relative;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+.hiw__step:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-glass-lg);
+  border-color: var(--color-primary-border);
+}
+.hiw__step-num {
+  position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+  width: 36px; height: 36px; border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--color-primary-dark), #2563eb);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: var(--text-sm);
+  box-shadow: 0 0 16px var(--color-primary-glow);
+}
+.hiw__icon {
+  width: 60px; height: 60px; border-radius: var(--radius-2xl);
+  background: var(--color-primary-hl); color: var(--color-primary);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto var(--space-5);
+}
+.hiw__step-title {
+  font-size: var(--text-lg); font-family: var(--font-display);
+  color: var(--color-text); margin-bottom: var(--space-2); font-weight: 400;
+}
+.hiw__step-desc {
+  font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.7;
+}
+.hiw__step-note {
+  display: inline-block; margin-top: var(--space-3); padding: var(--space-1) var(--space-3);
+  background: var(--color-accent-hl); color: var(--color-accent);
+  border: 1px solid var(--color-accent-border);
+  border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .hiw__inner { grid-template-columns: 1fr; }
+  .hiw__connector { display: none; }
+}

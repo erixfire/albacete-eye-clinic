@@ -1,11 +1,13 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Users, Calendar, Pill, Settings, LogOut, Menu, X, Eye } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, Pill, Settings, LogOut, Menu, X, Eye, Activity, Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import GlobalSearch from '../components/GlobalSearch';
 
 const NAV = [
   { name:'Dashboard',    path:'/dashboard',    icon:LayoutDashboard, roles:['admin','doctor','nurse','pharmacist','frontdesk'] },
   { name:'Patients',     path:'/patients',     icon:Users,           roles:['admin','doctor','nurse','frontdesk'] },
+  { name:'Visits',       path:'/visits',       icon:Activity,        roles:['admin','doctor','nurse','frontdesk'] },
   { name:'Appointments', path:'/appointments', icon:Calendar,        roles:['admin','doctor','nurse','frontdesk'] },
   { name:'Inventory',    path:'/inventory',    icon:Pill,            roles:['admin','pharmacist'] },
   { name:'Admin',        path:'/admin',        icon:Settings,        roles:['admin'] },
@@ -14,7 +16,7 @@ const NAV = [
 // Mobile header height in px — keep in sync with the fixed bar below
 const MOBILE_HEADER_H = 56;
 
-function Sidebar({ user, onNav, onLogout }) {
+function Sidebar({ user, onNav, onLogout, onSearch }) {
   const items = NAV.filter(i => i.roles.includes(user?.role));
   return (
     <div style={{ width:'220px', height:'100%', background:'#fff', borderRight:'1px solid #f1f5f9', display:'flex', flexDirection:'column', flexShrink:0 }}>
@@ -51,6 +53,18 @@ function Sidebar({ user, onNav, onLogout }) {
         ))}
       </nav>
 
+      {/* Search shortcut */}
+      <div style={{ padding:'0 10px 8px' }}>
+        <button onClick={onSearch}
+          style={{ width:'100%', display:'flex', alignItems:'center', gap:'8px', padding:'8px 12px', background:'#f1f5f9', border:'1px solid #e2e8f0', borderRadius:'10px', cursor:'pointer', fontFamily:'inherit', fontSize:'12px', color:'#94a3b8', transition:'all 0.15s' }}
+          onMouseEnter={e=>{ e.currentTarget.style.borderColor='#0891b2'; e.currentTarget.style.color='#0891b2'; e.currentTarget.style.background='#e0f2fe'; }}
+          onMouseLeave={e=>{ e.currentTarget.style.borderColor='#e2e8f0'; e.currentTarget.style.color='#94a3b8'; e.currentTarget.style.background='#f1f5f9'; }}>
+          <Search size={13}/>
+          <span style={{ flex:1, textAlign:'left' }}>Quick search…</span>
+          <kbd style={{ fontSize:'10px', background:'white', border:'1px solid #e2e8f0', borderRadius:'4px', padding:'1px 5px', color:'#64748b', fontFamily:'monospace' }}>⌘K</kbd>
+        </button>
+      </div>
+
       {/* User footer */}
       <div style={{ margin:'10px', background:'#f8fafc', borderRadius:'14px', padding:'12px' }}>
         <div style={{ display:'flex', alignItems:'center', gap:'9px', marginBottom:'10px' }}>
@@ -80,8 +94,8 @@ function Sidebar({ user, onNav, onLogout }) {
 export default function AppLayout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [open, setOpen] = React.useState(false);
-  // Detect mobile so we can apply the correct top-padding to <main>
+  const [open,         setOpen]         = React.useState(false);
+  const [searchOpen,   setSearchOpen]   = React.useState(false);
   const [isMobile, setIsMobile] = React.useState(() => window.innerWidth < 768);
   React.useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)');
@@ -91,14 +105,16 @@ export default function AppLayout({ children }) {
   }, []);
 
   const handleLogout = async () => { await logout(); navigate('/login'); };
+  const handleSearch = () => setSearchOpen(true);
 
   return (
     <div style={{ display:'flex', minHeight:'100vh', background:'#f8fafc', fontFamily:"'Noto Sans',system-ui,sans-serif" }}>
+      <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)}/>
 
       {/* Desktop sidebar — sticky so it doesn't scroll away */}
       {!isMobile && (
         <div style={{ position:'sticky', top:0, height:'100vh', flexShrink:0 }}>
-          <Sidebar user={user} onNav={()=>{}} onLogout={handleLogout}/>
+          <Sidebar user={user} onNav={()=>{}} onLogout={handleLogout} onSearch={handleSearch}/>
         </div>
       )}
 
@@ -128,7 +144,7 @@ export default function AppLayout({ children }) {
         <div style={{ position:'fixed', inset:0, zIndex:40 }}>
           <div style={{ position:'absolute', inset:0, background:'rgba(0,0,0,0.35)', backdropFilter:'blur(2px)' }} onClick={()=>setOpen(false)}/>
           <div style={{ position:'absolute', top:0, left:0, bottom:0, zIndex:50 }}>
-            <Sidebar user={user} onNav={()=>setOpen(false)} onLogout={handleLogout}/>
+            <Sidebar user={user} onNav={()=>setOpen(false)} onLogout={handleLogout} onSearch={()=>{ setOpen(false); setSearchOpen(true); }}/>
           </div>
         </div>
       )}

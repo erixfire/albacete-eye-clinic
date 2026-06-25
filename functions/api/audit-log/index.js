@@ -17,8 +17,12 @@ export async function onRequestGet(ctx) {
   if (entity)    { where += ' AND a.entity = ?';    params.push(entity); }
   if (entity_id) { where += ' AND a.entity_id = ?'; params.push(entity_id); }
 
+  const { results: [{ total }] } = await ctx.env.DB.prepare(
+    `SELECT COUNT(*) AS total FROM audit_log a ${where}`
+  ).bind(...params).all();
+
   const { results } = await ctx.env.DB.prepare(
-    `SELECT a.*, u.name AS user_name
+    `SELECT a.*, u.full_name AS user_name
      FROM audit_log a
      LEFT JOIN users u ON u.id = a.user_id
      ${where}
@@ -26,5 +30,5 @@ export async function onRequestGet(ctx) {
      LIMIT ? OFFSET ?`
   ).bind(...params, limit, offset).all();
 
-  return successResponse({ logs: results, page, limit });
+  return successResponse({ logs: results, total, page, limit });
 }

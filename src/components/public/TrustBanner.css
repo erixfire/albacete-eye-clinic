@@ -1,0 +1,25 @@
+.trust-banner {
+  padding: var(--space-4) 0;
+  background: var(--glass-base);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border-bottom: 1px solid var(--glass-border);
+  overflow: hidden;
+}
+.trust-banner__inner {
+  display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; gap: 0;
+}
+.trust-banner__item {
+  display: flex; align-items: center; gap: var(--space-2);
+  font-size: var(--text-sm); font-weight: 500; color: var(--color-text-muted);
+  white-space: nowrap; padding: var(--space-1) var(--space-5);
+}
+.trust-banner__icon { color: var(--color-primary); flex-shrink: 0; }
+.trust-banner__divider {
+  width: 1px; height: 18px; background: var(--glass-border); flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  .trust-banner__divider { display: none; }
+  .trust-banner__item { padding: var(--space-1) var(--space-3); font-size: var(--text-xs); }
+}
