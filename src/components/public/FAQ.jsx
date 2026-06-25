@@ -3,19 +3,19 @@ import './FAQ.css';
 const FAQS = [
   {
     q: 'Do you accept PhilHealth?',
-    a: <>Yes! Albacete Eye Center &amp; Medical Clinics is <strong>PhilHealth accredited</strong>. We process PhilHealth claims directly here at the clinic — you just need to bring your PhilHealth ID or member data record. Our staff will help you with the paperwork.</>
+    a: <>Yes! Albacete Eye Center &amp; Medical Clinics is <strong>PhilHealth accredited</strong>. We process PhilHealth claims directly here at the clinic — just bring your PhilHealth ID or member data record. Our staff will assist you with the paperwork.</>
   },
   {
-    q: 'Kailangan ba ng appointment o pwede mag-walk-in? (Do I need an appointment?)',
-    a: <><strong>Walk-ins are always welcome!</strong> You may visit any of our branches during clinic hours (Mon–Sat, 8:00 AM – 5:00 PM) without prior appointment. However, scheduling in advance is recommended for surgical procedures and specialized consultations to reduce your waiting time.</>
+    q: 'Do I need an appointment or can I walk in?',
+    a: <><strong>Walk-ins are always welcome!</strong> You may visit any of our branches during clinic hours (Mon–Sat, 8:00 AM – 5:00 PM) without a prior appointment. However, scheduling in advance is recommended for surgical procedures and specialized consultations to reduce your waiting time.</>
   },
   {
-    q: 'Gaano katagal ang isang konsultasyon? (How long is a consultation?)',
-    a: <>A typical <strong>comprehensive eye exam takes 20–40 minutes</strong>. If you need additional tests (e.g., dilated eye exam, tonometry), please allow up to an hour. Surgical procedures are scheduled separately and will be explained in detail before your procedure.</>
+    q: 'How long does a consultation take?',
+    a: <>A typical <strong>comprehensive eye exam takes 20–40 minutes</strong>. If additional tests are needed (dilated eye exam, tonometry), please allow up to an hour. Surgical procedures are scheduled separately and will be fully explained before your procedure.</>
   },
   {
     q: 'What should I bring on my first visit?',
-    a: <><strong>Bring the following</strong> if available: (1) PhilHealth ID or MDR, (2) HMO card if applicable, (3) Senior Citizen or PWD ID for discount, (4) your current eyeglasses or contact lenses, (5) previous eye prescriptions or medical records if any. Don&rsquo;t worry if you don&rsquo;t have these &mdash; you can still be seen.</>
+    a: <><strong>Bring the following</strong> if available: (1) PhilHealth ID or MDR, (2) HMO card if applicable, (3) Senior Citizen or PWD ID for discount, (4) your current eyeglasses or contact lenses, (5) any previous eye prescriptions or medical records. Don&rsquo;t worry if you don&rsquo;t have all of these — you can still be seen.</>
   },
   {
     q: 'Do you offer discounts for senior citizens and PWDs?',
@@ -23,7 +23,7 @@ const FAQS = [
   },
   {
     q: 'What are your payment options?',
-    a: <>We accept <strong>cash</strong>, <strong>PhilHealth</strong>, and <strong>HMO coverage</strong>. For patients paying out-of-pocket, our consultations are priced affordably to ensure everyone in our community has access to quality eye care. Please contact us for specific pricing inquiries.</>
+    a: <>We accept <strong>cash</strong>, <strong>PhilHealth</strong>, and <strong>HMO coverage</strong>. Our consultations are priced affordably to ensure everyone in our community has access to quality eye care. Contact us for specific pricing inquiries.</>
   },
 ];
 
@@ -39,19 +39,19 @@ export default function FAQ() {
       <div className="container">
         <div className="faq__inner">
           <div className="faq__aside">
-            <div className="section-tag reveal">Mga Katanungan</div>
+            <div className="section-tag reveal">FAQ</div>
             <h2 className="section-title reveal" id="faq-title">
-              Frequently<br/>asked <em>questions</em>
+              Frequently<br />asked <em>questions</em>
             </h2>
             <p className="section-desc reveal">
-              Everything you need to know before your visit. Can&rsquo;t find your question?
+              Everything you need to know before your visit. Can&rsquo;t find your answer?
               Call us or message us on Facebook — we&rsquo;re happy to help.
             </p>
 
             <div className="faq__contact-cta reveal">
               <div className="faq__cta-title">Still have questions?</div>
               <p className="faq__cta-desc">
-                Our friendly staff speaks Filipino and English. Reach us anytime during clinic hours.
+                Our friendly staff is available during clinic hours to answer any questions you have.
               </p>
               <div className="faq__cta-btns">
                 <a href="tel:09638629414" className="faq__cta-btn">

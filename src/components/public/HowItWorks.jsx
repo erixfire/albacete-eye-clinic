@@ -12,7 +12,7 @@ const STEPS = [
       </svg>
     ),
     title: 'Book or Walk In',
-    desc: 'Call us at 0963 862 9414, message us on Facebook, fill out our online form, or simply walk into any of our two branches. No need to worry — we always accommodate you.',
+    desc: 'Call us at 0963 862 9414, message us on Facebook, fill out our online form, or simply walk in to any of our two branches. We always accommodate you.',
     note: '2–3 min to book',
   },
   {
@@ -25,7 +25,7 @@ const STEPS = [
       </svg>
     ),
     title: 'Meet the Doctor',
-    desc: 'Our specialist, Dr. Thomas Louie Albacete, will conduct a thorough and gentle examination. We speak Filipino and English so you can ask anything comfortably.',
+    desc: 'Our specialist, Dr. Thomas Louie Albacete, will conduct a thorough and gentle examination. Ask any questions — we take the time to explain everything clearly.',
     note: '20–40 min consultation',
   },
   {
@@ -47,13 +47,13 @@ export default function HowItWorks() {
     <section className="hiw" id="how-it-works" aria-labelledby="hiw-title">
       <div className="container">
         <div className="section-header section-header--center reveal">
-          <div className="section-tag">Paano Ito Gumagana</div>
+          <div className="section-tag">How It Works</div>
           <h2 className="section-title" id="hiw-title">
-            Your journey to<br/><em>better vision</em> in 3 steps
+            Your journey to<br /><em>better vision</em> in 3 steps
           </h2>
           <p className="section-desc" style={{ marginInline: 'auto' }}>
             Simple and straightforward &mdash; whether it&rsquo;s your first visit or your follow-up,
-            we make it easy for you and your family.
+            we make the process easy for you and your family.
           </p>
         </div>
 

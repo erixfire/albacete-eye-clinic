@@ -1,20 +1,19 @@
 /* ============================================================
-   DESIGN TOKENS — Albacete Eye Center & Medical Clinics
-   Concept: Malinaw na Pananaw, Mainit na Puso
-   (Clear Vision, Warm Heart) — for all patients of Iloilo City
-   Primary: Sky Blue (#0284C7) | Accent: Amber (#D97706)
-   Fonts: Instrument Serif (display) + DM Sans (UI)
+   DESIGN TOKENS — Albacete Eye Center
+   Concept: Dark Glassmorphism — Clinical Precision, Premium Feel
+   Background: Deep Space Navy  |  Accent: Cyan + Indigo
 ============================================================ */
 
-:root, [data-theme="light"] {
-  /* Type Scale — slightly larger for accessibility */
-  --text-xs:   clamp(0.8rem,   0.75rem + 0.25vw, 0.9rem);
-  --text-sm:   clamp(0.925rem, 0.875rem + 0.3vw, 1.05rem);
-  --text-base: clamp(1.05rem,  1rem    + 0.25vw, 1.15rem);
-  --text-lg:   clamp(1.2rem,   1.05rem + 0.75vw, 1.6rem);
-  --text-xl:   clamp(1.5rem,   1.2rem  + 1.25vw, 2.25rem);
-  --text-2xl:  clamp(2rem,     1.2rem  + 2.5vw,  3.5rem);
-  --text-3xl:  clamp(2.5rem,   1.2rem  + 4vw,    5rem);
+:root {
+  /* Type scale — standard sizes, no inflation */
+  --text-xs:   0.75rem;     /* 12px */
+  --text-sm:   0.875rem;    /* 14px */
+  --text-base: 1rem;        /* 16px */
+  --text-lg:   1.125rem;    /* 18px */
+  --text-xl:   1.375rem;    /* 22px */
+  --text-2xl:  2rem;        /* 32px */
+  --text-3xl:  3rem;        /* 48px */
+  --text-4xl:  3.75rem;     /* 60px */
 
   /* Spacing */
   --space-1: 0.25rem;  --space-2: 0.5rem;   --space-3: 0.75rem;
@@ -22,116 +21,79 @@
   --space-8: 2rem;     --space-10: 2.5rem;  --space-12: 3rem;
   --space-16: 4rem;    --space-20: 5rem;    --space-24: 6rem;
 
-  /* Colors — Light */
-  --color-bg:              #f5f9ff;
-  --color-bg-warm:         #fff9f0;
-  --color-surface:         #ffffff;
-  --color-surface-2:       #eff5fb;
-  --color-surface-3:       #e4eef8;
-  --color-surface-offset:  #dce8f4;
-  --color-divider:         #d0dded;
-  --color-border:          #b8cce0;
+  /* Page background */
+  --bg-page:    #030b18;
+  --bg-orb-a:   rgba(56, 189, 248, 0.14);
+  --bg-orb-b:   rgba(99, 102, 241, 0.11);
+  --bg-orb-c:   rgba(14, 165, 233, 0.07);
 
-  --color-text:            #0c1526;
-  --color-text-muted:      #48576e;
-  --color-text-faint:      #8298b0;
-  --color-text-inverse:    #ffffff;
+  /* Glass surfaces */
+  --glass-base:         rgba(255, 255, 255, 0.04);
+  --glass-card:         rgba(255, 255, 255, 0.07);
+  --glass-raised:       rgba(255, 255, 255, 0.11);
+  --glass-input:        rgba(255, 255, 255, 0.06);
+  --glass-border:       rgba(255, 255, 255, 0.09);
+  --glass-border-hi:    rgba(255, 255, 255, 0.18);
+  --glass-blur:         blur(20px) saturate(1.5);
+  --glass-blur-sm:      blur(10px);
+  --glass-inset:        inset 0 1px 0 rgba(255,255,255,0.07);
 
-  /* Primary — Sky Blue */
-  --color-primary:         #0284C7;
-  --color-primary-hover:   #0369A1;
-  --color-primary-active:  #075985;
-  --color-primary-hl:      #dbeafe;
-  --color-primary-hl-soft: #eff6ff;
+  /* Text */
+  --color-text:           #e8f1fc;
+  --color-text-muted:     rgba(232, 241, 252, 0.58);
+  --color-text-faint:     rgba(232, 241, 252, 0.32);
+  --color-text-inverse:   #030b18;
 
-  /* Accent — Amber/Gold (Filipino warmth, Dinagyang energy) */
-  --color-accent:          #D97706;
-  --color-accent-hover:    #B45309;
-  --color-accent-hl:       #fef3c7;
-  --color-accent-hl-soft:  #fffbeb;
+  /* Primary — Cyan / Sky */
+  --color-primary:        #38bdf8;
+  --color-primary-dark:   #0ea5e9;
+  --color-primary-hl:     rgba(56, 189, 248, 0.14);
+  --color-primary-border: rgba(56, 189, 248, 0.28);
+  --color-primary-glow:   rgba(56, 189, 248, 0.22);
 
-  /* Semantic */
-  --color-success:         #059669;
-  --color-success-hl:      #d1fae5;
-  --color-warning:         #D97706;
-  --color-warning-hl:      #fef3c7;
-  --color-error:           #DC2626;
-  --color-error-hl:        #fee2e2;
-  --color-info:            #0284C7;
-  --color-info-hl:         #dbeafe;
+  /* Accent — Indigo / Violet */
+  --color-accent:         #818cf8;
+  --color-accent-dark:    #6366f1;
+  --color-accent-hl:      rgba(129, 140, 248, 0.14);
+  --color-accent-border:  rgba(129, 140, 248, 0.28);
 
-  /* Radii */
-  --radius-sm:   0.375rem;
-  --radius-md:   0.625rem;
-  --radius-lg:   0.875rem;
-  --radius-xl:   1.125rem;
-  --radius-2xl:  1.5rem;
-  --radius-3xl:  2rem;
-  --radius-full: 9999px;
+  /* Success / Error */
+  --color-success:        #34d399;
+  --color-success-hl:     rgba(52, 211, 153, 0.14);
+  --color-success-border: rgba(52, 211, 153, 0.28);
+  --color-error:          #f87171;
+  --color-error-hl:       rgba(248, 113, 113, 0.14);
+  --color-error-border:   rgba(248, 113, 113, 0.28);
 
   /* Shadows */
-  --shadow-xs: 0 1px 2px rgba(8, 24, 50, 0.06);
-  --shadow-sm: 0 1px 3px rgba(8, 24, 50, 0.09), 0 1px 2px rgba(8, 24, 50, 0.05);
-  --shadow-md: 0 4px 12px rgba(8, 24, 50, 0.11), 0 2px 4px rgba(8, 24, 50, 0.06);
-  --shadow-lg: 0 12px 32px rgba(8, 24, 50, 0.13), 0 4px 8px rgba(8, 24, 50, 0.07);
-  --shadow-xl: 0 24px 48px rgba(8, 24, 50, 0.15), 0 8px 16px rgba(8, 24, 50, 0.08);
-  --shadow-primary: 0 8px 24px rgba(2, 132, 199, 0.28);
-  --shadow-accent: 0 8px 24px rgba(217, 119, 6, 0.25);
+  --shadow-glass:    0 4px 24px rgba(0,0,0,0.45), var(--glass-inset);
+  --shadow-glass-lg: 0 16px 48px rgba(0,0,0,0.55), 0 4px 16px rgba(0,0,0,0.35), var(--glass-inset);
+  --shadow-glow:     0 0 28px var(--color-primary-glow);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.5);
+  --shadow-xl: 0 24px 48px rgba(0,0,0,0.6);
+
+  /* Radii */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   18px;
+  --radius-2xl:  24px;
+  --radius-3xl:  32px;
+  --radius-full: 9999px;
 
   /* Motion */
-  --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition:      180ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-slow: 350ms cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Layout */
-  --content-narrow:  640px;
-  --content-default: 960px;
   --content-wide:    1200px;
-  --nav-h:           72px;
+  --content-default: 960px;
+  --content-narrow:  640px;
+  --nav-h:           68px;
 
   /* Fonts */
   --font-display: 'Instrument Serif', Georgia, serif;
   --font-body:    'DM Sans', system-ui, sans-serif;
-}
-
-[data-theme="dark"] {
-  --color-bg:              #07101e;
-  --color-bg-warm:         #120d05;
-  --color-surface:         #0e1826;
-  --color-surface-2:       #131f30;
-  --color-surface-3:       #192638;
-  --color-surface-offset:  #1e2e42;
-  --color-divider:         #222f44;
-  --color-border:          #2a3a52;
-  --color-text:            #d8e8f6;
-  --color-text-muted:      #7a96b2;
-  --color-text-faint:      #445e78;
-  --color-text-inverse:    #07101e;
-  --color-primary:         #38bdf8;
-  --color-primary-hover:   #7dd3fc;
-  --color-primary-active:  #bae6fd;
-  --color-primary-hl:      #0c233a;
-  --color-primary-hl-soft: #081828;
-  --color-accent:          #fbbf24;
-  --color-accent-hover:    #fcd34d;
-  --color-accent-hl:       #2a1800;
-  --color-accent-hl-soft:  #1a1000;
-  --color-success:         #34d399;
-  --color-success-hl:      #032218;
-  --color-error:           #f87171;
-  --color-error-hl:        #2a0808;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.45);
-  --shadow-lg: 0 12px 32px rgba(0,0,0,0.5);
-  --shadow-xl: 0 24px 48px rgba(0,0,0,0.55);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --color-bg: #07101e; --color-surface: #0e1826; --color-surface-2: #131f30;
-    --color-surface-3: #192638; --color-divider: #222f44; --color-border: #2a3a52;
-    --color-text: #d8e8f6; --color-text-muted: #7a96b2; --color-text-faint: #445e78;
-    --color-primary: #38bdf8; --color-primary-hover: #7dd3fc;
-    --color-primary-hl: #0c233a; --color-accent: #fbbf24; --color-accent-hl: #2a1800;
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.45);
-  }
 }

@@ -3,33 +3,26 @@ import './Hero.css';
 export default function Hero() {
   return (
     <section className="hero" aria-labelledby="hero-title">
-      <div className="hero__bg" aria-hidden="true">
-        <div className="hero__bg-gradient" />
-        <div className="hero__bg-dots" />
-      </div>
-
       <div className="hero__inner container">
-        {/* Content */}
         <div className="hero__content">
           <div className="hero__badge">
             <span className="hero__badge-dot" aria-hidden="true" />
-            Now Accepting Patients · Jaro &amp; Cabatuan, Iloilo City
+            Now Accepting Patients &middot; Jaro &amp; Cabatuan
           </div>
 
           <h1 className="hero__title" id="hero-title">
-            <span className="tagalog">Mas malinaw ang bukas mo —</span>
-            Your vision,<br />our <em>care</em>.
+            Your vision,<br />our <em>expert care</em>.
           </h1>
 
           <p className="hero__subtitle">
-            Albacete Eye Center &amp; Medical Clinics is Iloilo City&rsquo;s trusted specialist for
-            comprehensive eye exams, cataract surgery, and complete family eye care.
-            Affordable. Accessible. Right here in your community.
+            Albacete Eye Center &amp; Medical Clinics — specialist eye exams,
+            cataract surgery, and complete family eye care. Affordable,
+            accessible, and right here in your community.
           </p>
 
           <div className="hero__actions">
             <a href="#appointment" className="hero__btn-primary">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
                 <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
                 <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
               </svg>
@@ -68,7 +61,6 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Visual — hidden on mobile */}
         <div className="hero__visual" aria-hidden="true">
           <div className="hero__card-stack">
             <div className="hero__main-card">
@@ -76,25 +68,21 @@ export default function Hero() {
                 <svg width="200" height="155" viewBox="0 0 200 155" fill="none">
                   <defs>
                     <radialGradient id="eyeIris" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%"   stopColor="#0284C7" stopOpacity="0.55"/>
-                      <stop offset="70%"  stopColor="#0284C7" stopOpacity="0.15"/>
-                      <stop offset="100%" stopColor="#0284C7" stopOpacity="0.03"/>
+                      <stop offset="0%"   stopColor="#38bdf8" stopOpacity="0.6"/>
+                      <stop offset="70%"  stopColor="#0ea5e9" stopOpacity="0.2"/>
+                      <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.04"/>
                     </radialGradient>
                     <radialGradient id="pupilGrad" cx="38%" cy="32%" r="60%">
-                      <stop offset="0%"   stopColor="#1e4060"/>
-                      <stop offset="100%" stopColor="#0369A1"/>
+                      <stop offset="0%"   stopColor="#0c1a2e"/>
+                      <stop offset="100%" stopColor="#0369a1"/>
                     </radialGradient>
                   </defs>
                   <path d="M8 77 C55 22, 145 22, 192 77 C145 132, 55 132, 8 77Z"
-                    fill="white" stroke="#dbeafe" strokeWidth="1.5"/>
-                  <circle cx="100" cy="77" r="44" fill="url(#eyeIris)" stroke="#0284C7" strokeWidth="1.5" opacity="0.8"/>
+                    fill="rgba(255,255,255,0.06)" stroke="rgba(56,189,248,0.3)" strokeWidth="1.5"/>
+                  <circle cx="100" cy="77" r="44" fill="url(#eyeIris)" stroke="rgba(56,189,248,0.4)" strokeWidth="1.5"/>
                   <circle cx="100" cy="77" r="26" fill="url(#pupilGrad)"/>
-                  <circle cx="113" cy="65" r="10" fill="white" opacity="0.88"/>
-                  <circle cx="88"  cy="87" r="4"  fill="white" opacity="0.45"/>
-                  <line x1="8" y1="77" x2="38" y2="77"
-                    stroke="#D97706" strokeWidth="1" opacity="0.4" strokeDasharray="3 2"/>
-                  <line x1="162" y1="77" x2="192" y2="77"
-                    stroke="#D97706" strokeWidth="1" opacity="0.4" strokeDasharray="3 2"/>
+                  <circle cx="113" cy="65" r="10" fill="white" opacity="0.7"/>
+                  <circle cx="88"  cy="87" r="4"  fill="white" opacity="0.3"/>
                 </svg>
               </div>
               <div className="hero__card-status">

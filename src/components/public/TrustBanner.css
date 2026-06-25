@@ -1,23 +1,25 @@
 .trust-banner {
-  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-active) 100%);
   padding: var(--space-4) 0;
+  background: var(--glass-base);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border-bottom: 1px solid var(--glass-border);
   overflow: hidden;
 }
 .trust-banner__inner {
   display: flex; align-items: center; justify-content: center;
-  flex-wrap: wrap; gap: var(--space-6);
-  padding-inline: clamp(var(--space-4), 4vw, var(--space-8));
+  flex-wrap: wrap; gap: 0;
 }
 .trust-banner__item {
   display: flex; align-items: center; gap: var(--space-2);
-  font-size: var(--text-sm); font-weight: 600; color: rgba(255,255,255,0.92);
-  white-space: nowrap;
+  font-size: var(--text-sm); font-weight: 500; color: var(--color-text-muted);
+  white-space: nowrap; padding: var(--space-1) var(--space-5);
 }
-.trust-banner__item svg { flex-shrink: 0; opacity: 0.85; }
+.trust-banner__icon { color: var(--color-primary); flex-shrink: 0; }
 .trust-banner__divider {
-  width: 1px; height: 20px; background: rgba(255,255,255,0.25); flex-shrink: 0;
+  width: 1px; height: 18px; background: var(--glass-border); flex-shrink: 0;
 }
 @media (max-width: 640px) {
   .trust-banner__divider { display: none; }
-  .trust-banner__inner { gap: var(--space-3) var(--space-5); }
+  .trust-banner__item { padding: var(--space-1) var(--space-3); font-size: var(--text-xs); }
 }

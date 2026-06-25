@@ -4,16 +4,16 @@ import './BookingSection.css';
 const WAYS = [
   {
     tag: 'a', href: 'tel:09638629414',
-    iconCls: 'contact-way__icon--blue',
+    iconCls: 'contact-icon--cyan',
     icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.63 5a2 2 0 0 1 1.95-2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 10a16 16 0 0 0 5.91 5.91l.83-.83a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
     label: 'Call us directly',
     value: '0963 862 9414',
-    sub: 'Fastest — Mon to Sat, 8AM–5PM',
+    sub: 'Fastest — Mon to Sat, 8 AM – 5 PM',
     primary: true,
   },
   {
     tag: 'a', href: 'https://www.facebook.com/AlbaceteEyeClinic/', target: '_blank', rel: 'noopener noreferrer',
-    iconCls: 'contact-way__icon--amber',
+    iconCls: 'contact-icon--indigo',
     icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>,
     label: 'Facebook Message',
     value: 'AlbaceteEyeClinic',
@@ -21,7 +21,7 @@ const WAYS = [
   },
   {
     tag: 'div',
-    iconCls: 'contact-way__icon--green',
+    iconCls: 'contact-icon--green',
     icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 14 8 14s8-8.75 8-14a8 8 0 0 0-8-8z"/></svg>,
     label: 'Jaro Branch',
     value: 'JEA Bldg, E. Lopez St., Jaro',
@@ -29,7 +29,7 @@ const WAYS = [
   },
   {
     tag: 'div',
-    iconCls: 'contact-way__icon--gray',
+    iconCls: 'contact-icon--teal',
     icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 14 8 14s8-8.75 8-14a8 8 0 0 0-8-8z"/></svg>,
     label: 'Cabatuan Branch',
     value: 'Cabatuan, Iloilo',
@@ -43,13 +43,13 @@ export default function BookingSection() {
       <div className="container">
         <div className="booking-section__inner">
           <div className="booking-section__info">
-            <div className="section-tag reveal">Mag-Book na</div>
+            <div className="section-tag reveal">Book an Appointment</div>
             <h2 className="section-title reveal" id="booking-title">
-              Book your appointment<br/><em>today</em>
+              Schedule your visit<br /><em>today</em>
             </h2>
             <p className="section-desc reveal">
               Choose how you want to reach us. Walk-ins are always welcome, but scheduling
-              ahead means less waiting time for you. Simple at madali lang!
+              ahead ensures less waiting time for you.
             </p>
 
             <div className="booking-section__ways">

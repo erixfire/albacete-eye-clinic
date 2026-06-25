@@ -13,7 +13,6 @@ export default function Footer() {
   return (
     <footer className="footer" role="contentinfo">
       <div className="footer__inner">
-        {/* Brand */}
         <div>
           <div className="footer__logo" aria-label="Albacete Eye Center">
             <div className="footer__logo-icon" aria-hidden="true">
@@ -28,8 +27,8 @@ export default function Footer() {
             </div>
           </div>
           <p className="footer__brand-desc">
-            Trusted eye care and multi-specialty medical clinic serving patients in Iloilo City
-            and nearby communities. Narito kami para sa buong pamilya.
+            Trusted eye care and multi-specialty medical clinic serving patients
+            across Iloilo City and nearby communities.
           </p>
           <div className="footer__social" aria-label="Social links">
             <a href="https://www.facebook.com/AlbaceteEyeClinic/" target="_blank" rel="noopener noreferrer"
@@ -46,7 +45,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Services */}
         <div>
           <div className="footer__col-title">Services</div>
           <div className="footer__links">
@@ -56,7 +54,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Clinic links */}
         <div>
           <div className="footer__col-title">Clinic</div>
           <div className="footer__links">
@@ -69,7 +66,6 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Contact */}
         <div>
           <div className="footer__col-title">Contact</div>
           <div className="footer__links">
@@ -101,7 +97,7 @@ export default function Footer() {
 
       <div className="footer__bottom">
         <span>&copy; 2026 Albacete Eye Center &amp; Medical Clinics, Iloilo City, Philippines. All rights reserved.</span>
-        <span>PhilHealth Accredited · Senior/PWD Discounts Honored</span>
+        <span>PhilHealth Accredited &middot; Senior/PWD Discounts Honored</span>
       </div>
     </footer>
   );
