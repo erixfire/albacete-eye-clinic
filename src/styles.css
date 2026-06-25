@@ -47,14 +47,11 @@
   --warning-bg:   #FEF3C7;
   --success:      #16A34A;
   --success-bg:   #DCFCE7;
-  font-family: 'Noto Sans', system-ui, -apple-system, sans-serif;
-  color: var(--text);
-  background: var(--bg);
   -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4, h5, h6 { font-family: 'Figtree', sans-serif; }
-body { min-height: 100dvh; background: var(--bg); }
+body { min-height: 100dvh; font-family: 'Noto Sans', system-ui, -apple-system, sans-serif; color: var(--text); }
 a { color: var(--primary); text-decoration: none; transition: color 0.15s; }
 a:hover { color: var(--primary-h); }
 

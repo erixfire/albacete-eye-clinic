@@ -3,8 +3,10 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Page canvas — fixed gradient background, glass panels float on top */
-html {
+/* Page canvas — fixed gradient background, glass panels float on top.
+   Scoped to html.public-site (added by Home.jsx) so it never bleeds
+   into the internal staff app. */
+html.public-site {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--nav-h) + 16px);
   -webkit-font-smoothing: antialiased;
@@ -17,7 +19,7 @@ html {
   background-attachment: fixed;
 }
 
-body {
+html.public-site body {
   min-height: 100dvh;
   font-family: var(--font-body);
   font-size: var(--text-base);

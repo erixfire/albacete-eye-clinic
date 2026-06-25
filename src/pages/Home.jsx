@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import Navbar from '../components/public/Navbar';
 import Hero from '../components/public/Hero';
 import TrustBanner from '../components/public/TrustBanner';
@@ -13,6 +14,11 @@ import '../styles/base.css';
 
 export default function Home() {
   useScrollReveal();
+
+  useEffect(() => {
+    document.documentElement.classList.add('public-site');
+    return () => document.documentElement.classList.remove('public-site');
+  }, []);
 
   return (
     <>
